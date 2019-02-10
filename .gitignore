@@ -1,3 +1,4 @@
 # Don't track content of these folders
 backend/node_modules/
-backend2/node_modules/
+backend2/
+backend3/
