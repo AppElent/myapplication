@@ -4,10 +4,20 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const db = require('./app/config/db.config.js');
+
+// force: true will drop the table if it already exists
+db.sequelize.sync({force: true}).then(() => {
+  console.log('Drop and Resync with { force: true }');
+});
 
 var app = express();
+
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+require('./app/routes/customer.route.js')(app);
+
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -37,5 +47,6 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
 
 module.exports = app;
