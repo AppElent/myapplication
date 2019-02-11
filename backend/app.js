@@ -37,7 +37,7 @@ app.use(bodyParser.json());
 //Routes
 //var indexRouter = require('./routes/index');
 //var usersRouter = require('./routes/users');
-require('./app/routes/customer.route.js')(app);
+require('./app/routes.js')(app);
 
 //app.use('/', indexRouter);
 //app.use('/users', usersRouter);
