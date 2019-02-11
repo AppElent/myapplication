@@ -3,19 +3,18 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var bodyParser = require("body-parser");
 
 const db = require('./app/config/db.config.js');
 
 // force: true will drop the table if it already exists
 db.sequelize.sync({force: false}).then(() => {
-  console.log('Drop and Resync with { force: true }');
+  console.log('Drop and Resync with { force: false }');
 });
 
 var app = express();
 
-var indexRouter = require('./app/routes/index');
-var usersRouter = require('./app/routes/users');
-require('./app/routes/customer.route.js')(app);
+
 
 
 
@@ -28,9 +27,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+//app.use(express.bodyParser());
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+/* Express configuration */
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.json());
+
+
+//Routes
+//var indexRouter = require('./routes/index');
+//var usersRouter = require('./routes/users');
+require('./app/routes/customer.route.js')(app);
+
+//app.use('/', indexRouter);
+//app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

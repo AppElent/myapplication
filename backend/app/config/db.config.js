@@ -13,6 +13,8 @@ db.sequelize = sequelize;
  
 //Models/tables
 db.customers = require('../models/customer.model.js')(sequelize, Sequelize);
+db.events = require('../models/event.model.js')(sequelize, Sequelize);
+db.config = require('../models/config.model.js')(sequelize, Sequelize);
  
  
 module.exports = db;
