@@ -5,6 +5,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require("body-parser");
 
+
+/* Database configuratie */
 const db = require('./app/config/db.config.js');
 
 // force: true will drop the table if it already exists
@@ -27,7 +29,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-//app.use(express.bodyParser());
 
 /* Express configuration */
 app.use(bodyParser.urlencoded({extended: false}));
@@ -35,12 +36,8 @@ app.use(bodyParser.json());
 
 
 //Routes
-//var indexRouter = require('./routes/index');
-//var usersRouter = require('./routes/users');
 require('./app/routes.js')(app);
 
-//app.use('/', indexRouter);
-//app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

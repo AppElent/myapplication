@@ -19,7 +19,31 @@ module.exports = function(app) {
     // Delete a Customer with Id
     app.delete('/api/customers/:customerId', customers.delete);
 
+    // Alle event Routes
+    const events = require('./controllers/event.controller.js');
+ 
+    // Create a new Event
+    app.post('/api/events', events.create);
+ 
+    // Retrieve all Event
+    app.get('/api/events', events.findAll);
+ 
+    // Retrieve a single Event by Id
+    app.get('/api/events/:eventId', events.findById);
 
+    // Alle rekening Routes
+    const rekeningen = require('./controllers/rekening.controller.js');
 
+    // Retrieve all Rekeningen
+    app.get('/api/rekeningen', rekeningen.findAll);
+ 
+    // Retrieve all Rekeningen grouped
+    app.get('/api/rekeningen/grouped', rekeningen.groupedOverview);
+
+    // Retrieve a single Event by Id
+    app.get('/api/rekeningen/:rekeningId', rekeningen.findById);
+
+    // Create a new Rekening
+    app.post('/api/rekeningen', rekeningen.create);
 
 }

@@ -1,5 +1,6 @@
 
 module.exports = (sequelize, Sequelize) => {
+
 	const Event = sequelize.define('events', {
 	  datetime: {
 		type: Sequelize.DATE,
