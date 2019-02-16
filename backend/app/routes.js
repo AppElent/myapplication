@@ -46,4 +46,7 @@ module.exports = function(app) {
     // Create a new Rekening
     app.post('/api/rekeningen', rekeningen.create);
 
+    // Create a new bunqRun
+    app.post('/api/bunq/run', rekeningen.run);
+
 }

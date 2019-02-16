@@ -1,6 +1,7 @@
 
 const db = require('../config/db.config.js');
 const Rekening = db.rekeningen;
+const PythonShell = require('python-shell')
  
 
 // FETCH all Customers
@@ -49,6 +50,28 @@ exports.create = (req, res) => {
 		// Send created customer to client
 		res.send(objectcreated);
 	});
+};
+
+// Start a run
+exports.run = (req, res) => {	
+	let options = {
+	  mode: 'text',
+	  pythonPath: '/usr/local/bin/python3.7',
+	  //pythonOptions: ['-u'], // get print results in real-time
+	  scriptPath: '/home/pi/bunq'
+	};
+	
+	PythonShell.PythonShell.run('script.py', options, function (err, results) {
+	  if (err) {res.status(500).send('error: ' + err);}else{
+		// results is an array consisting of messages collected during execution
+		
+		results.forEach(function(item) {
+		  item = item.replace(/(?:\r\n|\r|\n)/g, '<br>');
+		});
+		res.status(200).send(results);
+	  }
+
+});
 };
  
 // Post a Rekening
