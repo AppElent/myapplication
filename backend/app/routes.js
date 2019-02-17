@@ -1,7 +1,36 @@
+var ForbiddenError = require('epilogue').Errors.ForbiddenError;
 
-module.exports = function(app) {
 
-    // Alle customer Routes
+module.exports = function(app, db, epilogue) {
+
+	// Create REST resource
+	var customerResource = epilogue.resource({
+	  	model: db.customers,
+	  	endpoints: ['/api/customers', '/api/customers/:id']
+	});
+
+	// Create REST resource
+	var configResource = epilogue.resource({
+	  model: db.config,
+	  endpoints: ['/api/config', '/api/config/:item']
+	});
+
+	// Create REST resource
+	var eventResource = epilogue.resource({
+	  model: db.events,
+	  endpoints: ['/api/events', '/api/events/:id']
+	}).delete.auth(function(req, res, context) {
+    		throw new ForbiddenError("can't delete an event");
+	});
+
+	// Create REST resource
+	var rekeningResource = epilogue.resource({
+	  model: db.rekeningen,
+	  endpoints: ['/api/rekeningen', '/api/rekeningen/:id']
+	});
+
+/*
+// Alle customer Routes
     const customers = require('./controllers/customer.controller.js');
  
     // Create a new Customer
@@ -37,14 +66,19 @@ module.exports = function(app) {
     // Retrieve all Rekeningen
     app.get('/api/rekeningen', rekeningen.findAll);
  
-    // Retrieve all Rekeningen grouped
-    app.get('/api/rekeningen/grouped', rekeningen.groupedOverview);
+
 
     // Retrieve a single Event by Id
     app.get('/api/rekeningen/:rekeningId', rekeningen.findById);
 
     // Create a new Rekening
     app.post('/api/rekeningen', rekeningen.create);
+*/
+
+    const rekeningen = require('./controllers/rekening.controller.js');
+    
+    // Retrieve all Rekeningen grouped
+    app.get('/api/groupedrekeningen', rekeningen.groupedOverview);
 
     // Create a new bunqRun
     app.post('/api/bunq/run', rekeningen.run);

@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require("body-parser");
+var epilogue = require("epilogue");
 
 
 /* Database configuratie */
@@ -17,8 +18,11 @@ db.sequelize.sync({force: false}).then(() => {
 var app = express();
 
 
-
-
+// Initialize epilogue
+epilogue.initialize({
+  app: app,
+  sequelize: db.sequelize
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,7 +40,7 @@ app.use(bodyParser.json());
 
 
 //Routes
-require('./app/routes.js')(app);
+require('./app/routes.js')(app, db, epilogue);
 
 
 // catch 404 and forward to error handler
