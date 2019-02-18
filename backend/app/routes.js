@@ -1,12 +1,41 @@
 var ForbiddenError = require('epilogue').Errors.ForbiddenError;
 
 
-module.exports = function(app, db, epilogue) {
+module.exports = function(app, db, epilogue, oidc) {
+
+	//Basic routes
+	app.get('/home', (req, res) => {
+		res.send('<h1>Welcome!!</div><a href="/login">Login</a>');
+	});
+	app.get('/logout', (req, res) => {
+	  req.logout();
+	  res.redirect('/home');
+	});
+	
+	app.get('/', (req, res) => {
+	  res.redirect('/home');
+	});
+	app.get('/admin', oidc.ensureAuthenticated(), (req, res) =>{
+	  res.send('Admin page');
+	});
+
+
 
 	// Create REST resource
 	var customerResource = epilogue.resource({
 	  	model: db.customers,
 	  	endpoints: ['/api/customers', '/api/customers/:id']
+	});
+
+	customerResource.all.auth(function (req, res, context) {
+	    return new Promise(function (resolve, reject) {
+	        if (!req.isAuthenticated()) {
+	            res.status(401).send({ message: "Unauthorized" });
+	            resolve(context.stop);
+	        } else {
+	            resolve(context.continue);
+	        }
+	    })
 	});
 
 	// Create REST resource
@@ -29,58 +58,26 @@ module.exports = function(app, db, epilogue) {
 	  endpoints: ['/api/rekeningen', '/api/rekeningen/:id']
 	});
 
-/*
-// Alle customer Routes
-    const customers = require('./controllers/customer.controller.js');
- 
-    // Create a new Customer
-    app.post('/api/customers', customers.create);
- 
-    // Retrieve all Customer
-    app.get('/api/customers', customers.findAll);
- 
-    // Retrieve a single Customer by Id
-    app.get('/api/customers/:customerId', customers.findById);
- 
-    // Update a Customer with Id
-    app.put('/api/customers/:customerId', customers.update);
- 
-    // Delete a Customer with Id
-    app.delete('/api/customers/:customerId', customers.delete);
+	// Create REST resource
+	var meterstandWarmteResource = epilogue.resource({
+	  model: db.meterstandenwarmte,
+	  endpoints: ['/api/meterstanden/warmte', '/api/meterstanden/warmte/:id']
+	});
 
-    // Alle event Routes
-    const events = require('./controllers/event.controller.js');
- 
-    // Create a new Event
-    app.post('/api/events', events.create);
- 
-    // Retrieve all Event
-    app.get('/api/events', events.findAll);
- 
-    // Retrieve a single Event by Id
-    app.get('/api/events/:eventId', events.findById);
-
-    // Alle rekening Routes
-    const rekeningen = require('./controllers/rekening.controller.js');
-
-    // Retrieve all Rekeningen
-    app.get('/api/rekeningen', rekeningen.findAll);
- 
+	// Create REST resource
+	var meterstandElektraResource = epilogue.resource({
+	  model: db.meterstandenelektra,
+	  endpoints: ['/api/meterstanden/elektra', '/api/meterstanden/elektra/:id']
+	});
 
 
-    // Retrieve a single Event by Id
-    app.get('/api/rekeningen/:rekeningId', rekeningen.findById);
-
-    // Create a new Rekening
-    app.post('/api/rekeningen', rekeningen.create);
-*/
-
-    const rekeningen = require('./controllers/rekening.controller.js');
-    
-    // Retrieve all Rekeningen grouped
-    app.get('/api/groupedrekeningen', rekeningen.groupedOverview);
-
-    // Create a new bunqRun
-    app.post('/api/bunq/run', rekeningen.run);
+	//Custom routes
+	const rekeningen = require('./controllers/custom.controller.js');
+	    
+	// Retrieve all Rekeningen grouped
+	app.get('/api/groupedrekeningen', rekeningen.groupedOverview);
+	
+	// Create a new bunqRun
+    	app.post('/api/bunq/run', rekeningen.run);
 
 }

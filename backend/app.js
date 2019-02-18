@@ -1,3 +1,7 @@
+//Inport .env file
+require('dotenv').config();
+
+
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
@@ -5,6 +9,8 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require("body-parser");
 var epilogue = require("epilogue");
+const session = require('express-session');
+const { ExpressOIDC } = require('@okta/oidc-middleware');
 
 
 /* Database configuratie */
@@ -16,6 +22,33 @@ db.sequelize.sync({force: false}).then(() => {
 });
 
 var app = express();
+
+// session support is required to use ExpressOIDC
+app.use(session({
+    secret: process.env.RANDOM_SECRET_WORD,
+    resave: true,
+    saveUninitialized: false
+}));
+
+
+//Initialize oauth2
+const oidc = new ExpressOIDC({
+    issuer: `${process.env.OKTA_ORG_URL}/oauth2/default`,
+    client_id: process.env.OKTA_CLIENT_ID,
+    client_secret: process.env.OKTA_CLIENT_SECRET,
+    appBaseUrl: process.env.REDIRECT_URL,
+    scope: 'openid profile',
+    routes: {
+        callback: {
+            path: '/authorization-code/callback',
+            defaultRedirect: '/admin'
+        }
+    }
+});
+
+// ExpressOIDC will attach handlers for the /login and /authorization-code/callback routes
+app.use(oidc.router);
+
 
 
 // Initialize epilogue
@@ -40,7 +73,7 @@ app.use(bodyParser.json());
 
 
 //Routes
-require('./app/routes.js')(app, db, epilogue);
+require('./app/routes.js')(app, db, epilogue, oidc);
 
 
 // catch 404 and forward to error handler
@@ -57,6 +90,11 @@ app.use(function(err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   res.render('error');
+});
+
+oidc.on('error', err => {
+    // An error occurred while setting up OIDC
+    console.log("oidc error: ", err);
 });
 
 
