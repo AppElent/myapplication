@@ -32,7 +32,8 @@ class Events extends Component {
             accessor: 'id' // String-based value accessors!
         },{
             Header: 'Datum/tijd',
-            accessor: 'datetime' // String-based value accessors!
+            accessor: 'datetime', // String-based value accessors!
+            Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
         }, {
             Header: 'Event',
             accessor: 'value',
