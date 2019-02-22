@@ -11,6 +11,8 @@ var bodyParser = require("body-parser");
 var epilogue = require("epilogue");
 const session = require('express-session');
 const { ExpressOIDC } = require('@okta/oidc-middleware');
+var httpProxy = require('http-proxy');
+var apiProxy = httpProxy.createProxyServer();
 
 
 /* Database configuratie */
@@ -73,6 +75,10 @@ app.use(bodyParser.json());
 
 
 //Routes
+
+app.get('/rekeningen', (req, res) => {
+  apiProxy.web(req, res, {target: 'http://localhost:3000'});
+});
 require('./app/routes.js')(app, db, epilogue, oidc);
 
 
