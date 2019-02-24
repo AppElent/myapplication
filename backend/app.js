@@ -13,6 +13,7 @@ const session = require('express-session');
 const { ExpressOIDC } = require('@okta/oidc-middleware');
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
+var fs = require('fs');
 
 
 /* Database configuratie */
@@ -24,6 +25,9 @@ db.sequelize.sync({force: false}).then(() => {
 });
 
 var app = express();
+
+
+
 
 // session support is required to use ExpressOIDC
 app.use(session({
@@ -68,6 +72,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 /* Express configuration */
 app.use(bodyParser.urlencoded({extended: false}));
@@ -75,10 +80,7 @@ app.use(bodyParser.json());
 
 
 //Routes
-
-app.get('/rekeningen', (req, res) => {
-  apiProxy.web(req, res, {target: 'http://localhost:3000'});
-});
+app.get('/health-check', (req, res) => res.sendStatus(200));
 require('./app/routes.js')(app, db, epilogue, oidc);
 
 

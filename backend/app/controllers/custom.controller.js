@@ -1,7 +1,8 @@
 const db = require('../config/db.config.js');
 const Rekening = db.rekeningen;
 const PythonShell = require('python-shell')
-
+const MeterstandElektra = db.meterstandenelektra;
+var moment = require('moment');
 
 // Start a run
 exports.run = (req, res) => {	
@@ -47,3 +48,88 @@ exports.groupedOverview = (req, res) => {
 	  res.send(rekeningen);
 	});
 };
+
+exports.updateElektraMeterstanden = (req, res) => {
+	var request = require('request'); 
+	var apikey = "NTY0MGI1NmRjZjg0YjU0MGY2ZTIwYTdjMmNmZmI0MjU2MDZhYjllNDUzZjY5MTkwMGJjOTBlZWZjYmU1ZmZjMA";
+	var host = 'https://enelogic.com';
+	var url = host+'/api/measuringpoints?access_token='+apikey;
+	request(url, function(err, body){
+	  var measuringpoint = JSON.parse(body.body)[0];
+	  
+	  MeterstandElektra.findOne({
+		where: {
+			//key: key,
+		},
+		order: [ [ 'datetime', 'DESC' ]],
+	  }).then(latest => {
+		  var date = "2017-03-01";
+		  if(latest !== null){
+			date = latest.datetime;
+		  }
+		  var day = moment(date);
+		  var now = moment();
+		  now = now.add(-1, 'days');
+		  /*
+		  while(true){
+			var datapointUrl = host+'/api/measuringpoints/'+measuringpoint.id+'/datapoints/'+day.format("YYYY-MM-DD")+'/'+day.add(1, 'days').format('YYYY-MM-DD')+'?access_token='+apikey;
+			console.log(datapointUrl);
+			if(day.format('YYYY-MM-DD') == now.format('YYYY-MM-DD')){
+				break;
+			}
+			request(url, function(err, body){
+				res.json(body);
+			});	
+		  }
+		  */
+		  var datapointUrl = host+'/api/measuringpoints/'+measuringpoint.id+'/datapoint/days/'+day.format("YYYY-MM-DD")+'/'+now.format('YYYY-MM-DD')+'?access_token='+apikey;
+		  console.log(datapointUrl);
+		  request(datapointUrl, function(err, meterstanden){
+			console.log(meterstanden);
+			res.json(meterstanden);
+			var meterstandendata = JSON.parse(meterstanden.body);
+			console.log('meterstandendata:'+meterstandendata);
+			for(var stand in meterstandendata){
+				var datetime = moment(stand.date);
+				MeterstandElektra.findOne({ where: {datetime: datetime} })
+					.then(function(obj) {
+						var values = '';
+						
+						console.log('datetime:'+datetime);
+						console.log('stand.rate:'+stand.rate);
+						switch(stand.rate) {
+						  
+						  case 181:
+							values = {datetime: datetime, verbruik_laag: stand.quantity}
+							break;
+						  case 182:
+							values = {datetime: datetime, verbruik_hoog: stand.quantity}
+							break;
+						  case 281:
+							values = {datetime: datetime, teruglevering_laag: stand.quantity}
+							break;
+						  case 282:
+							values = {datetime: datetime, teruglevering_hoog: stand.quantity}
+							break;
+						  default:
+							// code block
+						}
+						console.log(values);						
+						if(obj) { // update
+							//obj.update(values);
+						}
+						else { // insert
+							//MeterstandElektra.create(values);
+						}
+					});
+			  }
+			});
+			//res.json(meterstanden);
+		});	
+
+	  
+	  //res.json(data);
+	  //res.json(body); //res is the response object, and it passes info back to client side
+	});	
+
+}

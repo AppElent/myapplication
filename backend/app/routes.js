@@ -1,4 +1,5 @@
 var ForbiddenError = require('epilogue').Errors.ForbiddenError;
+const path = require('path');
 
 
 module.exports = function(app, db, epilogue, oidc) {
@@ -18,6 +19,19 @@ module.exports = function(app, db, epilogue, oidc) {
 	app.get('/admin', oidc.ensureAuthenticated(), (req, res) =>{
 	  res.send('Admin page');
 	});
+	
+	//Custom routes
+	const custom = require('./controllers/custom.controller.js');
+	    
+	// Retrieve all Rekeningen grouped
+	app.get('/api/groupedrekeningen', custom.groupedOverview);
+	
+	// Create a new bunqRun
+    	app.post('/api/bunq/run', custom.run);
+	
+	//Meterstanden bijwerken
+	app.get('/api/meterstanden/elektra/update', custom.updateElektraMeterstanden);
+	
 
 
 
@@ -70,14 +84,10 @@ module.exports = function(app, db, epilogue, oidc) {
 	  endpoints: ['/api/meterstanden/elektra', '/api/meterstanden/elektra/:id']
 	});
 
+	//rest van de routes zijn van react
+	app.get('*', function (request, response){
+	  response.sendFile(path.resolve(__dirname, '../../frontend/build', 'index.html'))
+	})	
 
-	//Custom routes
-	const rekeningen = require('./controllers/custom.controller.js');
-	    
-	// Retrieve all Rekeningen grouped
-	app.get('/api/groupedrekeningen', rekeningen.groupedOverview);
-	
-	// Create a new bunqRun
-    	app.post('/api/bunq/run', rekeningen.run);
 
 }
