@@ -4,7 +4,8 @@ module.exports = (sequelize, Sequelize) => {
 	const MeterstandElektra = sequelize.define('meterstanden_elektra', {
 	  datetime: {
 		type: Sequelize.DATE,
-		defaultValue: Sequelize.NOW
+		defaultValue: Sequelize.NOW,
+		primaryKey: true
 	  },
 	  verbruik_hoog: {
 		type: Sequelize.STRING

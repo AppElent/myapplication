@@ -105,14 +105,10 @@ function onListening() {
 }
 
 // Redirect from http port to https
-//var httpserver = http.createServer(app);
-//httpserver.listen(http_port);
 
 http.createServer(function (req, res) {
-  res.writeHead(301, { "Location": "https://" + req.headers['host'].replace(http_port,https_port) + req.url });
-  console.log("http requet, will go to >> ");
-  console.log("https://" + req.headers['host'].replace(http_port,https_port) + req.url );
-  res.end();
+    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
+    res.end();
 }).listen(http_port);
 
 

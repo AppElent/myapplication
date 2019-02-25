@@ -10,6 +10,8 @@ import Rekeningen from '../pages/Rekeningen';
 import MeterstandenWarmte from '../pages/Home';
 import MeterstandenElektra from '../pages/Home';
 import MeterstandenKostenOverzicht from '../pages/Home';
+import Bunq from '../pages/Bunq';
+import BunqGenerate from '../pages/BunqGenerate';
 
 const Routes = () => (
     <App>
@@ -21,6 +23,8 @@ const Routes = () => (
             <Route exact path="/meterstanden_warmte" component={MeterstandenWarmte} />
             <Route exact path="/meterstanden_elektra" component={MeterstandenElektra} />
             <Route exact path="/meterstanden_kosten" component={MeterstandenKostenOverzicht} />
+            <Route exact path="/bunq" component={Bunq} />
+            <Route exact path="/bunq/generate" component={BunqGenerate} />
         </Switch>
     </App> )
 
