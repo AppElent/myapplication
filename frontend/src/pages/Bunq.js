@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+//import { Button } from 'react-bootstrap';
 
 import BunqJSClient from '@bunq-community/bunq-js-client';
 //const BunqJSClient = require("../../dist/BunqJSClient").default;

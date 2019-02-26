@@ -2,3 +2,7 @@
 backend/node_modules/
 backend2/
 backend3/
+
+#files
+frontend/.env
+backend/.env

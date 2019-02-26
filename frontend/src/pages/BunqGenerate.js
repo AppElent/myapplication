@@ -9,8 +9,8 @@ class BunqGenerate extends Component {
     constructor(props) {
         super(props);
         this.state = {
-          clientid = null,
-          clientsecret = null,
+          clientid: null,
+          clientsecret: null,
         }        
         this.client = null;
         this.redirectUri = 'https://ericjansen.synology.me/bunq/generate';

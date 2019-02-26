@@ -5,6 +5,7 @@ import ReactTable from "react-table";
 import 'react-table/react-table.css'
 import Moment from 'react-moment';
 import 'moment-timezone';
+import { withAuth } from '@okta/okta-react';
 
 class Events extends Component {
     
@@ -15,8 +16,12 @@ class Events extends Component {
         }
     }
     
-    componentDidMount() {
-        fetch('/api/events').then((Response) => Response.json())
+    async componentDidMount() {
+        fetch('/api/events', {
+            headers: {
+              Authorization: 'Bearer ' + await this.props.auth.getAccessToken()
+            }
+          }).then((Response) => Response.json())
             .then((findresponse) =>
             {
                 console.log(findresponse)
@@ -66,4 +71,4 @@ class Events extends Component {
     }
 }
 
-export default Events
+export default withAuth(Events)

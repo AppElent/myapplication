@@ -4,10 +4,13 @@ import './index.css';
 //import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+
 //import {Router, Route} from 'react-router';
 import { BrowserRouter } from 'react-router-dom';
 
 import Routes from './components/Routes';
+
+require('dotenv').config();
 
 //import './bootstrap431.css';
 //import '../node_modules/react-bootstrap-table/dist/react-bootstrap-table-all.min.css';

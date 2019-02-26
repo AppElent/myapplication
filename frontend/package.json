@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@bunq-community/bunq-js-client": "^0.39.1",
+    "@okta/okta-react": "^1.2.0",
+    "@okta/okta-signin-widget": "^2.15.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.23",
     "react": "^16.8.2",

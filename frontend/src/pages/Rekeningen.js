@@ -2,7 +2,8 @@
 import React, { Component } from 'react';
 //import { Table } from 'react-bootstrap';
 import ReactTable from "react-table";
-import 'react-table/react-table.css'
+import 'react-table/react-table.css';
+import { withAuth } from '@okta/okta-react';
 
 
 class Rekeningen extends Component {
@@ -15,8 +16,12 @@ class Rekeningen extends Component {
         }
     }
     
-    componentDidMount() {
-        fetch('/api/rekeningen').then((Response) => Response.json())
+    async componentDidMount() {
+        fetch('/api/rekeningen', {
+            headers: {
+              Authorization: 'Bearer ' + await this.props.auth.getAccessToken()
+            }
+          }).then((Response) => Response.json())
             .then((findresponse) =>
             {
                 console.log(findresponse)
@@ -24,8 +29,13 @@ class Rekeningen extends Component {
                     data: findresponse
                 })
             })
-        fetch('/api/groupedrekeningen').then((Response) => Response.json())
-            .then((findresponse) =>
+          await fetch('/api/groupedrekeningen', {
+            headers: {
+              Authorization: 'Bearer ' + await this.props.auth.getAccessToken()
+            }
+          })
+          .then((Response) => Response.json())
+          .then((findresponse) =>
             {
                 console.log(findresponse)
                 this.setState({
@@ -61,4 +71,4 @@ class Rekeningen extends Component {
     }
 }
 
-export default Rekeningen
+export default withAuth(Rekeningen)

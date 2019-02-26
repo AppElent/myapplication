@@ -10,7 +10,6 @@ var logger = require('morgan');
 var bodyParser = require("body-parser");
 var epilogue = require("epilogue");
 const session = require('express-session');
-const { ExpressOIDC } = require('@okta/oidc-middleware');
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 var fs = require('fs');
@@ -35,25 +34,6 @@ app.use(session({
     resave: true,
     saveUninitialized: false
 }));
-
-
-//Initialize oauth2
-const oidc = new ExpressOIDC({
-    issuer: `${process.env.OKTA_ORG_URL}/oauth2/default`,
-    client_id: process.env.OKTA_CLIENT_ID,
-    client_secret: process.env.OKTA_CLIENT_SECRET,
-    appBaseUrl: process.env.REDIRECT_URL,
-    scope: 'openid profile',
-    routes: {
-        callback: {
-            path: '/authorization-code/callback',
-            defaultRedirect: '/admin'
-        }
-    }
-});
-
-// ExpressOIDC will attach handlers for the /login and /authorization-code/callback routes
-app.use(oidc.router);
 
 
 
@@ -81,7 +61,7 @@ app.use(bodyParser.json());
 
 //Routes
 app.get('/health-check', (req, res) => res.sendStatus(200));
-require('./app/routes.js')(app, db, epilogue, oidc);
+require('./app/routes.js')(app, db, epilogue);
 
 
 // catch 404 and forward to error handler
@@ -100,10 +80,7 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-oidc.on('error', err => {
-    // An error occurred while setting up OIDC
-    console.log("oidc error: ", err);
-});
+
 
 
 module.exports = app;
