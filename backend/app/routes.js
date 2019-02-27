@@ -1,4 +1,6 @@
 var ForbiddenError = require('epilogue').Errors.ForbiddenError;
+require('dotenv').config();
+
 const path = require('path');
 const OktaJwtVerifier = require('@okta/jwt-verifier');
 
@@ -7,7 +9,7 @@ module.exports = function(app, db, epilogue) {
 
 	const oktaJwtVerifier = new OktaJwtVerifier({
 	  issuer: 'https://dev-810647.okta.com/oauth2/default',
-	  clientId: '0oabepfc2Yo0a3Q0H356',
+	  clientId: process.env.OKTA_CLIENT_ID,
 	  assertClaims: {
 	    aud: 'api://default',
 	  },

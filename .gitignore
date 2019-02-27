@@ -2,6 +2,8 @@
 backend/node_modules/
 backend2/
 backend3/
+temp/
+dynudns/
 
 #files
 frontend/.env
