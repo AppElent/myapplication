@@ -55,17 +55,28 @@ module.exports = function(app, db, epilogue) {
 
 	//Custom routes
 	const custom = require('./controllers/custom.controller.js');
+	const meterstanden = require('./controllers/meterstand.controller.js');
 	    
 	// Retrieve all Rekeningen grouped
 	app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
 	
-	// Create a new bunqRun
-    	//app.post('/api/bunq/run', custom.run);
+	//Meterstanden bijwerken en Enelogic routes
+	app.get('/api/meterstanden/elektra/update', meterstanden.updateElektraMeterstanden);
+	app.get('/api/enelogic/oauth/formatUrl', meterstanden.formatEnelogicAuthorizationUrl);
+	app.get('/api/enelogic/oauth/exchangeToken', meterstanden.exchangeEnelogicOauthToken);
+	app.get('/api/enelogic/oauth/refreshToken', meterstanden.refreshEnelogicOauthToken);
 	
-	//Meterstanden bijwerken
-	app.get('/api/meterstanden/elektra/update', custom.updateElektraMeterstanden);
+	//Bunq routes
+	const bunq = require('./controllers/bunq.controller.js');
 	
-
+	//Bunq oauth aanvraag 1. geef request url
+	app.get('/api/bunq/oauth/formatUrl', bunq.formatOAuthUrl);
+	
+	//Bunq oauth aanvraag 2. registreer en geef apikey
+	app.get('/api/bunq/oauth/exchange', bunq.exchangeOAuthTokens);
+	
+	//Bunq functies
+	app.get('/api/bunq/accounts/:name', bunq.getMonetaryAccountByName);
 
 
 	// Create REST resource
@@ -95,18 +106,18 @@ module.exports = function(app, db, epilogue) {
 	  model: db.rekeningen,
 	  endpoints: ['/api/rekeningen', '/api/rekeningen/:id']
 	});
-	rekeningResource.use(authenticationRequired);
+	//rekeningResource.use(authenticationRequired);
 
 	// Create REST resource
 	var meterstandWarmteResource = epilogue.resource({
 	  model: db.meterstandenwarmte,
-	  endpoints: ['/api/meterstanden/warmte', '/api/meterstanden/warmte/:id']
+	  endpoints: ['/api/meterstanden/warmte', '/api/meterstanden/warmte/:datetime']
 	});
 
 	// Create REST resource
 	var meterstandElektraResource = epilogue.resource({
 	  model: db.meterstandenelektra,
-	  endpoints: ['/api/meterstanden/elektra', '/api/meterstanden/elektra/:id']
+	  endpoints: ['/api/meterstanden/elektra', '/api/meterstanden/elektra/:datetime']
 	});
 
 	//rest van de routes zijn van react

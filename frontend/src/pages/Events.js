@@ -6,6 +6,7 @@ import 'react-table/react-table.css'
 import Moment from 'react-moment';
 import 'moment-timezone';
 import { withAuth } from '@okta/okta-react';
+import {fetchData} from '../utils/fetching'
 
 class Events extends Component {
     
@@ -17,18 +18,8 @@ class Events extends Component {
     }
     
     async componentDidMount() {
-        fetch('/api/events', {
-            headers: {
-              Authorization: 'Bearer ' + await this.props.auth.getAccessToken()
-            }
-          }).then((Response) => Response.json())
-            .then((findresponse) =>
-            {
-                console.log(findresponse)
-                this.setState({
-                    data: findresponse
-                })
-            })
+        fetchData('/api/events', await this.props.auth.getAccessToken())
+        .then((data) => {this.setState({data: data})})
     }
     
     render(){
@@ -49,25 +40,7 @@ class Events extends Component {
             data={this.state.data}
             columns={columns}
             className='striped bordered hover'
-        />       
-        
-        /*
-        return (
-              <Table striped bordered hover size="sm"><thead><tr><th>ID</th><th>Datetime</th><th>Value</th></tr></thead>
-              <tbody>{this.state.data.map(function(item, key) {
-                     
-                       return (
-                          <tr key = {key}>
-                              <td>{item.id}</td>
-                              <td>{item.datetime}</td>
-                              <td>{item.value}</td>
-                          </tr>
-                        )
-                     
-                     })}</tbody>
-               </Table>
-        );
-        */
+        />
     }
 }
 

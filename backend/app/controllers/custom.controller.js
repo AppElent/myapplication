@@ -49,87 +49,49 @@ exports.groupedOverview = (req, res) => {
 	});
 };
 
-exports.updateElektraMeterstanden = (req, res) => {
+exports.updateElektraMeterstanden = async (req, res) => {
 	var request = require('request'); 
-	var apikey = "NTY0MGI1NmRjZjg0YjU0MGY2ZTIwYTdjMmNmZmI0MjU2MDZhYjllNDUzZjY5MTkwMGJjOTBlZWZjYmU1ZmZjMA";
+	var apikey = "ODE5NzlmMDBmZWNiMjZkMGU0NDcxZDI5MDJjMjRmMTdlMmI1NTE2M2FhYThhZmJlNTYwZDM3YTM1MzRhNTBkYw";
 	var host = 'https://enelogic.com';
-	var url = host+'/api/measuringpoints?access_token='+apikey;
-	request(url, function(err, body){
-	  var measuringpoint = JSON.parse(body.body)[0];
-	  
-	  MeterstandElektra.findOne({
-		where: {
-			//key: key,
-		},
-		order: [ [ 'datetime', 'DESC' ]],
-	  }).then(latest => {
-		  var date = "2017-03-01";
-		  if(latest !== null){
-			date = latest.datetime;
-		  }
-		  var day = moment(date);
-		  var now = moment();
-		  now = now.add(-1, 'days');
-		  /*
-		  while(true){
-			var datapointUrl = host+'/api/measuringpoints/'+measuringpoint.id+'/datapoints/'+day.format("YYYY-MM-DD")+'/'+day.add(1, 'days').format('YYYY-MM-DD')+'?access_token='+apikey;
-			console.log(datapointUrl);
-			if(day.format('YYYY-MM-DD') == now.format('YYYY-MM-DD')){
-				break;
-			}
-			request(url, function(err, body){
-				res.json(body);
-			});	
-		  }
-		  */
-		  var datapointUrl = host+'/api/measuringpoints/'+measuringpoint.id+'/datapoint/days/'+day.format("YYYY-MM-DD")+'/'+now.format('YYYY-MM-DD')+'?access_token='+apikey;
-		  console.log(datapointUrl);
-		  request(datapointUrl, function(err, meterstanden){
-			console.log(meterstanden);
-			res.json(meterstanden);
+	var measuringpoint = "165704";
+	
+	MeterstandElektra.findOne({order: [ [ 'datetime', 'DESC' ]],}).then(laatstestand => {
+		//res.write(laatstestand);
+		var date = "2017-03-01";
+		if(laatstestand !== null){
+			date = laatstestand.datetime;
+		}	
+		var day = moment(date);
+		var now = moment();
+		now = now.add(-1, 'days');	
+		var datapointUrl = host+'/api/measuringpoints/'+measuringpoint+'/datapoint/days/'+day.format("YYYY-MM-DD")+'/'+now.format('YYYY-MM-DD')+'?access_token='+apikey;
+		console.log(datapointUrl);
+		request(datapointUrl, async function(err, meterstanden){
 			var meterstandendata = JSON.parse(meterstanden.body);
-			console.log('meterstandendata:'+meterstandendata);
-			for(var stand in meterstandendata){
-				var datetime = moment(stand.date);
-				MeterstandElektra.findOne({ where: {datetime: datetime} })
-					.then(function(obj) {
-						var values = '';
-						
-						console.log('datetime:'+datetime);
-						console.log('stand.rate:'+stand.rate);
-						switch(stand.rate) {
-						  
-						  case 181:
-							values = {datetime: datetime, verbruik_laag: stand.quantity}
-							break;
-						  case 182:
-							values = {datetime: datetime, verbruik_hoog: stand.quantity}
-							break;
-						  case 281:
-							values = {datetime: datetime, teruglevering_laag: stand.quantity}
-							break;
-						  case 282:
-							values = {datetime: datetime, teruglevering_hoog: stand.quantity}
-							break;
-						  default:
-							// code block
-						}
-						console.log(values);						
-						if(obj) { // update
-							//obj.update(values);
-						}
-						else { // insert
-							//MeterstandElektra.create(values);
-						}
-					});
-			  }
-			});
-			//res.json(meterstanden);
-		});	
-
-	  
-	  //res.json(data);
-	  //res.json(body); //res is the response object, and it passes info back to client side
-	});	
+			console.log(meterstandendata[0].rate);
+			var standinit = meterstandendata[0];
+			var values = {datetime: standinit.date, ['kwh_' + standinit.rate]: standinit.quantity}
+			console.log(values);
+			var i = 0;
+			for(const stand of meterstandendata){
+				i++;
+				if(i < 15){
+				console.log("Nummer " + i + " heeft rate " + stand.rate + " en waarde " + stand.quantity);
+				values = {datetime: stand.date, ['kwh_' + stand.rate]: stand.quantity}
+				var gevondenmeterstand = await MeterstandElektra.findOne({ where: {datetime: stand.date} });
+				if(gevondenmeterstand == null){
+					gevondenmeterstand = await MeterstandElektra.create(values);
+					console.log("Moet toegevoegd worden");
+				}else{
+					gevondenmeterstand = await gevondenmeterstand.update(values);
+					console.log("Moet geupdate worden");
+				}
+				}
+				
+			}
+			console.log("klaar");
+		})
+	});
+	
 
 }

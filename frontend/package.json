@@ -18,7 +18,7 @@
     "react-scripts": "2.1.5",
     "react-table": "^6.9.2"
   },
-  "proxy": "https://ericjansen.synology.me/",
+  "proxy": "https://ericjansen.dynu.net/",
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",

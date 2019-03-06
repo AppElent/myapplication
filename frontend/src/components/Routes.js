@@ -12,7 +12,7 @@ import MeterstandenWarmte from '../pages/Home';
 import MeterstandenElektra from '../pages/Home';
 import MeterstandenKostenOverzicht from '../pages/Home';
 import Bunq from '../pages/Bunq';
-import BunqGenerate from '../pages/BunqGenerate';
+import BunqOauth from '../pages/BunqOauth';
 import Login from '../pages/Login';
 import Protected from '../pages/Protected';
 
@@ -29,15 +29,15 @@ const Routes = () => (
                   redirect_uri={window.location.origin + '/implicit/callback'}
                   onAuthRequired={onAuthRequired} >
                   <Route exact path="/" component={Home} />
-                  <SecureRoute path='/protected' component={Protected} />
-                  <SecureRoute path="/cars" component={Car} />
-                  <SecureRoute path="/events" component={Events} />
-                  <SecureRoute path="/rekeningen" component={Rekeningen} />
-                  <SecureRoute path="/meterstanden_warmte" component={MeterstandenWarmte} />
-                  <SecureRoute path="/meterstanden_elektra" component={MeterstandenElektra} />
-                  <SecureRoute path="/meterstanden_kosten" component={MeterstandenKostenOverzicht} />
-                  <SecureRoute path="/bunq" component={Bunq} />
-                  <SecureRoute path="/bunq/generate" component={BunqGenerate} />
+                  <SecureRoute exact path='/protected' component={Protected} />
+                  <SecureRoute exact path="/cars" component={Car} />
+                  <SecureRoute exact path="/events" component={Events} />
+                  <SecureRoute exact path="/rekeningen" component={Rekeningen} />
+                  <SecureRoute exact path="/meterstanden_warmte" component={MeterstandenWarmte} />
+                  <SecureRoute exact path="/meterstanden_elektra" component={MeterstandenElektra} />
+                  <SecureRoute exact path="/meterstanden_kosten" component={MeterstandenKostenOverzicht} />
+                  <SecureRoute exact path="/bunq" component={Bunq} />
+                  <SecureRoute exact path="/bunq/oauth" component={BunqOauth} />
                   
                   <Route path='/login' render={() => <Login baseUrl='https://dev-810647.okta.com' />} />
                   <Route path='/implicit/callback' component={ImplicitCallback} />

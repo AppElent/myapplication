@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import ReactTable from "react-table";
 import 'react-table/react-table.css';
 import { withAuth } from '@okta/okta-react';
+import {fetchData} from '../utils/fetching'
 
 
 class Rekeningen extends Component {
@@ -17,31 +18,10 @@ class Rekeningen extends Component {
     }
     
     async componentDidMount() {
-        fetch('/api/rekeningen', {
-            headers: {
-              Authorization: 'Bearer ' + await this.props.auth.getAccessToken()
-            }
-          }).then((Response) => Response.json())
-            .then((findresponse) =>
-            {
-                console.log(findresponse)
-                this.setState({
-                    data: findresponse
-                })
-            })
-          await fetch('/api/groupedrekeningen', {
-            headers: {
-              Authorization: 'Bearer ' + await this.props.auth.getAccessToken()
-            }
-          })
-          .then((Response) => Response.json())
-          .then((findresponse) =>
-            {
-                console.log(findresponse)
-                this.setState({
-                    groupeddata: findresponse
-                })
-            })
+        fetchData('/api/rekeningen', await this.props.auth.getAccessToken())
+        .then((data) => {this.setState({data: data})})
+        fetchData('/api/groupedrekeningen', await this.props.auth.getAccessToken())
+        .then((data) => {this.setState({groupeddata: data})});
     }
     
     render(){

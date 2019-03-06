@@ -6,6 +6,7 @@
     "start": "node ./bin/wwws"
   },
   "dependencies": {
+    "@bunq-community/bunq-js-client": "^0.39.1",
     "@okta/jwt-verifier": "0.0.14",
     "@okta/oidc-middleware": "^2.0.0",
     "cookie-parser": "~1.4.3",
@@ -17,12 +18,15 @@
     "greenlock-express": "^2.6.7",
     "http-errors": "~1.6.2",
     "http-proxy": "^1.17.0",
+    "json-store": "^1.0.0",
     "moment": "^2.24.0",
+    "moment-timezone": "^0.5.23",
     "morgan": "~1.9.0",
     "pug": "^2.0.3",
     "python-shell": "^1.0.7",
     "request": "^2.88.0",
     "sequelize": "^4.42.0",
+    "simple-oauth2": "^2.2.1",
     "sqlite": "^3.0.1"
   }
 }
