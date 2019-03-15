@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 //import App from './App';
 import * as serviceWorker from './serviceWorker';
-
+import 'font-awesome/css/font-awesome.min.css';
 
 //import {Router, Route} from 'react-router';
 import { BrowserRouter } from 'react-router-dom';

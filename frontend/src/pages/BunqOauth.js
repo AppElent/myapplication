@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 //import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
-import {fetchData} from '../utils/fetching'
+import {makeAPICall} from '../utils/fetching'
 
 class BunqGenerate extends Component {
     constructor(props) {
@@ -14,7 +14,7 @@ class BunqGenerate extends Component {
     
    
     async componentDidMount(){
-        fetchData('/api/bunq/oauth/formatUrl')
+        makeAPICall('/api/bunq/oauth/formatUrl', 'GET', null, null)
         .then((data) => {this.setState({url: data})})
     }
     

@@ -8,17 +8,25 @@ require('dotenv').config();
 const customStoreInstance = customStore(`${__dirname}${path.sep}storage.json`);
 
 const BunqClient = new BunqJSClient(customStoreInstance);
-console.log("hoevaak komt deze voorbij");
 
+
+const getObject = object => {
+    const objectKeys = Object.keys(object);
+    const objectKey = objectKeys[0];
+
+    return object[objectKey];
+};
+
+const defaultErrorLogger = error => {
+	if (error.response) {
+		throw error.response.data;
+	}
+	throw error;
+};
 
 const setup = async () => {
 
-	const defaultErrorLogger = error => {
-		if (error.response) {
-			throw error.response.data;
-		}
-		throw error;
-	};
+
 
 	// load and refresh bunq client
 	await BunqClient.run(process.env.BUNQ_OAUTH_API_KEY, [], 'PRODUCTION', process.env.BUNQ_ENCRYPTION_KEY).catch(
@@ -43,13 +51,32 @@ const setup = async () => {
 	return BunqClient;
 }
 
-var userInfo = null;
+let userInfo = null;
+let accounts = null;
+let activeAccounts = null;
+
+async function setAccounts(){
+	accounts = await BunqClient.api.monetaryAccount.list(userInfo.id).catch(defaultErrorLogger);
+	activeAccounts = accounts.filter(account => {
+		if (account.MonetaryAccountBank) {
+			return account.MonetaryAccountBank.status === "ACTIVE";
+		}
+		if (account.MonetaryAccountJoint) {
+			return account.MonetaryAccountJoint.status === "ACTIVE";
+		}
+		if (account.MonetaryAccountSavings) {
+			return account.MonetaryAccountSavings.status === "ACTIVE";
+		}
+		return false;
+	});	
+}
+
 setup().then(async BunqClient => {
 	// get user info connected to this account
-	const users = await BunqClient.getUsers(true);
+	const users = await BunqClient.getUsers(true).catch(defaultErrorLogger);
 	userInfo = users[Object.keys(users)[0]];	
 
-	const accounts = await BunqClient.api.monetaryAccount.list(userInfo.id);
+	await setAccounts();
 	console.log("\nAccounts: ", accounts.length);
 }).catch(error => {
 	if (error.response) {
@@ -86,14 +113,73 @@ exports.exchangeOAuthTokens = async (req, res) => {
 	}
 };
 
-exports.getMonetaryAccountByName = async (req, res) => {
-	// get accounts list
-	const accounts = await BunqClient.api.monetaryAccount.list(userInfo.id).catch(error => {
-                throw error;
-            });
-	console.log("\nAccounts: ", accounts.length);
 
-	res.send("ok");
+async function getActiveMonetaryAccountByName(name){
+	for (var activeAccount of activeAccounts){
+		if(getObject(activeAccount)["description"] == name){
+			//console.log("gevonden", activeAccount);
+			return (getObject(activeAccount));
+		}
+	}
+	return null;
+}
+
+
+function getAliasByType(account, type){
+	const aliasses = account.alias;
+	return aliasses.find(alias => {return alias.type === type})
+}
+
+async function makePaymentInternal(from, to, description, amount) {
+    const from_account = await getActiveMonetaryAccountByName(from).catch(defaultErrorLogger);
+    const to_account = await getActiveMonetaryAccountByName(to).catch(defaultErrorLogger);
+    if (from_account == null) {
+        console.log ("Van account bestaat niet: " + from);
+        return;
+    }
+    if (to_account == null) {
+        console.log ("To account bestaat niet: " + to);
+        return;
+    }
+    
+    const counterpartyAlias = getAliasByType(to_account, "IBAN");
+    const paymentResponse = await BunqClient.api.payment.post(
+        userInfo.id,
+        from_account.id,
+        description,
+        { value: amount, currency: "EUR" },
+        counterpartyAlias
+    ).catch(defaultErrorLogger);
+    
+    // iets met paymentResponse doen hier
+
+    return paymentResponse;
+}
+
+exports.getMonetaryAccounts = async (req, res) => {
+	await setAccounts();
+	res.send(activeAccounts);
+}
+
+exports.getMonetaryAccountByName = async (req, res) => {
+	await setAccounts();
+	const account = await getActiveMonetaryAccountByName(req.params.name);
+	//console.log(account);
+	res.send(account);
+}
+
+exports.postPaymentInternal = async (req, res) => {
+	await setAccounts();
+	//console.log("body:" + req.body.body);
+	console.log("description: " + req.body.description);
+	const payment = await makePaymentInternal(req.body.from, req.body.to, req.body.description, req.body.amount);
+	res.send(payment);
+}
+
+
+exports.test = async (req, res) => {
+	const account = await getActiveMonetaryAccountByName("Algemeen");
+	res.send( getAliasByType(account, "IBAN"));
 }
 
 

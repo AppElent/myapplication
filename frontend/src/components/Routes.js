@@ -9,7 +9,7 @@ import Car from '../pages/Car';
 import Events from '../pages/Events';
 import Rekeningen from '../pages/Rekeningen';
 import MeterstandenWarmte from '../pages/Home';
-import MeterstandenElektra from '../pages/Home';
+import MeterstandenElektra from '../pages/MeterstandElektra';
 import MeterstandenKostenOverzicht from '../pages/Home';
 import Bunq from '../pages/Bunq';
 import BunqOauth from '../pages/BunqOauth';

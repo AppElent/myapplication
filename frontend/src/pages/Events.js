@@ -3,10 +3,8 @@ import React, { Component } from 'react';
 //import { Table } from 'react-bootstrap';
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
-import Moment from 'react-moment';
-import 'moment-timezone';
 import { withAuth } from '@okta/okta-react';
-import {fetchData} from '../utils/fetching'
+import {makeAPICall} from '../utils/fetching'
 
 class Events extends Component {
     
@@ -18,18 +16,15 @@ class Events extends Component {
     }
     
     async componentDidMount() {
-        fetchData('/api/events', await this.props.auth.getAccessToken())
+        makeAPICall('/api/events', 'GET', null, await this.props.auth.getAccessToken())
         .then((data) => {this.setState({data: data})})
     }
     
     render(){
         const columns = [{
-            Header: '',
-            accessor: 'id' // String-based value accessors!
-        },{
             Header: 'Datum/tijd',
             accessor: 'datetime', // String-based value accessors!
-            Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
+            //Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
         }, {
             Header: 'Event',
             accessor: 'value',
@@ -39,7 +34,9 @@ class Events extends Component {
         return <ReactTable
             data={this.state.data}
             columns={columns}
-            className='striped bordered hover'
+            className='-highlight -striped'
+            defaultPageSize={17}
+            filterable={true}
         />
     }
 }

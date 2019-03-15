@@ -5,9 +5,16 @@ var moment = require('moment');
 const path = require("path");
 
 var request = require('request'); 
+const fetch = require("node-fetch");
+
 //var apikey = "ODE5NzlmMDBmZWNiMjZkMGU0NDcxZDI5MDJjMjRmMTdlMmI1NTE2M2FhYThhZmJlNTYwZDM3YTM1MzRhNTBkYw";
 var host = 'https://enelogic.com';
 var measuringpoint = "165704";
+var JSONStore = require('json-store');
+
+
+
+
 
 // Set the configuration settings
 const credentials = {
@@ -26,42 +33,73 @@ const credentials = {
 const enelogic_oauth = require('simple-oauth2').create(credentials);
 
 //Initialize JSON store for oauth keys
-var JSONStore = require('json-store');
+
 var enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 
 // Enelogic oauth object maken
 const tokenObject = enelogic_store.get('enelogic');
-var apikey = "";
-if(tokenObject == null){
-	apikey = enelogic_store.get('enelogic').token.access_token;
-}
 
 //Function to refresh Enelogic oauth token
 async function refreshEnelogicOauthToken(){
+	//accessToken =  await accessToken.refresh().catch(error => console.log(error))
 	if (accessToken.expired()) {
 		try {
 			accessToken =  await accessToken.refresh();
+			console.log("Accesstoken vernieuwd", accessToken);
 			enelogic_store.set('enelogic', accessToken);
 		} catch (error) {
 			console.log('Error refreshing access token: ', error.message);
 		}
+	}else{
+		console.log("Accesstoken van enelogic is niet verlopen", accessToken);
 	}
 }
 
 // Create the access token wrapper
 var accessToken = enelogic_oauth.accessToken.create(tokenObject);
+
 if(accessToken !== null){
 	refreshEnelogicOauthToken();	
 }
 
 async function updateDagStanden(){
-	MeterstandElektra.findOne({
-		where: {
-			kwh_181: {
-				$ne: null
-			}
-		},
-		order: [ [ 'datetime', 'DESC' ]],}).then(laatstestand => {
+	let apikey = enelogic_store.get('enelogic').token.access_token;
+	const laatstestand = await MeterstandElektra.findOne({ where: { kwh_181: { $ne: null } 	}, order: [ [ 'datetime', 'DESC' ]],})
+	var now = moment().add(1, 'days');
+	var day = moment().add(-30, 'days');
+	if(laatstestand !== null){
+		day = moment(laatstestand.datetime);
+	}	
+	console.log(laatstestand);
+	console.log("datum: " + laatstestand.datetime);
+	console.log("day: " + day.format("YYYY-MM-DD HH:mm"));
+	var datapointUrl = host+'/api/measuringpoints/'+measuringpoint+'/datapoint/days/'+day.format("YYYY-MM-DD")+'/'+now.format('YYYY-MM-DD')+'?access_token='+apikey;
+	console.log(datapointUrl);
+	const response = await fetch(datapointUrl);
+	const meterstanden = await response.json();
+	console.log(meterstanden);
+	var standinit = meterstanden[0];
+	var values = {datetime: standinit.date, ['kwh_' + standinit.rate]: standinit.quantity}
+	console.log(values);
+	var i = 0;
+	for(const stand of meterstanden){
+		var datum = moment(stand.date);
+		datum = datum.tz('Europe/Amsterdam');
+		console.log("Nummer " + i + " heeft rate " + stand.rate + " en waarde " + stand.quantity + " en datum " + datum.format("YYYY-MM-DD HH:mm"));
+		values = {datetime: datum, ['kwh_' + stand.rate]: stand.quantity}
+		var gevondenmeterstand = await MeterstandElektra.findOne({ where: {datetime: stand.date} });
+		if(gevondenmeterstand == null){
+			gevondenmeterstand = await MeterstandElektra.create(values);
+			//console.log("Moet toegevoegd worden");
+		}else{
+			gevondenmeterstand = await gevondenmeterstand.update(values);
+			//console.log("Moet geupdate worden");
+		}
+	}
+	console.log("klaar");
+
+		/*
+		.then(laatstestand => {
 		//res.write(laatstestand);
 		var date = "2017-03-01";
 		if(laatstestand !== null){
@@ -97,9 +135,52 @@ async function updateDagStanden(){
 			console.log("klaar");
 		})
 	});
+	*/
 }
 
 async function updateKwartierStanden(){
+	let apikey = enelogic_store.get('enelogic').token.access_token;
+	const laatstestand = await MeterstandElektra.findOne({ where: { kwh_180: { $ne: null } 	}, order: [ [ 'datetime', 'DESC' ]],})
+	console.log(laatstestand);
+	console.log("laatstestand: " + laatstestand.datetime);
+	var now = moment().add(-1, 'days');
+	var day = moment().add(-30, 'days');
+	if(laatstestand !== null){
+		day = moment(laatstestand.datetime);
+	}	
+	console.log("day: " + day.format("YYYY-MM-DD HH:mm"));
+	while(day.add(1, 'days').isBefore(now)){
+		var datapointUrl = host+'/api/measuringpoints/'+measuringpoint+'/datapoints/'+day.format("YYYY-MM-DD")+'/'+day.add(1, 'days').format('YYYY-MM-DD')+'?access_token='+apikey;
+		console.log(datapointUrl);
+		const response = await fetch(datapointUrl);
+		const meterstanden = await response.json();
+		console.log(meterstanden[0]);
+		var standinit = meterstanden[0];
+		var values = {datetime: standinit.datetime, ['kwh_' + standinit.rate]: standinit.quantity}
+		console.log(values);
+		var i = 0;
+		
+		for(const stand of meterstanden){
+			var datum = moment(stand.datetime);
+			datum = datum.tz('Europe/Amsterdam');
+			console.log("Nummer " + i + " heeft rate " + stand.rate + " en waarde " + stand.quantity + " en datum " + datum.format("YYYY-MM-DD HH:mm"));
+			values = {datetime: datum, ['kwh_' + stand.rate]: stand.quantity}
+			var gevondenmeterstand = await MeterstandElektra.findOne({ where: {datetime: stand.datetime} });
+			if(gevondenmeterstand == null){
+				gevondenmeterstand = await MeterstandElektra.create(values);
+				//console.log("Moet toegevoegd worden");
+			}else{
+				gevondenmeterstand = await gevondenmeterstand.update(values);
+				//console.log("Moet geupdate worden");
+			}
+		}
+		
+		console.log("klaar");
+	}
+	
+	
+	
+	/*
 	MeterstandElektra.findOne({
 		where: {
 			kwh_180: {
@@ -148,6 +229,7 @@ async function updateKwartierStanden(){
 			day = day.add(1, 'days');
 		}
 	})
+	*/
 }
 
 exports.formatEnelogicAuthorizationUrl = (req, res) =>{
@@ -176,6 +258,7 @@ exports.exchangeEnelogicOauthToken = async (req, res) => {
 		// Save the access token
 		try {
 			const result = await enelogic_oauth.authorizationCode.getToken(tokenConfig)
+			console.log(result);
 			accessToken = enelogic_oauth.accessToken.create(result);
 			enelogic_store.set('enelogic', accessToken);
 			res.send(accessToken);
@@ -194,9 +277,9 @@ exports.refreshEnelogicOauthToken = async (req, res) => {
 
 
 exports.updateElektraMeterstanden = async (req, res) => {
-
+	await updateKwartierStanden();
 	await updateDagStanden();
-	//await updateKwartierStanden();
+	
 	
 	res.send("ok");
 }

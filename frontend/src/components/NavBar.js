@@ -4,7 +4,7 @@ import { Navbar, Nav, NavDropdown} from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 
 const NavBar = () => (
-      <Navbar bg="light" expand="lg">
+      <Navbar bg="light" expand="lg" collapseOnSelect>
         <LinkContainer to="/">
           <Navbar.Brand href="#home">My Application</Navbar.Brand>
         </LinkContainer>
@@ -17,9 +17,18 @@ const NavBar = () => (
             <LinkContainer to="/events">
               <Nav.Link>Events</Nav.Link>
             </LinkContainer>
-            <LinkContainer to="/rekeningen">
-              <Nav.Link>Rekeningen</Nav.Link>
-            </LinkContainer>
+            <NavDropdown title="Rekeningen" id="basic-nav-dropdown">
+              <LinkContainer to="/rekeningen">
+                <NavDropdown.Item>Rekeningen</NavDropdown.Item>
+              </LinkContainer>
+              <LinkContainer to="/bunq">
+                <NavDropdown.Item>Bunq</NavDropdown.Item>
+              </LinkContainer>
+              <NavDropdown.Divider />
+              <LinkContainer to="/bunq/oauth">
+                <NavDropdown.Item>Bunq Oauth</NavDropdown.Item>
+              </LinkContainer>
+            </NavDropdown>
             <NavDropdown title="Meterstanden" id="basic-nav-dropdown">
               <LinkContainer to="/meterstanden_warmte">
                 <NavDropdown.Item>Warmte</NavDropdown.Item>

@@ -20,6 +20,27 @@ module.exports = function(app, db, epilogue) {
 	 * if the token is not present or fails validation.  If the token is valid its
 	 * contents are attached to req.jwt
 	 */
+
+	
+	async function epilogueAuthenticationRequired(req, res, context){
+	  const authHeader = req.headers.authorization || '';
+	  const match = authHeader.match(/Bearer (.+)/);
+
+	  if (!match) {
+	    return res.status(401).end();
+	  }
+
+	  const accessToken = match[1];
+
+	  return oktaJwtVerifier.verifyAccessToken(accessToken)
+	    .then((jwt) => {
+	      req.jwt = jwt;
+	      return context.continue;
+	    })
+	    .catch((err) => {
+	      return context.stop;
+	    });
+	}
 	function authenticationRequired(req, res, next) {
 	  const authHeader = req.headers.authorization || '';
 	  const match = authHeader.match(/Bearer (.+)/);
@@ -41,17 +62,8 @@ module.exports = function(app, db, epilogue) {
 	}
 
 
-
 	//Basic routes
-	/*
-	app.get('/home', (req, res) => {
-		res.send('<h1>Welcome!!</div><a href="/login">Login</a>');
-	});
-	app.get('/logout', (req, res) => {
-	  req.logout();
-	  res.redirect('/home');
-	});
-	*/
+
 
 	//Custom routes
 	const custom = require('./controllers/custom.controller.js');
@@ -76,19 +88,25 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/bunq/oauth/exchange', bunq.exchangeOAuthTokens);
 	
 	//Bunq functies
-	app.get('/api/bunq/accounts/:name', bunq.getMonetaryAccountByName);
-
+	app.get('/api/bunq/accounts/:name', authenticationRequired, bunq.getMonetaryAccountByName);
+	app.get('/api/bunq/accounts', authenticationRequired, bunq.getMonetaryAccounts);
+	app.post('/api/bunq/payment', authenticationRequired, bunq.postPaymentInternal);
+	app.get('/api/bunq/test', authenticationRequired, bunq.test);
 
 	// Create REST resource
 	var customerResource = epilogue.resource({
 	  	model: db.customers,
 	  	endpoints: ['/api/customers', '/api/customers/:id']
+	}).all.auth(async function (req, res, context) {
+	  return await epilogueAuthenticationRequired(req, res, context);
 	});
 
 	// Create REST resource
 	var configResource = epilogue.resource({
 	  model: db.config,
 	  endpoints: ['/api/config', '/api/config/:item']
+	}).all.auth(async function (req, res, context) {
+	  return await epilogueAuthenticationRequired(req, res, context);
 	});
 
 	// Create REST resource
@@ -105,19 +123,26 @@ module.exports = function(app, db, epilogue) {
 	var rekeningResource = epilogue.resource({
 	  model: db.rekeningen,
 	  endpoints: ['/api/rekeningen', '/api/rekeningen/:id']
-	});
-	//rekeningResource.use(authenticationRequired);
+	}).all.auth(async function (req, res, context) {
+	  return await epilogueAuthenticationRequired(req, res, context);
+	});	
 
 	// Create REST resource
 	var meterstandWarmteResource = epilogue.resource({
 	  model: db.meterstandenwarmte,
 	  endpoints: ['/api/meterstanden/warmte', '/api/meterstanden/warmte/:datetime']
+	}).all.auth(async function (req, res, context) {
+	  return await epilogueAuthenticationRequired(req, res, context);
 	});
 
 	// Create REST resource
 	var meterstandElektraResource = epilogue.resource({
 	  model: db.meterstandenelektra,
-	  endpoints: ['/api/meterstanden/elektra', '/api/meterstanden/elektra/:datetime']
+	  endpoints: ['/api/meterstanden/elektra', '/api/meterstanden/elektra/:datetime'],
+	  sort: {default: '-datetime'},
+	  pagination: false
+	}).all.auth(async function (req, res, context) {
+	  return await epilogueAuthenticationRequired(req, res, context);
 	});
 
 	//rest van de routes zijn van react
