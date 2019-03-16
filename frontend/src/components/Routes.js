@@ -9,7 +9,7 @@ import Car from '../pages/Car';
 import Events from '../pages/Events';
 import Rekeningen from '../pages/Rekeningen';
 import MeterstandenWarmte from '../pages/Home';
-import MeterstandenElektra from '../pages/MeterstandElektra';
+import Meterstanden from '../pages/Meterstanden';
 import MeterstandenKostenOverzicht from '../pages/Home';
 import Bunq from '../pages/Bunq';
 import BunqOauth from '../pages/BunqOauth';
@@ -34,7 +34,7 @@ const Routes = () => (
                   <SecureRoute exact path="/events" component={Events} />
                   <SecureRoute exact path="/rekeningen" component={Rekeningen} />
                   <SecureRoute exact path="/meterstanden_warmte" component={MeterstandenWarmte} />
-                  <SecureRoute exact path="/meterstanden_elektra" component={MeterstandenElektra} />
+                  <SecureRoute exact path="/meterstanden" component={Meterstanden} />
                   <SecureRoute exact path="/meterstanden_kosten" component={MeterstandenKostenOverzicht} />
                   <SecureRoute exact path="/bunq" component={Bunq} />
                   <SecureRoute exact path="/bunq/oauth" component={BunqOauth} />

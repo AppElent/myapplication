@@ -33,7 +33,7 @@ const NavBar = () => (
               <LinkContainer to="/meterstanden_warmte">
                 <NavDropdown.Item>Warmte</NavDropdown.Item>
               </LinkContainer>
-              <LinkContainer to="/meterstanden_elektra">
+              <LinkContainer to="/meterstanden">
                 <NavDropdown.Item>Elektra</NavDropdown.Item>
               </LinkContainer>
               <NavDropdown.Divider />

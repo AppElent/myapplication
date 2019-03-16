@@ -25,6 +25,8 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.STRING
 	  },kwh_opwekking: {
 		type: Sequelize.STRING
+	  },warmte: {
+		type: Sequelize.STRING
 	  },
 	});
 	

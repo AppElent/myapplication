@@ -16,8 +16,7 @@ db.customers = require('../models/customer.model.js')(sequelize, Sequelize);
 db.events = require('../models/event.model.js')(sequelize, Sequelize);
 db.config = require('../models/config.model.js')(sequelize, Sequelize);
 db.rekeningen = require('../models/rekening.model.js')(sequelize, Sequelize);
-db.meterstandenwarmte = require('../models/meterstand_warmte.model.js')(sequelize, Sequelize);
-db.meterstandenelektra = require('../models/meterstand_elektra.model.js')(sequelize, Sequelize);
+db.meterstanden = require('../models/meterstanden.model.js')(sequelize, Sequelize);
 
  
 module.exports = db;

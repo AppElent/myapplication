@@ -138,6 +138,37 @@ async function updateDagStanden(){
 	*/
 }
 
+async function updateMeterstanden(from, to, period){
+	let apikey = enelogic_store.get('enelogic').token.access_token;
+	//let fromObj = moment(from);
+	//let toObj = moment(to);
+	const baseUrl = host+'/api/measuringpoints/'+measuringpoint;
+	let datapointUrl = baseUrl+'/datapoints/'+from+'/'+to+'?access_token='+apikey;
+	if(period === "day"){
+		datapointUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
+	}
+	console.log("Url: " + datapointUrl);
+	const response = await fetch(datapointUrl);
+	const meterstanden = await response.json();
+	for(const stand of meterstanden){
+		var datumveld = (period === "day" ? stand.date : stand.datetime)
+		var datum = moment(datumveld);
+		
+		datum = datum.tz('Europe/Amsterdam');
+		//console.log("Nummer " + i + " heeft rate " + stand.rate + " en waarde " + stand.quantity + " en datum " + datum.format("YYYY-MM-DD HH:mm"));
+		values = {datetime: datum, ['kwh_' + stand.rate]: stand.quantity}
+		var gevondenmeterstand = await MeterstandElektra.findOne({ where: {datetime: datumveld} });
+		if(gevondenmeterstand == null){
+			gevondenmeterstand = await MeterstandElektra.create(values);
+			//console.log("Moet toegevoegd worden");
+		}else{
+			gevondenmeterstand = await gevondenmeterstand.update(values);
+			//console.log("Moet geupdate worden");
+		}
+	}
+	return {success: true}
+}
+
 async function updateKwartierStanden(){
 	let apikey = enelogic_store.get('enelogic').token.access_token;
 	const laatstestand = await MeterstandElektra.findOne({ where: { kwh_180: { $ne: null } 	}, order: [ [ 'datetime', 'DESC' ]],})
@@ -277,10 +308,15 @@ exports.refreshEnelogicOauthToken = async (req, res) => {
 
 
 exports.updateElektraMeterstanden = async (req, res) => {
-	await updateKwartierStanden();
-	await updateDagStanden();
-	
-	
-	res.send("ok");
+	//await updateKwartierStanden();
+	//await updateDagStanden();
+	let result = [];
+	if(req.body.kwartierstanden_from !== null){
+		//result.push(await updateMeterstanden(req.body.kwartierstanden_from, req.body.kwartierstanden_to, "kwartier"));
+	}
+	if(req.body.dagstanden_from !== null){
+		result.push(await updateMeterstanden(req.body.dagstanden_from, req.body.dagstanden_to, "day"));
+	}
+	res.send(result);
 }
 

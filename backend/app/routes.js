@@ -73,7 +73,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
 	
 	//Meterstanden bijwerken en Enelogic routes
-	app.get('/api/meterstanden/elektra/update', meterstanden.updateElektraMeterstanden);
+	app.post('/api/meterstanden/elektra/update', authenticationRequired, meterstanden.updateElektraMeterstanden);
 	app.get('/api/enelogic/oauth/formatUrl', meterstanden.formatEnelogicAuthorizationUrl);
 	app.get('/api/enelogic/oauth/exchangeToken', meterstanden.exchangeEnelogicOauthToken);
 	app.get('/api/enelogic/oauth/refreshToken', meterstanden.refreshEnelogicOauthToken);
@@ -112,7 +112,8 @@ module.exports = function(app, db, epilogue) {
 	// Create REST resource
 	var eventResource = epilogue.resource({
 	  model: db.events,
-	  endpoints: ['/api/events', '/api/events/:id']
+	  endpoints: ['/api/events', '/api/events/:id'],
+	  sort: {default: '-datetime'},
 	});
 	eventResource.delete.auth(function(req, res, context) {
     		throw new ForbiddenError("can't delete an event");
@@ -127,18 +128,11 @@ module.exports = function(app, db, epilogue) {
 	  return await epilogueAuthenticationRequired(req, res, context);
 	});	
 
-	// Create REST resource
-	var meterstandWarmteResource = epilogue.resource({
-	  model: db.meterstandenwarmte,
-	  endpoints: ['/api/meterstanden/warmte', '/api/meterstanden/warmte/:datetime']
-	}).all.auth(async function (req, res, context) {
-	  return await epilogueAuthenticationRequired(req, res, context);
-	});
 
 	// Create REST resource
-	var meterstandElektraResource = epilogue.resource({
-	  model: db.meterstandenelektra,
-	  endpoints: ['/api/meterstanden/elektra', '/api/meterstanden/elektra/:datetime'],
+	var meterstandenResource = epilogue.resource({
+	  model: db.meterstanden,
+	  endpoints: ['/api/meterstanden', '/api/meterstanden/:datetime'],
 	  sort: {default: '-datetime'},
 	  pagination: false
 	}).all.auth(async function (req, res, context) {
