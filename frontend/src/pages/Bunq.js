@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 //import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Button, ListGroup, Form, Col, Row } from 'react-bootstrap';
 
 //import BunqJSClient from '@bunq-community/bunq-js-client';
 //const BunqJSClient = require("../../dist/BunqJSClient").default;
@@ -16,7 +16,7 @@ class Bunq extends Component {
         super(props);
         this.state = {
             accounts: [],
-            preconditions: {run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0},
+            preconditions: {run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null},
             script: [],
             rekeningen: [],
             salaris: 3082,
@@ -59,6 +59,8 @@ class Bunq extends Component {
         currentstate.maandtotaal = 0;
         console.log("maandnummer: " + maandnummer);
         
+        currentstate.balance = algemeen_account.balance.value;
+        
         this.state.rekeningen.map(rekening => {
             currentstate.maandtotaal += rekening["totaal_" + maandnummer];
             let foundaccount = this.getAccountByName(rekening.rekening);
@@ -68,13 +70,19 @@ class Bunq extends Component {
                 console.log("Rekening bestaat niet: " + rekening.rekening);
             }
         });
-        currentstate.sparen = 99;
         if((this.state.maandtotaal + this.state.eigen_geld) > this.state.salaris){
             currentstate.incomeSufficient = false;
             currentstate.sparen = 0;
             currentstate.succeeded = false;
         }else{
             currentstate.sparen = (this.state.salaris - currentstate.maandtotaal - this.state.eigen_geld);
+            if(currentstate.sparen < 0){
+                currentstate.sparen = 0;
+                currentstate.incomeSufficient = false;   
+            }else{
+                currentstate.incomeSufficient = true;
+            }
+            
         }
         if((parseFloat(algemeen_account.balance.value)) < this.state.salaris){
             currentstate.balanceSufficient = false;
@@ -108,9 +116,16 @@ class Bunq extends Component {
               total += rekening[column]
               //console.log(this.state.rekeningen[i].totaal_1);
             }
-            return total
+            let sparen = (this.state.salaris - this.state.eigen_geld - total);
+            return (<div>{total}<br />{sparen}</div>);
         }
     }
+    
+    handleChange = event => {
+
+        
+        this.setState({[event.target.name]: event.target.value});
+    };
     
     render(){
         //Initialize
@@ -119,7 +134,7 @@ class Bunq extends Component {
         const rekeningColumns = [{
             Header: 'Rekening',
             accessor: 'rekening', // String-based value accessors!
-            Footer: <b>Totaal:</b>
+            Footer: <div><b>Totaal:</b><br /><b>Sparen:</b></div>
         },{
             Header: 'Januari',
             accessor: 'totaal_1',
@@ -190,14 +205,24 @@ class Bunq extends Component {
                        desc: false
                     }]}
                 />   
-                <Button variant="primary" onClick={this.checkPreconditions} disabled={!this.state.page_loaded}>Check preconditions</Button>
+                <Form>
+                    <Row>
+                    <Col><Form.Label>Netto salaris</Form.Label><Form.Control type="text" name="salaris" value={this.state.salaris} onChange={this.handleChange} /></Col>
+                    <Col><Form.Label>Eigen geld</Form.Label><Form.Control type="text" name="eigen_geld" value={this.state.eigen_geld} onChange={this.handleChange} /></Col>
+                    <Button variant="primary" onClick={this.checkPreconditions} disabled={!this.state.page_loaded}>Check preconditions</Button>
+                    </Row>
+                </Form>
+                
+                
+                
+                <ListGroup>
+                    {this.state.preconditions.balance !== null ?<ListGroup.Item variant="success">Huidig saldo Algemene rekening: {this.state.preconditions.balance}</ListGroup.Item> : ""}
+                    {this.state.preconditions.accountsExist.map((rek, i) => {return <ListGroup.Item  key={i} variant="danger">Rekening {rek} bestaat niet</ListGroup.Item>})}
+                    {this.state.preconditions.balanceSufficient === false ? <ListGroup.Item variant="danger">Niet voldoende saldo. Salaris nog niet binnen?</ListGroup.Item> : ""}
+                    {this.state.preconditions.incomeSufficient === false ? <ListGroup.Item variant="danger">Niet voldoende inkomen om alle rekeningen te betalen</ListGroup.Item> : ""}
+                    {this.state.preconditions.sparen !== null ? <ListGroup.Item variant="success">Er wordt {this.state.preconditions.sparen} gespaard</ListGroup.Item> : ""}
+                </ListGroup>
                 <Button variant="primary" onClick={this.runScript} disabled={this.state.preconditions.succeeded}>Run script</Button>
-                <ul>
-                    {this.state.preconditions.accountsExist.map((rek, i) => {return <li key={i}> Rekening {rek} bestaat niet</li>})}
-                    {this.state.preconditions.balanceSufficient === false ? <li>Niet voldoende saldo</li> : ""}
-                    {this.state.preconditions.incomeSufficient === false ? <li>Niet voldoende inkomen om alle rekeningen te betalen</li> : ""}
-                    {this.state.preconditions.sparen !== null ? <li>Er wordt {this.state.preconditions.sparen} gespaard</li> : ""}
-                </ul>
             </div>
         );
     }
