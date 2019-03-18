@@ -16,51 +16,51 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.STRING,
 		allowNull: false,
 	  },
-	  januari: {
+	  month_1: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  februari: {
+	  month_2: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  maart: {
+	  month_3: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  april: {
+	  month_4: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  mei: {
+	  month_5: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  juni: {
+	  month_6: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  juli: {
+	  month_7: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  augustus: {
+	  month_8: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  september: {
+	  month_9: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  oktober: {
+	  month_10: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  november: {
+	  month_11: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  december: {
+	  month_12: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  }

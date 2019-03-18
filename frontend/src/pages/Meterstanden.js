@@ -58,6 +58,16 @@ class MeterstandElektra extends Component {
         this.setState(datums);
     };
     
+    extractColumn = (array, column) => {
+        return array.map(x => x[column]);
+    }
+    
+    getDataBetweenDates = (array, from, to) => {
+        return array.filter((item: any) =>
+            new Date(item.datetime) >= (new Date(from)) && new Date(item.datetime) <= (new Date(to))
+        );
+    }
+    
     render(){
         const columns = [{
             Header: 'Datum/tijd',
@@ -95,7 +105,11 @@ class MeterstandElektra extends Component {
             Header: 'Warmte',
             accessor: 'warmte',
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }]        
+        }]  
+        
+        console.log(this.getDataBetweenDates(this.state.data, "2019-01-01", "2019-01-03"));
+        console.log(this.extractColumn(this.state.data, "datetime"));  
+        console.log(this.extractColumn(this.state.data, "kwh_180"));      
         
         return <div>
         <Form>

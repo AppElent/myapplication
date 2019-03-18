@@ -47,18 +47,9 @@ class Rekeningen extends Component {
     handleSubmit = async (event) => {
         event.preventDefault();
         let newEntry = this.state.newEntry;
-        newEntry.januari = newEntry.bedrag;
-        newEntry.februari = newEntry.bedrag;
-        newEntry.maart = newEntry.bedrag;
-        newEntry.april = newEntry.bedrag;
-        newEntry.mei = newEntry.bedrag;
-        newEntry.juni = newEntry.bedrag;
-        newEntry.juli = newEntry.bedrag;
-        newEntry.augustus = newEntry.bedrag;
-        newEntry.september = newEntry.bedrag;
-        newEntry.oktober = newEntry.bedrag;
-        newEntry.november = newEntry.bedrag;
-        newEntry.december = newEntry.bedrag;
+        for(var i = 1; i < 13; i++){
+            newEntry['month_'+i] = newEntry.bedrag
+        }
         let returndata = await makeAPICall('/api/rekeningen', 'POST', newEntry, await this.props.auth.getAccessToken());
         this.setState(prevState => ({
           data: [...prevState.data, returndata],
@@ -77,6 +68,7 @@ class Rekeningen extends Component {
     }
     
     renderEditable = (cellInfo) => {
+        console.log(cellInfo);
         return (
           <div
             //style={{ backgroundColor: "#fafafa" }}
@@ -108,7 +100,7 @@ class Rekeningen extends Component {
     };
     
     render(){
-        const columns = [{
+        var columns = [{
             Header: 'Naam',
             accessor: 'naam', // String-based value accessors!
             Cell: this.renderEditable
@@ -124,7 +116,25 @@ class Rekeningen extends Component {
             Header: 'Rekening',
             accessor: 'rekening',
             Cell: this.renderEditable
-        }, {
+        }]
+        const months = [ 'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December' ];
+        for(var i = 1; i < 13; i++){
+            columns.push({
+                Header: months[i-1],
+                accessor: 'month_'+i,
+                Cell: this.renderEditable
+            });
+        }
+        columns.push({
+           Header: '',
+           Cell: row => (
+               <div>
+                   <Button variant="danger" onClick={() => this.handleDelete(row.original)}>Delete</Button>
+               </div>
+           )
+        });
+        /*
+        , {
             Header: 'Januari',
             accessor: 'januari',
             Cell: this.renderEditable
@@ -179,7 +189,8 @@ class Rekeningen extends Component {
                    <Button variant="danger" onClick={() => this.handleDelete(row.original)}>Delete</Button>
                </div>
            )
-        }]            
+        }]   
+        * */         
 
         return (
         <div>

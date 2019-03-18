@@ -47,6 +47,7 @@ class Bunq extends Component {
                 return account[objectKey];
             }
         }
+        return null;
     }
     
     checkPreconditions = () => {
@@ -111,10 +112,11 @@ class Bunq extends Component {
     getTotal = (column) => {
         let total = 0
         //console.log(this.state.rekeningen);
+        //console.log(column);
         if(this.state.rekeningen.length > 0){
             for (let rekening of this.state.rekeningen) {
               total += rekening[column]
-              //console.log(this.state.rekeningen[i].totaal_1);
+              //console.log(rekening[column]);
             }
             let sparen = (this.state.salaris - this.state.eigen_geld - total);
             return (<div>{total}<br />{sparen}</div>);
@@ -130,60 +132,64 @@ class Bunq extends Component {
     render(){
         //Initialize
 
-        
+        const months = [ 'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December' ];
         const rekeningColumns = [{
             Header: 'Rekening',
             accessor: 'rekening', // String-based value accessors!
             Footer: <div><b>Totaal:</b><br /><b>Sparen:</b></div>
         },{
-            Header: 'Januari',
+            Header: 'Huidig saldo',
+            accessor: 'rekening', // String-based value accessors!
+            Cell: props => <span>{this.getAccountByName(props.value) !== null ? '€'+this.getAccountByName(props.value).balance.value : '€-'}</span> // Custom cell components!
+        },{
+            Header: months[0],
             accessor: 'totaal_1',
-            Footer: () => {return this.getTotal("totaal_1")}
-        }, {
-            Header: 'Februari',
+            Footer: () => {return this.getTotal('totaal_1')}
+        },{
+            Header: months[1],
             accessor: 'totaal_2',
-            Footer: () => {return this.getTotal("totaal_2")}
-        }, {
-            Header: 'Maart',
+            Footer: () => {return this.getTotal('totaal_2')}
+        },{
+            Header: months[2],
             accessor: 'totaal_3',
-            Footer: () => {return this.getTotal("totaal_3")}
-        }, {
-            Header: 'April',
+            Footer: () => {return this.getTotal('totaal_3')}
+        },{
+            Header: months[3],
             accessor: 'totaal_4',
-            Footer: () => {return this.getTotal("totaal_4")}
-        }, {
-            Header: 'Mei',
+            Footer: () => {return this.getTotal('totaal_4')}
+        },{
+            Header: months[4],
             accessor: 'totaal_5',
-            Footer: () => {return this.getTotal("totaal_5")}
-        }, {
-            Header: 'Juni',
+            Footer: () => {return this.getTotal('totaal_5')}
+        },{
+            Header: months[5],
             accessor: 'totaal_6',
-            Footer: () => {return this.getTotal("totaal_6")}
-        }, {
-            Header: 'Juli',
+            Footer: () => {return this.getTotal('totaal_6')}
+        },{
+            Header: months[6],
             accessor: 'totaal_7',
-            Footer: () => {return this.getTotal("totaal_7")}
-        }, {
-            Header: 'Augustus',
+            Footer: () => {return this.getTotal('totaal_7')}
+        },{
+            Header: months[7],
             accessor: 'totaal_8',
-            Footer: () => {return this.getTotal("totaal_8")}
-        }, {
-            Header: 'September',
+            Footer: () => {return this.getTotal('totaal_8')}
+        },{
+            Header: months[8],
             accessor: 'totaal_9',
-            Footer: () => {return this.getTotal("totaal_9")}
-        }, {
-            Header: 'Oktober',
+            Footer: () => {return this.getTotal('totaal_9')}
+        },{
+            Header: months[9],
             accessor: 'totaal_10',
-            Footer: () => {return this.getTotal("totaal_10")}
-        }, {
-            Header: 'November',
+            Footer: () => {return this.getTotal('totaal_10')}
+        },{
+            Header: months[10],
             accessor: 'totaal_11',
-            Footer: () => {return this.getTotal("totaal_11")}
-        }, {
-            Header: 'December',
+            Footer: () => {return this.getTotal('totaal_11')}
+        },{
+            Header: months[11],
             accessor: 'totaal_12',
-            Footer: () => {return this.getTotal("totaal_12")}
-        }]   
+            Footer: () => {return this.getTotal('totaal_12')}
+        }]
         return (<div><h1>Bunq</h1>
                 
                 {/*
