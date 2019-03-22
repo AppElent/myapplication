@@ -242,8 +242,9 @@ class Rekeningen extends Component {
                 onChange={this.handleChange}
               />
             </label> {" "}
-            
-            <Button variant="outline-primary" type="submit">Voeg toe</Button>
+            <label> {" "}
+                <Button variant="outline-primary" type="submit">Voeg toe</Button>
+            </label>
           </form>
         </div>
         <ReactTable

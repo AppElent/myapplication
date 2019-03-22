@@ -23,6 +23,7 @@ class Bunq extends Component {
             eigen_geld: 80,
             sparen: 0,
             page_loaded: false,
+            script_running: false,
         }
     }
     
@@ -52,13 +53,11 @@ class Bunq extends Component {
     
     checkPreconditions = () => {
         //check
-        console.log("Checking");
         const algemeen_account = this.getAccountByName("Algemeen");
         let maandnummer = (new Date()).getMonth()+1;
         let currentstate = this.state.preconditions;
         currentstate.succeeded = true;
         currentstate.maandtotaal = 0;
-        console.log("maandnummer: " + maandnummer);
         
         currentstate.balance = algemeen_account.balance.value;
         
@@ -76,7 +75,7 @@ class Bunq extends Component {
             currentstate.sparen = 0;
             currentstate.succeeded = false;
         }else{
-            currentstate.sparen = (this.state.salaris - currentstate.maandtotaal - this.state.eigen_geld);
+            currentstate.sparen = (this.state.salaris - currentstate.maandtotaal - this.state.eigen_geld + Math.round(algemeen_account.balance.value));
             if(currentstate.sparen < 0){
                 currentstate.sparen = 0;
                 currentstate.incomeSufficient = false;   
@@ -90,23 +89,24 @@ class Bunq extends Component {
             currentstate.succeeded = false;
         }
         
-        console.log(algemeen_account);
         this.setState({preconditions: currentstate});
-        console.log("maandtotaal: " + currentstate.maandtotaal);
-        console.log(this.state.preconditions);
     }
     
     runScript = async () => {
         //check
-        console.log("Running script");
+        this.setState({script_running: true});
         let maandnummer = (new Date()).getMonth()+1;
         for (var rekening of this.state.rekeningen){
             console.log("Naar rekening " + rekening.rekening + " moet " + rekening["totaal_" + maandnummer] + " euro worden overgemaakt.");
             if(rekening["totaal_" + maandnummer] > 0){
-                //await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: rekening.rekening, description: "Geld apart zetten", amount: "0.01"}, await this.props.auth.getAccessToken());
+                let overboeking = await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: rekening.rekening, description: "Geld apart zetten", amount: rekening["totaal_" + maandnummer].toString() + '.00'}, await this.props.auth.getAccessToken());
+                console.log(overboeking);
             }
         }
-        //await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: "Spaar", description: "Geld sparen", amount: "0.01"}, await this.props.auth.getAccessToken());
+        let overboeking = await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: "Spaar", description: "Geld sparen", amount: this.state.sparen.toString() + '.00'}, await this.props.auth.getAccessToken());
+        console.log(overboeking);
+        let accounts = await makeAPICall('/api/bunq/accounts', 'GET', null, await this.props.auth.getAccessToken())
+        this.setState({accounts: accounts, script_running: false});
     }
     
     getTotal = (column) => {
@@ -124,8 +124,6 @@ class Bunq extends Component {
     }
     
     handleChange = event => {
-
-        
         this.setState({[event.target.name]: event.target.value});
     };
     
@@ -192,13 +190,6 @@ class Bunq extends Component {
         }]
         return (<div><h1>Bunq</h1>
                 
-                {/*
-                <ReactTable
-                    data={this.state.accounts}
-                    columns={columns}
-                    className='striped bordered hover'
-                />   
-                */}
                 <ReactTable
                     data={this.state.rekeningen}
                     columns={rekeningColumns}
@@ -206,16 +197,17 @@ class Bunq extends Component {
                     showPagination={false}
                     pageSize={this.state.rekeningen.length}
                     filterable={true}
-                    sorted={[{ // the sorting model for the table
-                       id: 'rekening',
-                       desc: false
-                    }]}
+                    //sorted={[{ // the sorting model for the table
+                       //id: 'rekening',
+                       //desc: false
+                    //}]}
                 />   
                 <Form>
                     <Row>
                     <Col><Form.Label>Netto salaris</Form.Label><Form.Control type="text" name="salaris" value={this.state.salaris} onChange={this.handleChange} /></Col>
                     <Col><Form.Label>Eigen geld</Form.Label><Form.Control type="text" name="eigen_geld" value={this.state.eigen_geld} onChange={this.handleChange} /></Col>
-                    <Button variant="primary" onClick={this.checkPreconditions} disabled={!this.state.page_loaded}>Check preconditions</Button>
+                    <Button variant="primary" onClick={this.checkPreconditions} disabled={!this.state.page_loaded}>Controleer</Button>
+                    {this.state.preconditions.succeeded === true && <Button variant="primary" onClick={this.runScript} disabled={this.state.script_running}>Boeken</Button>}
                     </Row>
                 </Form>
                 
@@ -228,7 +220,7 @@ class Bunq extends Component {
                     {this.state.preconditions.incomeSufficient === false ? <ListGroup.Item variant="danger">Niet voldoende inkomen om alle rekeningen te betalen</ListGroup.Item> : ""}
                     {this.state.preconditions.sparen !== null ? <ListGroup.Item variant="success">Er wordt {this.state.preconditions.sparen} gespaard</ListGroup.Item> : ""}
                 </ListGroup>
-                <Button variant="primary" onClick={this.runScript} disabled={this.state.preconditions.succeeded}>Run script</Button>
+                
             </div>
         );
     }

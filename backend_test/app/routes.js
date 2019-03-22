@@ -41,21 +41,6 @@ module.exports = function(app, db, epilogue) {
 	      return context.stop;
 	    });
 	}
-	async function epilogueCustomToken(req, res, token, context){
-	  const authHeader = req.headers.authorization || '';
-	  console.log(req.headers);
-	  const match = authHeader.match(/Apitoken (.+)/);
-
-	  if (!match) {
-	    return await epilogueAuthenticationRequired(req, res, context);
-	    //return res.status(401).end();
-	  }
-
-	  const accessToken = match[1];
-	  console.log(accessToken, token);
-	  return (accessToken === token ? context.continue : context.stop);
-	}
-	
 	function authenticationRequired(req, res, next) {
 	  const authHeader = req.headers.authorization || '';
 	  const match = authHeader.match(/Bearer (.+)/);
@@ -97,7 +82,7 @@ module.exports = function(app, db, epilogue) {
 	const bunq = require('./controllers/bunq.controller.js');
 	
 	//Bunq oauth aanvraag 1. geef request url
-	app.get('/api/bunq/oauth/formatUrl', authenticationRequired, bunq.formatOAuthUrl);
+	app.get('/api/bunq/oauth/formatUrl', bunq.formatOAuthUrl);
 	
 	//Bunq oauth aanvraag 2. registreer en geef apikey
 	app.get('/api/bunq/oauth/exchange', bunq.exchangeOAuthTokens);
@@ -129,9 +114,6 @@ module.exports = function(app, db, epilogue) {
 	  model: db.events,
 	  endpoints: ['/api/events', '/api/events/:id'],
 	  sort: {default: '-datetime'},
-	});
-	eventResource.all.auth(async function (req, res, context) {
-	  return await epilogueCustomToken(req, res, 'homebridge-authenticated', context);
 	});
 	eventResource.delete.auth(function(req, res, context) {
     		throw new ForbiddenError("can't delete an event");

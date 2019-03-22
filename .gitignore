@@ -1,10 +1,10 @@
 # Don't track content of these folders
 backend/node_modules/
-backend2/
-backend3/
+backend_test/node_modules/
 temp/
 dynudns/
 
 #files
 frontend/.env
 backend/.env
+backend_test/.env
