@@ -8,7 +8,7 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.DATE,
 		primaryKey: true,
 		get: function () {
-			return Moment(this.getDataValue('datetime')).tz('Europe/Amsterdam').format('YYYY-MM-DD HH:mm:ss');
+			return Moment(this.getDataValue('datetime')).tz('Europe/Amsterdam');//.format('YYYY-MM-DD HH:mm:ss');
 		}
 	  },
 	  kwh_180: {

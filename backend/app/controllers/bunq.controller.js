@@ -171,10 +171,10 @@ exports.getMonetaryAccountByName = async (req, res) => {
 exports.postPaymentInternal = async (req, res) => {
 	await setAccounts();
 	//console.log("body:" + req.body.body);
-	return res.send(req.body);
-	console.log(req.body);
-	//const payment = await makePaymentInternal(req.body.from, req.body.to, req.body.description, req.body.amount);
-	//res.send(payment);
+	//return res.send(req.body);
+	//console.log(req.body);
+	const payment = await makePaymentInternal(req.body.from, req.body.to, req.body.description, req.body.amount);
+	res.send(payment);
 }
 
 

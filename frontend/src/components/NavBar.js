@@ -26,7 +26,7 @@ const NavBar = () => (
               </LinkContainer>
               <NavDropdown.Divider />
               <LinkContainer to="/bunq/oauth">
-                <NavDropdown.Item>Bunq Oauth</NavDropdown.Item>
+                <NavDropdown.Item>Bunq OAuth</NavDropdown.Item>
               </LinkContainer>
             </NavDropdown>
             <NavDropdown title="Meterstanden" id="basic-nav-dropdown">
@@ -37,9 +37,7 @@ const NavBar = () => (
                 <NavDropdown.Item>Elektra</NavDropdown.Item>
               </LinkContainer>
               <NavDropdown.Divider />
-              <LinkContainer to="/meterstanden_kosten">
-                <NavDropdown.Item>Kostenoverzicht</NavDropdown.Item>
-              </LinkContainer>
+              <NavDropdown.Item href="https://ericjansen.dynu.net/api/enelogic/oauth/formaturl">Enelogic OAuth</NavDropdown.Item>
             </NavDropdown>
           </Nav>
         </Navbar.Collapse>

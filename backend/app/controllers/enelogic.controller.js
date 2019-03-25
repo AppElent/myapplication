@@ -1,6 +1,6 @@
 //
 const db = require('../config/db.config.js');
-const MeterstandElektra = db.meterstandenelektra;
+const MeterstandElektra = db.meterstanden;
 var moment = require('moment');
 const path = require("path");
 
@@ -13,7 +13,7 @@ var measuringpoint = "165704";
 var JSONStore = require('json-store');
 
 
-
+//console.log(db);
 
 
 // Set the configuration settings
@@ -138,8 +138,6 @@ exports.refreshEnelogicOauthToken = async (req, res) => {
 
 
 exports.updateElektraMeterstanden = async (req, res) => {
-	//await updateKwartierStanden();
-	//await updateDagStanden();
 	let result = [];
 	if(req.body.kwartierstanden_from !== null){
 		//result.push(await updateMeterstanden(req.body.kwartierstanden_from, req.body.kwartierstanden_to, "kwartier"));
@@ -149,4 +147,5 @@ exports.updateElektraMeterstanden = async (req, res) => {
 	}
 	res.send(result);
 }
+
 

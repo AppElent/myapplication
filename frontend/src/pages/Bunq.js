@@ -58,6 +58,8 @@ class Bunq extends Component {
         let currentstate = this.state.preconditions;
         currentstate.succeeded = true;
         currentstate.maandtotaal = 0;
+        currentstate.incomeSufficient = true;
+        currentstate.balanceSufficient = true;
         
         currentstate.balance = algemeen_account.balance.value;
         
@@ -70,24 +72,30 @@ class Bunq extends Component {
                 console.log("Rekening bestaat niet: " + rekening.rekening);
             }
         });
+        if((parseFloat(algemeen_account.balance.value)) < this.state.salaris){
+            currentstate.balanceSufficient = false;
+            currentstate.succeeded = false;
+        }
         if((this.state.maandtotaal + this.state.eigen_geld) > this.state.salaris){
             currentstate.incomeSufficient = false;
             currentstate.sparen = 0;
             currentstate.succeeded = false;
         }else{
-            currentstate.sparen = (this.state.salaris - currentstate.maandtotaal - this.state.eigen_geld + Math.round(algemeen_account.balance.value));
+            currentstate.sparen = (this.state.salaris - currentstate.maandtotaal - this.state.eigen_geld);
+            if(currentstate.balanceSufficient){
+                currentstate.sparen = (currentstate.sparen + (Math.round(algemeen_account.balance.value) - this.state.salaris));
+            }
+            //console.log(currentstate);
             if(currentstate.sparen < 0){
                 currentstate.sparen = 0;
                 currentstate.incomeSufficient = false;   
+                currentstate.succeeded = false;
             }else{
                 currentstate.incomeSufficient = true;
             }
             
         }
-        if((parseFloat(algemeen_account.balance.value)) < this.state.salaris){
-            currentstate.balanceSufficient = false;
-            currentstate.succeeded = false;
-        }
+
         
         this.setState({preconditions: currentstate});
     }
@@ -96,6 +104,14 @@ class Bunq extends Component {
         //check
         this.setState({script_running: true});
         let maandnummer = (new Date()).getMonth()+1;
+        await Promise.all(this.state.rekeningen.map(async rekening => {
+            console.log("Naar rekening " + rekening.rekening + " moet " + rekening["totaal_" + maandnummer] + " euro worden overgemaakt.");
+            if(rekening["totaal_" + maandnummer] > 0){
+                let overboeking = await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: rekening.rekening, description: "Geld apart zetten", amount: rekening["totaal_" + maandnummer].toString() + '.00'}, await this.props.auth.getAccessToken());
+                console.log(overboeking);
+            }
+        }))
+        /*
         for (var rekening of this.state.rekeningen){
             console.log("Naar rekening " + rekening.rekening + " moet " + rekening["totaal_" + maandnummer] + " euro worden overgemaakt.");
             if(rekening["totaal_" + maandnummer] > 0){
@@ -103,7 +119,9 @@ class Bunq extends Component {
                 console.log(overboeking);
             }
         }
-        let overboeking = await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: "Spaar", description: "Geld sparen", amount: this.state.sparen.toString() + '.00'}, await this.props.auth.getAccessToken());
+        * */
+        console.log("Erna");
+        let overboeking = await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: "Spaar", description: "Geld sparen", amount: this.state.preconditions.sparen.toString() + '.00'}, await this.props.auth.getAccessToken());
         console.log(overboeking);
         let accounts = await makeAPICall('/api/bunq/accounts', 'GET', null, await this.props.auth.getAccessToken())
         this.setState({accounts: accounts, script_running: false});
@@ -206,7 +224,7 @@ class Bunq extends Component {
                     <Row>
                     <Col><Form.Label>Netto salaris</Form.Label><Form.Control type="text" name="salaris" value={this.state.salaris} onChange={this.handleChange} /></Col>
                     <Col><Form.Label>Eigen geld</Form.Label><Form.Control type="text" name="eigen_geld" value={this.state.eigen_geld} onChange={this.handleChange} /></Col>
-                    <Button variant="primary" onClick={this.checkPreconditions} disabled={!this.state.page_loaded}>Controleer</Button>
+                    <Button variant="primary" onClick={this.checkPreconditions} disabled={!this.state.page_loaded || this.state.script_running}>Controleer</Button>
                     {this.state.preconditions.succeeded === true && <Button variant="primary" onClick={this.runScript} disabled={this.state.script_running}>Boeken</Button>}
                     </Row>
                 </Form>

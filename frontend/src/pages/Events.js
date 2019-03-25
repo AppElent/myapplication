@@ -4,7 +4,9 @@ import React, { Component } from 'react';
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
 import { withAuth } from '@okta/okta-react';
-import {makeAPICall} from '../utils/fetching'
+import {makeAPICall} from '../utils/fetching';
+import Moment from 'react-moment';
+import 'moment-timezone';
 
 class Events extends Component {
     
@@ -24,7 +26,7 @@ class Events extends Component {
         const columns = [{
             Header: 'Datum/tijd',
             accessor: 'datetime', // String-based value accessors!
-            //Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
+            Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
         }, {
             Header: 'Event',
             accessor: 'value',

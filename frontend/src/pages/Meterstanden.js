@@ -7,6 +7,8 @@ import { withAuth } from '@okta/okta-react';
 import {makeAPICall} from '../utils/fetching';
 import { Button, Form, Row, Col } from 'react-bootstrap';
 import moment from 'moment';
+import Moment from 'react-moment';
+import 'moment-timezone';
 
 class MeterstandElektra extends Component {
     
@@ -72,7 +74,7 @@ class MeterstandElektra extends Component {
         const columns = [{
             Header: 'Datum/tijd',
             accessor: 'datetime', // String-based value accessors!
-            //Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
+            Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
         }, {
             Header: '180',
             accessor: 'kwh_180',
