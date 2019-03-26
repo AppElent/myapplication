@@ -80,7 +80,8 @@ async function updateMeterstanden(from, to, period){
 		
 		datum = datum.tz('Europe/Amsterdam');
 		//console.log("Nummer " + i + " heeft rate " + stand.rate + " en waarde " + stand.quantity + " en datum " + datum.format("YYYY-MM-DD HH:mm"));
-		values = {datetime: datum, ['kwh_' + stand.rate]: stand.quantity}
+		var quantity = parseFloat(stand.quantity)*1000;
+		values = {datetime: datum, ['kwh_' + stand.rate]: quantity.toString()}
 		var gevondenmeterstand = await MeterstandElektra.findOne({ where: {datetime: datumveld} });
 		if(gevondenmeterstand == null){
 			gevondenmeterstand = await MeterstandElektra.create(values);

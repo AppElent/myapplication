@@ -57,7 +57,7 @@ exports.updateSolarEdgeData = async (req, res) => {
 		var rounded = new Date(Math.round(date.getTime() / coeff) * coeff);
 		if([0, 15, 30, 45].includes(rounded.getMinutes())){
 			//console.log(rounded, line);
-			var values = {datetime: rounded, kwh_opwekking: line.totalEnergy/1000}
+			var values = {datetime: rounded, kwh_opwekking: line.totalEnergy}
 			//console.log(values, rounded);
 			var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: rounded} });
 			if(gevondenmeterstand == null){

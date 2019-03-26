@@ -9,6 +9,7 @@ import { Button, Form, Row, Col } from 'react-bootstrap';
 import moment from 'moment';
 import Moment from 'react-moment';
 import 'moment-timezone';
+import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, VictoryLabel, VictoryStack } from 'victory';
 
 class MeterstandElektra extends Component {
     
@@ -16,14 +17,16 @@ class MeterstandElektra extends Component {
         super();
         this.state = {
             data: [],
+            graphdata: [],
             ophalen: false,
             datums: {dagstanden_from: "", dagstanden_to: "", kwartierstanden_from: "", kwartierstanden_to: ""}
         }
     }
     
     async componentDidMount() {
-        makeAPICall('/api/meterstanden', 'GET', null, await this.props.auth.getAccessToken())
-        .then((data) => {this.setState({data: data})});
+        const data = await makeAPICall('/api/meterstanden', 'GET', null, await this.props.auth.getAccessToken())
+        this.setState({data: data});
+        this.setState({graphdata: (this.getDataBetweenDates(this.state.data, "2019-01-01", "2019-01-02").sort((a, b) => (a.datetime > b.datetime) ? 1 : -1))});
     }
     
     zetDatums = () => {
@@ -70,6 +73,17 @@ class MeterstandElektra extends Component {
         );
     }
     
+    getDifferenceArray = (array, column) => {
+        let newArray = []
+        let oudElement = null;
+        for(var element of array){
+            //console.log(element + "-" + oudElement);
+            newArray.push(oudElement === null ? 0 : (oudElement[column] === null ? 0 : (parseFloat(element[column]) - parseFloat(oudElement[column]))))
+            oudElement = (element[column] === null ? oudElement : element);
+        }
+        return newArray;
+    }
+    
     render(){
         const columns = [{
             Header: 'Datum/tijd',
@@ -109,9 +123,12 @@ class MeterstandElektra extends Component {
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }]  
         
-        console.log(this.getDataBetweenDates(this.state.data, "2019-01-01", "2019-01-03"));
+        var data = this.getDataBetweenDates(this.state.data, "2019-01-01", "2019-01-02").sort((a, b) => (a.datetime > b.datetime) ? 1 : -1)
         console.log(this.extractColumn(this.state.data, "datetime"));  
-        console.log(this.extractColumn(this.state.data, "kwh_180"));      
+        console.log(this.extractColumn(this.state.data, "kwh_180"));  
+        console.log(this.getDifferenceArray(data, "kwh_180"));   
+        
+        console.log(this.extractColumn(this.state.graphdata, "kwh_180"));
         
         return <div>
         <Form>
@@ -131,6 +148,17 @@ class MeterstandElektra extends Component {
             filterable={true}
         />
         <Button variant="outline-primary" type="submit" onClick={this.zetDatums}>Zet datums</Button>
+        <VictoryChart>
+          <VictoryLine
+            y={this.extractColumn(this.state.graphdata, "kwh_180")}
+            x={this.extractColumn(this.state.graphdata, "datetime")}
+          />
+          <VictoryLine
+            y={this.extractColumn(this.state.graphdata, "kwh_180")}
+            x={this.extractColumn(this.state.graphdata, "datetime")}
+          />
+        </VictoryChart>
+        
         </div>
     }
 }

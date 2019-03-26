@@ -174,6 +174,7 @@ module.exports = function(app, db, epilogue) {
 	  model: db.events,
 	  endpoints: ['/api/events', '/api/events/:id'],
 	  sort: {default: '-datetime'},
+	  pagination: false,
 	});
 	eventResource.all.auth(async function (req, res, context) {
 	  return await epilogueCustomToken(req, res, 'homebridge-authenticated', context);
