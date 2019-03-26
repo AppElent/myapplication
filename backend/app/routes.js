@@ -118,6 +118,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/enelogic/oauth/formatUrl', enelogic.formatEnelogicAuthorizationUrl);
 	app.get('/api/enelogic/oauth/exchangeToken', enelogic.exchangeEnelogicOauthToken);
 	app.get('/api/enelogic/oauth/refreshToken', enelogic.refreshEnelogicOauthToken);
+	app.get('/api/enelogic/updatedata/:type/:start/:end', enelogic.updateEnelogicData);
 	
 	
 	

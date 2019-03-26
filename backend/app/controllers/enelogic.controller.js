@@ -149,4 +149,24 @@ exports.updateElektraMeterstanden = async (req, res) => {
 	res.send(result);
 }
 
+exports.updateEnelogicData = async (req, res) => {
+	if(req.params.type === 'quarter'){
+		var start = new Date(req.params.start);
+		var end = new Date(req.params.end);
+		while(true){
+			console.log(start);
+			//console.log(moment(start).format('YYYY-MM-DD') +  " tot " + moment(start).add(1, 'days').format('YYYY-MM-DD'))
+			await updateMeterstanden(moment(start).format('YYYY-MM-DD'), moment(start).add(1, 'days').format('YYYY-MM-DD'), req.params.type)
+			start.setDate(start.getDate() + 1);
+			if(start.toISOString() === end.toISOString()){
+				return res.send("ok");
+			}
+		}
+	}else{
+		res.send (await updateMeterstanden(req.params.start, req.params.end, req.params.type));
+	}
+	
+	
+}
+
 

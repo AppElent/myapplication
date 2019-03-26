@@ -24,12 +24,12 @@ exports.updateMeterstanden = async (req, res) => {
 			
 			values = {
 				datetime: datum,
-				kwh_180: ((stand.Value1 + stand.Value5)),
-				kwh_181: stand.Value1, 
-				kwh_182: stand.Value5,
-				kwh_280: ((stand.Value2 + stand.Value6)),
-				kwh_281: stand.Value2,
-				kwh_282: stand.Value6,
+				kwh_180: ((stand.kwh_181 + stand.kwh_182)),
+				kwh_181: stand.kwh_181, 
+				kwh_182: stand.kwh_182,
+				kwh_280: ((stand.kwh_281 + stand.kwh_282)),
+				kwh_281: stand.kwh_281,
+				kwh_282: stand.kwh_282,
 			}
 			//console.log(values);
 			var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: datum} });
