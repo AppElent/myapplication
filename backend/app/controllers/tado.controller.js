@@ -79,6 +79,14 @@ exports.zones = async (req, res) => {
 	res.send({data});
 }
 
+exports.state = async (req, res) => {
+	const url = 'https://my.tado.com/api/v2/homes/' + home + '/zones/' + req.params.zone + '/state';
+	await refreshAccessToken();
+	var data = await fetching.makeAPICall(url, 'GET', null, accessToken.token.access_token);
+	
+	res.send({data});
+}
+
 exports.report = async (req, res) => {
 	const url = 'https://my.tado.com/api/v2/homes/' + home + '/zones/' + req.params.zone + '/dayReport/?date=' + req.params.date;
 	await refreshAccessToken();

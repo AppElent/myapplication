@@ -160,7 +160,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/tado/homes', tado.homes);
 	app.get('/api/tado/zones', tado.zones);
 	app.get('/api/tado/report/:zone/:date', tado.report);
-
+	app.get('/api/tado/state/:zone/', tado.state);
 
 
 	// Create REST resource
@@ -209,7 +209,7 @@ module.exports = function(app, db, epilogue) {
 	  sort: {default: '-datetime'},
 	  pagination: false
 	}).all.auth(async function (req, res, context) {
-	  return await epilogueAuthenticationRequired(req, res, context);
+	  return context.continue;//await epilogueAuthenticationRequired(req, res, context);
 	});
 	
 
