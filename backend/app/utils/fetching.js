@@ -1,14 +1,7 @@
+const fetch = require("node-fetch");
 
 
-
-export const getObject = object => {
-    const objectKeys = Object.keys(object);
-    const objectKey = objectKeys[0];
-
-    return object[objectKey];
-};
-
-export const makeAPICall = (url, method, body, token) => {
+exports.makeAPICall = async (url, method, body, token) => {
   if(body == null){body = undefined}
   return fetch(url, {    
 	    method: method ,

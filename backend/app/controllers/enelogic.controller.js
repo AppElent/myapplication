@@ -6,14 +6,20 @@ const path = require("path");
 
 var request = require('request'); 
 const fetch = require("node-fetch");
+var JSONStore = require('json-store');
+
+const oauth = require('../utils/oauth');
+
+
+
+
+
+
 
 //var apikey = "ODE5NzlmMDBmZWNiMjZkMGU0NDcxZDI5MDJjMjRmMTdlMmI1NTE2M2FhYThhZmJlNTYwZDM3YTM1MzRhNTBkYw";
 var host = 'https://enelogic.com';
 var measuringpoint = "165704";
-var JSONStore = require('json-store');
 
-
-//console.log(db);
 
 
 // Set the configuration settings
@@ -33,33 +39,63 @@ const credentials = {
 const enelogic_oauth = require('simple-oauth2').create(credentials);
 
 //Initialize JSON store for oauth keys
-
 var enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 
 // Enelogic oauth object maken
-const tokenObject = enelogic_store.get('enelogic');
+var accessToken = oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
 
+
+
+
+
+
+
+
+/*
 //Function to refresh Enelogic oauth token
 async function refreshEnelogicOauthToken(){
 	//accessToken =  await accessToken.refresh().catch(error => console.log(error))
 	if (accessToken.expired()) {
 		try {
 			accessToken =  await accessToken.refresh();
-			console.log("Accesstoken vernieuwd", accessToken);
+			//console.log("Accesstoken vernieuwd", accessToken);
 			enelogic_store.set('enelogic', accessToken);
 		} catch (error) {
-			console.log('Error refreshing access token: ', error.message);
+			//console.log('Error refreshing access token: ', error.message);
 		}
 	}else{
-		console.log("Accesstoken van enelogic is niet verlopen", accessToken);
+		//console.log("Accesstoken van enelogic is niet verlopen", accessToken);
 	}
 }
 
 // Create the access token wrapper
+
+const tokenObject = {
+	access_token: accessTokenString.token.access_token, 
+	expires_at: accessTokenString.token.expires_at, 
+	"token_type": accessTokenString.token.token_type, 
+	"scope": accessTokenString.token.scope, 
+	"refresh_token": accessTokenString.token.refresh_token, 
+}
+//console.log("Tokenobject", tokenObject);
+
 var accessToken = enelogic_oauth.accessToken.create(tokenObject);
 
 if(accessToken !== null){
 	refreshEnelogicOauthToken();	
+}
+* */
+
+async function getMeterstanden(from, to, period){
+	let apikey = enelogic_store.get('enelogic').token.access_token;
+	const baseUrl = host+'/api/measuringpoints/'+measuringpoint;
+	let datapointUrl = baseUrl+'/datapoints/'+from+'/'+to+'?access_token='+apikey;
+	if(period === "day"){
+		datapointUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
+	}
+	console.log("Url: " + datapointUrl);
+	const response = await fetch(datapointUrl);
+	return (await response.json());
 }
 
 async function updateMeterstanden(from, to, period){
@@ -121,9 +157,10 @@ exports.exchangeEnelogicOauthToken = async (req, res) => {
 		try {
 			const result = await enelogic_oauth.authorizationCode.getToken(tokenConfig)
 			console.log(result);
+			//enelogic_store.set('enelogic', result);
 			accessToken = enelogic_oauth.accessToken.create(result);
 			enelogic_store.set('enelogic', accessToken);
-			res.send(accessToken);
+			res.redirect(process.env.APP_ROOT);
 		} catch (error) {
 			console.log('Access Token Error', error.message);
 		}
@@ -167,6 +204,11 @@ exports.updateEnelogicData = async (req, res) => {
 	}
 	
 	
+}
+
+
+exports.getEnelogicData = async (req, res) => {
+	res.send (await getMeterstanden(req.params.start, req.params.end, req.params.type));
 }
 
 

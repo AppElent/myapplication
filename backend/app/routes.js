@@ -119,7 +119,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/enelogic/oauth/exchangeToken', enelogic.exchangeEnelogicOauthToken);
 	app.get('/api/enelogic/oauth/refreshToken', enelogic.refreshEnelogicOauthToken);
 	app.get('/api/enelogic/updatedata/:type/:start/:end', enelogic.updateEnelogicData);
-	
+	app.get('/api/enelogic/data/:type/:start/:end', enelogic.getEnelogicData);
 	
 	
 	
@@ -151,6 +151,15 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/domoticz/update', domoticz.updateMeterstanden);
 
 
+
+
+
+	//Tado
+	const tado = require('./controllers/tado.controller.js');
+	app.get('/api/tado/test', tado.test);
+	app.get('/api/tado/homes', tado.homes);
+	app.get('/api/tado/zones', tado.zones);
+	app.get('/api/tado/report/:zone/:date', tado.report);
 
 
 
