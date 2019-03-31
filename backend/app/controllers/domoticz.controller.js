@@ -16,14 +16,17 @@ exports.updateMeterstanden = async (req, res) => {
 	for(const stand of meterstanden){
 		datum = new Date(stand.Date);
 		datum.setSeconds(0);
-		console.log(datum, stand.Date);
 		
-		if([15, 30, 45, 0].includes(datum.getMinutes())){
+		var coeff = 1000 * 60 * 5;
+		var date = new Date(datum);  //or use any other date
+		var rounded = new Date(Math.round(date.getTime() / coeff) * coeff);
+		console.log(datum, stand.Date, rounded);
+		if([15, 30, 45, 0].includes(rounded.getMinutes())){
 			//console.log("Nummer " + i + " heeft rate " + stand.rate + " en waarde " + stand.quantity + " en datum " + datum.format("YYYY-MM-DD HH:mm"));
 			//console.log(stand, datum);
 			
 			values = {
-				datetime: datum,
+				datetime: rounded,
 				kwh_180: ((stand.kwh_181 + stand.kwh_182)),
 				kwh_181: stand.kwh_181, 
 				kwh_182: stand.kwh_182,
@@ -32,7 +35,7 @@ exports.updateMeterstanden = async (req, res) => {
 				kwh_282: stand.kwh_282,
 			}
 			//console.log(values);
-			var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: datum} });
+			var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: rounded} });
 			if(gevondenmeterstand == null){
 				gevondenmeterstand = await db.meterstanden.create(values);
 				//console.log("Moet toegevoegd worden");

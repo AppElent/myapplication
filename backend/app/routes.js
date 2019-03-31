@@ -109,7 +109,8 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
 	
 	
-	
+
+
 	
 	
 	//Meterstanden bijwerken en Enelogic routes
@@ -119,8 +120,8 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/enelogic/oauth/exchangeToken', enelogic.exchangeEnelogicOauthToken);
 	app.get('/api/enelogic/oauth/refreshToken', enelogic.refreshEnelogicOauthToken);
 	app.get('/api/enelogic/updatedata/:type/:start/:end', enelogic.updateEnelogicData);
-	app.get('/api/enelogic/data/:type/:start/:end', enelogic.getEnelogicData);
-	
+	app.get('/api/enelogic/data/dag/:start/:end', enelogic.getEnelogicDagData);
+	app.get('/api/enelogic/data/kwartier/:datum', enelogic.getEnelogicKwartierData);
 	
 	
 	
@@ -139,10 +140,12 @@ module.exports = function(app, db, epilogue) {
 
 	//SolarEdge
 	const solaredge = require('./controllers/solaredge.controller.js');
-	app.get('/api/solaredge/data/:start/:end', solaredge.getData);
+	//app.get('/api/solaredge/data/formatted/:start/:end', solaredge.getFormattedData);
+	app.get('/api/solaredge/inverterdata/:start/:end', solaredge.getInverterData);
+	app.get('/api/solaredge/data/:timeUnit/:start/:end', solaredge.getData);
 	app.get('/api/solaredge/sites', solaredge.getSiteData);
 	app.get('/api/solaredge/equipment', solaredge.getEquipmentData);
-	app.get('/api/solaredge/updatedata/:start/:end', solaredge.updateSolarEdgeData);
+	//app.get('/api/solaredge/updatedata/:start/:end', solaredge.updateSolarEdgeData);
 	
 	
 	
@@ -161,6 +164,12 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/tado/zones', tado.zones);
 	app.get('/api/tado/report/:zone/:date', tado.report);
 	app.get('/api/tado/state/:zone/', tado.state);
+	
+	
+	//DarkSky
+	const darksky = require('./controllers/darksky.controller.js');
+	app.get('/api/darksky/current', darksky.getCurrentData);
+	app.get('/api/darksky/:date', darksky.getDateData);
 
 
 	// Create REST resource

@@ -11,6 +11,8 @@ import Rekeningen from '../pages/Rekeningen';
 import MeterstandenWarmte from '../pages/Home';
 import Meterstanden from '../pages/Meterstanden';
 import MeterstandenKostenOverzicht from '../pages/Home';
+import SolarEdge from '../pages/SolarEdge';
+import DarkSky from '../pages/DarkSky';
 import Bunq from '../pages/Bunq';
 import BunqOauth from '../pages/BunqOauth';
 import Login from '../pages/Login';
@@ -36,6 +38,8 @@ const Routes = () => (
                   <SecureRoute exact path="/meterstanden_warmte" component={MeterstandenWarmte} />
                   <SecureRoute exact path="/meterstanden" component={Meterstanden} />
                   <SecureRoute exact path="/meterstanden_kosten" component={MeterstandenKostenOverzicht} />
+                  <SecureRoute exact path="/solaredge" component={SolarEdge} />
+                  <SecureRoute exact path="/darksky" component={DarkSky} />
                   <SecureRoute exact path="/bunq" component={Bunq} />
                   <SecureRoute exact path="/bunq/oauth" component={BunqOauth} />
                   

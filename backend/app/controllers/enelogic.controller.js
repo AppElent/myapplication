@@ -10,7 +10,7 @@ var JSONStore = require('json-store');
 
 const oauth = require('../utils/oauth');
 
-
+const arrays = require('../utils/arrays');
 
 
 
@@ -39,63 +39,101 @@ const credentials = {
 const enelogic_oauth = require('simple-oauth2').create(credentials);
 
 //Initialize JSON store for oauth keys
-var enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
+const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 
 // Enelogic oauth object maken
-var accessToken = oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
+//var accessToken = '';
+//oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic').then(token => {accessToken = token});
 
 
-
-
-
-
-
-
-/*
-//Function to refresh Enelogic oauth token
-async function refreshEnelogicOauthToken(){
-	//accessToken =  await accessToken.refresh().catch(error => console.log(error))
-	if (accessToken.expired()) {
-		try {
-			accessToken =  await accessToken.refresh();
-			//console.log("Accesstoken vernieuwd", accessToken);
-			enelogic_store.set('enelogic', accessToken);
-		} catch (error) {
-			//console.log('Error refreshing access token: ', error.message);
-		}
-	}else{
-		//console.log("Accesstoken van enelogic is niet verlopen", accessToken);
-	}
-}
-
-// Create the access token wrapper
-
-const tokenObject = {
-	access_token: accessTokenString.token.access_token, 
-	expires_at: accessTokenString.token.expires_at, 
-	"token_type": accessTokenString.token.token_type, 
-	"scope": accessTokenString.token.scope, 
-	"refresh_token": accessTokenString.token.refresh_token, 
-}
-//console.log("Tokenobject", tokenObject);
-
-var accessToken = enelogic_oauth.accessToken.create(tokenObject);
-
-if(accessToken !== null){
-	refreshEnelogicOauthToken();	
-}
-* */
 
 async function getMeterstanden(from, to, period){
-	let apikey = enelogic_store.get('enelogic').token.access_token;
+	let earliest = '2017-02-10';
+	if(from === '0'){
+		from = earliest;
+	}
+	let results = []
+	var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
+	let apikey = accessToken.token.access_token;
 	const baseUrl = host+'/api/measuringpoints/'+measuringpoint;
 	let datapointUrl = baseUrl+'/datapoints/'+from+'/'+to+'?access_token='+apikey;
 	if(period === "day"){
 		datapointUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
 	}
 	console.log("Url: " + datapointUrl);
+	if(period === "quarter"){
+		const totalUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
+		const totalresponse = await fetch(totalUrl);
+		const totals = (await totalresponse.json());
+		for(var line of totals){
+			const index = results.findIndex((e) => e.datetime === line.date);
+			let obj = {datetime: (line.date), [line.rate]: Math.round(parseFloat(line.quantity)*1000)}
+			if(index === -1){
+				results.push(obj);
+			}else{
+				results[index][line.rate] = parseFloat(line.quantity)*1000
+			}
+			
+		}
+	}
+	console.log("Url: " + datapointUrl);
 	const response = await fetch(datapointUrl);
-	return (await response.json());
+	const jsondata = await response.json();
+	for(var line of jsondata){
+		let date = (period === 'quarter' ? line.datetime : line.date);
+		//let found = results.find(x => x.datetime === date);
+		let index = results.findIndex((e) => e.datetime === date);
+		let obj = {datetime: date, [line.rate]: Math.round(parseFloat(line.quantity)*1000)}
+		if(index === -1){
+			results.push(obj);
+		}else{
+			results[index][line.rate] = Math.round(parseFloat(line.quantity)*1000)
+		}
+		
+	}
+	results.sort((a,b) => (a.datetime > b.datetime) ? 1 : -1); 
+	//let previous1 = results[0][180];
+	//let previous2 = results[0][280];
+	//let start1a = results[0][181];
+	//let start1b = results[0][182];
+	//let start2a = results[0][281];
+	//let start2b = results[0][282];
+	let previous = results[0];
+	for(var entry of results){
+		let index = results.findIndex((e) => e.datetime === entry.datetime);
+		
+		if(period === 'day'){
+			results[index][180] = entry[181] + entry[182];
+			results[index][280] = entry[281] + entry[282];
+		}else{
+			let difference1 = entry[180]-previous[180];
+			let difference2 = entry[280]-previous[280];
+			//console.log(index, difference1, difference2);
+			let date = new Date(entry.datetime);
+			let starthoog = moment(date).hours(7).minutes(0).seconds(0);
+			let startlaag = moment(date).hours(23).minutes(0).seconds(0);
+			//console.log(date.getDay(), starthoog.toDate().getTime(), startlaag.toDate().getTime(), date.getTime());
+			entry[181] = previous[181];
+			entry[182] = previous[182];
+			entry[281] = previous[281];
+			entry[282] = previous[282];
+			if(date.getDay() === 0 || date.getDay() === 6 || date.getTime() <= starthoog.toDate().getTime() || date.getTime() > startlaag.toDate().getTime()){
+				entry[181] += difference1;
+				entry[281] += difference2;
+			}else{
+				entry[182] += difference1;
+				entry[282] += difference2;
+			}
+			
+			results[index] = entry;
+			
+			//previous1 = entry[180];
+			//previous2 = entry[280];
+			previous = entry;
+		}
+	}
+	results = arrays.getDifferenceArray(results, 'datetime', ['180', '181', '182', '280', '281', '282']);
+	return (results);
 }
 
 async function updateMeterstanden(from, to, period){
@@ -207,8 +245,11 @@ exports.updateEnelogicData = async (req, res) => {
 }
 
 
-exports.getEnelogicData = async (req, res) => {
-	res.send (await getMeterstanden(req.params.start, req.params.end, req.params.type));
+exports.getEnelogicDagData = async (req, res) => {
+	res.send (await getMeterstanden(req.params.start, req.params.end, 'day'));
 }
 
-
+exports.getEnelogicKwartierData = async (req, res) => {
+	var enddate = moment(req.params.datum).add(1, 'days');
+	res.send (await getMeterstanden(req.params.datum, enddate.format('YYYY-MM-DD'), 'quarter'));
+}

@@ -3,7 +3,7 @@
 exports.retrieveAccessTokenObject = async (credentials, store, name) => {
 //async function retrieveAccessTokenObject(accessTokenString){
 	const accessTokenString = store.get(name);
-	if(accessToken !== undefined && accessTokenString.token !== undefined){
+	if(accessTokenString.token !== undefined){
 		const tokenObject = {
 			access_token: accessTokenString.token.access_token, 
 			expires_at: accessTokenString.token.expires_at, 
@@ -30,6 +30,7 @@ exports.retrieveAccessTokenObject = async (credentials, store, name) => {
 			store.set(name, accessToken);
 		}
 	}else{return undefined;}
+	//console.log(accessToken);
 	return accessToken;
 }
 

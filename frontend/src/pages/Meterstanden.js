@@ -5,6 +5,7 @@ import ReactTable from "react-table";
 import 'react-table/react-table.css'
 import { withAuth } from '@okta/okta-react';
 import {makeAPICall} from '../utils/fetching';
+//import {mergeArrayById} from '../utils/arrays';
 import { Button, Form, Row, Col } from 'react-bootstrap';
 import moment from 'moment';
 import Moment from 'react-moment';
@@ -18,15 +19,23 @@ class MeterstandElektra extends Component {
         this.state = {
             data: [],
             graphdata: [],
+            solaredgedata: [],
             ophalen: false,
             datums: {dagstanden_from: "", dagstanden_to: "", kwartierstanden_from: "", kwartierstanden_to: ""}
         }
     }
     
     async componentDidMount() {
-        const data = await makeAPICall('/api/meterstanden', 'GET', null, await this.props.auth.getAccessToken())
+        var data = await makeAPICall('/api/enelogic/data/dag/2019-03-01/2019-03-31', 'GET', null, await this.props.auth.getAccessToken());
+        var solaredgedata = await makeAPICall('/api/solaredge/data/day/2019-02-28/2019-03-31', 'GET', null, await this.props.auth.getAccessToken());
+        console.log(data, solaredgedata);
+        //const result = mergeByKey("datetime", array1, array2);
+        //var mergedList = _.map(data, function(item){
+          //  return _.extend(item, _.findWhere(solaredgedata.energy.values, { date: item.datetime }));
+        //});
+        //console.log(mergedList);
         this.setState({data: data});
-        this.setState({graphdata: (this.getDataBetweenDates(this.state.data, "2019-01-01", "2019-01-02").sort((a, b) => (a.datetime > b.datetime) ? 1 : -1))});
+        this.setState({solaredgedata: solaredgedata.energy.values});
     }
     
     zetDatums = () => {
@@ -85,50 +94,74 @@ class MeterstandElektra extends Component {
     }
     
     render(){
+        console.log(this.state.solaredgedata);
         const columns = [{
             Header: 'Datum/tijd',
             accessor: 'datetime', // String-based value accessors!
             Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
         }, {
             Header: '180',
-            accessor: 'kwh_180',
+            accessor: '180',
+            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
+        }, {
+            Header: '180 Verbruik',
+            accessor: '180_diff',
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
             Header: '181',
-            accessor: 'kwh_181',
+            accessor: '181',
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
             Header: '182',
-            accessor: 'kwh_182',
+            accessor: '182',
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
             Header: '280',
-            accessor: 'kwh_280',
+            accessor: '280',
+            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
+        }, {
+            Header: '280 Verbruik',
+            accessor: '280_diff',
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
             Header: '281',
-            accessor: 'kwh_281',
+            accessor: '281',
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
             Header: '282',
-            accessor: 'kwh_282',
+            accessor: '282',
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
-            Header: 'Opwekking',
-            accessor: 'kwh_opwekking',
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
+          Header: 'Opwekking', 
+           Cell: row => {
+               var opwekking = this.state.solaredgedata.find(entry => moment(entry.date).add(1, 'days').format('YYYY-MM-DD') === moment(row.original.datetime).format('YYYY-MM-DD'));
+               console.log(opwekking);
+               return (opwekking !== undefined ? opwekking.value : row.original.datetime);
+               
+            }
         }, {
-            Header: 'Warmte',
-            accessor: 'warmte',
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
+           Header: 'Bruto verbruik',
+           Cell: row => {
+              var test = row;
+              var opwekking = this.state.solaredgedata.find(entry => moment(entry.date).add(1, 'days').format('YYYY-MM-DD') === moment(row.original.datetime).format('YYYY-MM-DD'));
+              //var opwekking = this.state.solaredgedata.find(entry => entry.date === row.original.datetime);
+              if(opwekking !== undefined){
+                  return (<div>{row.original['180_diff']+ (Math.round(parseFloat(opwekking.value)) - row.original['280_diff'])}</div>) 
+              }
+
+              
+            }
+        }, {
+           Header: 'Netto verbruik',
+           Cell: row => (<div>{row.original['180_diff']- (row.original['280_diff'])}</div>)
         }]  
         
         var data = this.getDataBetweenDates(this.state.data, "2019-01-01", "2019-01-02").sort((a, b) => (a.datetime > b.datetime) ? 1 : -1)
-        console.log(this.extractColumn(this.state.data, "datetime"));  
-        console.log(this.extractColumn(this.state.data, "kwh_180"));  
-        console.log(this.getDifferenceArray(data, "kwh_180"));   
+        //console.log(this.extractColumn(this.state.data, "datetime"));  
+        //console.log(this.extractColumn(this.state.data, "kwh_180"));  
+        //console.log(this.getDifferenceArray(data, "kwh_180"));   
         
-        console.log(this.extractColumn(this.state.graphdata, "kwh_180"));
+        //console.log(this.extractColumn(this.state.graphdata, "kwh_180"));
         
         return <div>
         <Form>
@@ -147,6 +180,7 @@ class MeterstandElektra extends Component {
             defaultPageSize={17}
             filterable={true}
         />
+        {/*
         <Button variant="outline-primary" type="submit" onClick={this.zetDatums}>Zet datums</Button>
         <VictoryChart>
           <VictoryLine
@@ -158,7 +192,7 @@ class MeterstandElektra extends Component {
             x={this.extractColumn(this.state.graphdata, "datetime")}
           />
         </VictoryChart>
-        
+        */}
         </div>
     }
 }

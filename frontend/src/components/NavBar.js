@@ -36,6 +36,12 @@ const NavBar = () => (
               <LinkContainer to="/meterstanden">
                 <NavDropdown.Item>Elektra</NavDropdown.Item>
               </LinkContainer>
+              <LinkContainer to="/solaredge">
+                <NavDropdown.Item>SolarEdge</NavDropdown.Item>
+              </LinkContainer>
+              <LinkContainer to="/darksky">
+                <NavDropdown.Item>DarkSky</NavDropdown.Item>
+              </LinkContainer>
               <NavDropdown.Divider />
               <NavDropdown.Item href="https://ericjansen.dynu.net/api/enelogic/oauth/formaturl">Enelogic OAuth</NavDropdown.Item>
             </NavDropdown>
