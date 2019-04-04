@@ -21,31 +21,35 @@ exports.updateMeterstanden = async (req, res) => {
 		var date = new Date(datum);  //or use any other date
 		var rounded = new Date(Math.round(date.getTime() / coeff) * coeff);
 		console.log(datum, stand.Date, rounded);
-		if([15, 30, 45, 0].includes(rounded.getMinutes())){
-			//console.log("Nummer " + i + " heeft rate " + stand.rate + " en waarde " + stand.quantity + " en datum " + datum.format("YYYY-MM-DD HH:mm"));
-			//console.log(stand, datum);
-			
-			values = {
-				datetime: rounded,
-				kwh_180: ((stand.kwh_181 + stand.kwh_182)),
-				kwh_181: stand.kwh_181, 
-				kwh_182: stand.kwh_182,
-				kwh_280: ((stand.kwh_281 + stand.kwh_282)),
-				kwh_281: stand.kwh_281,
-				kwh_282: stand.kwh_282,
-			}
-			//console.log(values);
-			var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: rounded} });
-			if(gevondenmeterstand == null){
-				gevondenmeterstand = await db.meterstanden.create(values);
-				//console.log("Moet toegevoegd worden");
-			}else{
-				gevondenmeterstand = await gevondenmeterstand.update(values);
-				//console.log("Moet geupdate worden");
-			}
+
+		values = {
+			datetime: rounded,
+			180: ((stand['181'] + stand['182'])),
+			181: stand['181'], 
+			182: stand['182'],
+			280: ((stand['281'] + stand['282'])),
+			281: stand['281'],
+			282: stand['282'],
+		}
+		//console.log(values);
+		var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: rounded} });
+		if(gevondenmeterstand == null){
+			gevondenmeterstand = await db.meterstanden.create(values);
+			//console.log("Moet toegevoegd worden");
+		}else{
+			gevondenmeterstand = await gevondenmeterstand.update(values);
+			//console.log("Moet geupdate worden");
 		}
 
 	}
 	
-	res.send("ok");
+	const allm = await db.meterstanden.findAll({
+		where: {
+			datetime: {
+			$gte: moment().subtract(7, 'days').startOf('day').toDate()
+			}
+		}
+	})
+	
+	res.send(allm);
 }

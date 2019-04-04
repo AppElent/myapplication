@@ -7,12 +7,12 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  kwh_181: {
+	  181: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 		field: 'Value1',
 	  },
-	  kwh_281: {
+	  281: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 		field: 'Value2',
@@ -25,12 +25,12 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  },
-	  kwh_182: {
+	  182: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 		field: 'Value5',
 	  },
-	  kwh_282: {
+	  282: {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 		field: 'Value6',

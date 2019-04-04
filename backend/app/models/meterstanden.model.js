@@ -3,7 +3,7 @@ var Moment = require('moment');
 
 module.exports = (sequelize, Sequelize) => {
 
-	const MeterstandElektra = sequelize.define('meterstanden_elektra', {
+	const Meterstanden = sequelize.define('meterstanden', {
 	  datetime: {
 		type: Sequelize.DATE,
 		primaryKey: true,
@@ -11,24 +11,22 @@ module.exports = (sequelize, Sequelize) => {
 			return Moment(this.getDataValue('datetime')).tz('Europe/Amsterdam');//.format('YYYY-MM-DD HH:mm:ss');
 		}
 	  },
-	  kwh_180: {
+	  180: {
 		type: Sequelize.STRING
-	  },kwh_181: {
+	  },181: {
 		type: Sequelize.STRING
-	  },kwh_182: {
+	  },182: {
 		type: Sequelize.STRING
-	  },kwh_280: {
+	  },280: {
 		type: Sequelize.STRING
-	  },kwh_281: {
+	  },281: {
 		type: Sequelize.STRING
-	  },kwh_282: {
-		type: Sequelize.STRING
-	  },kwh_opwekking: {
-		type: Sequelize.STRING
-	  },warmte: {
+	  },282: {
 		type: Sequelize.STRING
 	  },
+	},{
+	  tableName: 'meterstanden',
 	});
 	
-	return MeterstandElektra;
+	return Meterstanden;
 }
