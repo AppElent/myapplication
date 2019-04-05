@@ -152,6 +152,7 @@ module.exports = function(app, db, epilogue) {
 	//Domoticz
 	const domoticz = require('./controllers/domoticz.controller.js');
 	app.get('/api/domoticz/update', domoticz.updateMeterstanden);
+	app.get('/api/domoticz/update/:force', domoticz.updateMeterstanden);
 
 
 
@@ -215,7 +216,7 @@ module.exports = function(app, db, epilogue) {
 	var meterstandenResource = epilogue.resource({
 	  model: db.meterstanden,
 	  endpoints: ['/api/meterstanden', '/api/meterstanden/:datetime'],
-	  sort: {default: '-datetime'},
+	  //sort: {default: '-datetime'},
 	  pagination: false
 	}).all.auth(async function (req, res, context) {
 	  return context.continue;//await epilogueAuthenticationRequired(req, res, context);

@@ -1,17 +1,40 @@
 //
 const db = require('../config/db.config.js');
-var moment = require('moment');
+var moment = require('moment-timezone');
 const path = require("path");
 
 const fetch = require("node-fetch");
 
 
 exports.updateMeterstanden = async (req, res) => {
-	//console.log(req);
-	const url = "https://ericjansen.dynu.net/api/domoticz/multimeter?DeviceRowID=3";
-	const response = await fetch(url);
-	//console.log(response);
-	const meterstanden = await response.json();
+
+	let meterstanden = await db.multimeter.findAll({
+	  where: {
+		DeviceRowID: 3
+	  }
+	});
+	
+	//console.log('meterstanden', meterstanden);
+	
+	const lastentry = await db.meterstanden.findAll({
+		limit: 1,
+		where: {
+			//your where conditions, or without them if you need ANY entry
+			
+		},
+		order: [ [ 'datetime', 'DESC' ]]
+	})
+	console.log('Meterstanden moeten vanaf ' + lastentry[0].datetime + ' worden bijgewerkt');
+	
+	if(req.params.force !== 'force'){
+		meterstanden = meterstanden.filter((item) =>
+			new Date(item.Date) >= (new Date(lastentry[0].datetime))
+		);
+	}
+
+	
+	//console.log('test', meterstanden);
+	
 	
 	for(const stand of meterstanden){
 		datum = new Date(stand.Date);

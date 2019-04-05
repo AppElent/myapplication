@@ -12,6 +12,10 @@ import Moment from 'react-moment';
 import 'moment-timezone';
 import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, VictoryLabel, VictoryStack } from 'victory';
 
+import DatePicker from "react-datepicker";
+
+import "react-datepicker/dist/react-datepicker.css";
+
 import MeterstandenTabel from '../components/MeterstandenTabel';
 import {StringInputField} from '../components/InputFields';
 
@@ -25,7 +29,9 @@ class MeterstandElektra extends Component {
             data: [],
             graphdata: [],
             solaredgedata: [],
-            domoticzdata: [],
+            localdata: [],
+            localdatastart: '',
+            timeframe: 'day',
             ophalen: false,
             datums: {dagstanden_from: "", dagstanden_to: "", kwartierstanden_from: "", kwartierstanden_to: ""}
         }
@@ -128,12 +134,47 @@ class MeterstandElektra extends Component {
         return array;
     }
     
-    setDomoticzData = async () => {
-        let ddata = await makeAPICall('/api/domoticz/multimeter?DeviceRowID=3', 'GET', null, await this.props.auth.getAccessToken());
+    setLocalData = async () => {
+        let ddata = await makeAPICall('/api/meterstanden', 'GET', null, await this.props.auth.getAccessToken());
+        ddata = ddata.sort((a, b) => (a.datetime > b.datetime) ? 1 : -1);
+        ddata = await this.getDifferenceArray(ddata, 'datetime', ['180', '181', '182', '280', '281', '282'])
         
-        ddata = await this.getDifferenceArray(ddata, 'Date', ['180', '181', '182', '280', '281', '282']);
-        this.setState({domoticzdata: ddata});
-        console.log(this.state.domoticzdata);
+        this.setState({localdata: ddata, localdatastart: ddata[0].datetime});
+        //console.log(this.state.localdatastart, this.state.localdata);
+    }
+    
+    addSolarEdgeData = async (data) => {
+        const solarEdgeUrl = await (this.state.timeframe === 'day' ? '/api/solaredge/data/day/' + this.state.datefrom + '/' + moment(this.state.dateto).clone().add(1, 'days').format('YYYY-MM-DD') : '/api/solaredge/data/quarter_of_an_hour/' + this.state.datefrom + '/' + moment(this.state.dateto).clone().add(1, 'days').format('YYYY-MM-DD'));
+        let solaredgedata = await makeAPICall(solarEdgeUrl, 'GET', null, await this.props.auth.getAccessToken());
+        solaredgedata = solaredgedata.energy.values;
+        for(let item of data){
+            //let item = data[i];
+            let i = data.findIndex((e) => e.datetime === item.datetime);
+            data[i]['opwekking'] = null;
+            //console.log(item.datetime);
+            let correctdate = this.state.timeframe === 'day' ? moment(item.datetime).subtract(1, 'days') : moment(item.datetime);
+            let solaredgeitem = solaredgedata.find(entry => moment(entry.date).isSame(correctdate));
+            if(solaredgeitem !== undefined && solaredgeitem.value !== null){
+                data[i]['opwekking'] = (Math.round(parseFloat(solaredgeitem.value)));
+                //console.log(data[i]);
+            }
+        };
+        //console.log(moment(solaredgedata[0].date))
+        this.setState({solaredgedata: solaredgedata});
+        return data;
+    }
+    
+    addBrutoNetto = async (data) => {
+        data.forEach((item, i) => {
+            //let item = data[i];
+            //let i = data.findIndex((e) => e.datetime === item.datetime);
+            data[i]['bruto'] = item['180_diff'];
+            if(item.opwekking !== null){
+                data[i]['bruto'] = item['180_diff'] + item.opwekking - item['280_diff'];
+            }
+            data[i]['netto'] = item['180_diff'] - item['280_diff'];
+        });
+        return data;
     }
     
     setData = async (from, to) => {
@@ -142,56 +183,40 @@ class MeterstandElektra extends Component {
         const sourcediff = moment().subtract(6, 'days');
         console.log(from, to);
         
-        let localquery = false;
-        if(datefrom.isAfter(sourcediff)){
-            localquery = true;
-        }
+        let localquery = (datefrom.isAfter(moment(this.state.localdatastart)) ? true: false);
+        let timeframe = (from === to ? 'quarter' : 'day');
+        this.setState({timeframe: timeframe});
+        let data = '';
         
         
-        let dataUrl = '/api/enelogic/data/dag/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD');
-        let solarEdgeUrl = '/api/solaredge/data/day/' + from + '/' + to;
-        console.log(datefrom.clone().add(1, 'days').format('YYYY-MM-DD'), dateto.format('YYYY-MM-DD'));
-        if(datefrom.clone().add(1, 'days').format('YYYY-MM-DD') === dateto.format('YYYY-MM-DD') ){
-            dataUrl = '/api/enelogic/data/kwartier/' + from;
-            solarEdgeUrl = '/api/solaredge/data/quarter_of_an_hour/' + from + '/' + to;
-        }
-        if(localquery === true){
-            data = this.state.domoticzdata.filter((item: any) =>
-                new Date(item.Date) >= (new Date(from)) && new Date(item.Date) <= (new Date(to))
+        if(localquery){
+            data = this.state.localdata.filter((item: any) =>
+                moment(item.datetime) >= (moment(from)) && moment(item.datetime) <= (dateto.clone().add(1, 'days'))
             );
-        }else{
-            
-        }
 
-        console.log(dataUrl, solarEdgeUrl);
-        var data = await makeAPICall(dataUrl, 'GET', null, await this.props.auth.getAccessToken());
-        data = data.filter((item, index) => index > 0)
-        var solaredgedata = await makeAPICall(solarEdgeUrl, 'GET', null, await this.props.auth.getAccessToken());
+        }else{
+            let dataUrl = (timeframe === 'day' ? ('/api/enelogic/data/dag/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD')) : ('/api/enelogic/data/kwartier/' + datefrom.clone().add(1, 'days').format('YYYY-MM-DD')));
+            let solarEdgeUrl = (timeframe === 'day' ? ('/api/solaredge/data/day/' + from + '/' + to) : ('/api/solaredge/data/quarter_of_an_hour/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD')));
+
+            console.log(dataUrl, solarEdgeUrl);
+            data = await makeAPICall(dataUrl, 'GET', null, await this.props.auth.getAccessToken());
+            data = data.filter((item, index) => index > 0)
+        }
+        data = await this.addSolarEdgeData(data);
+        data = await this.addBrutoNetto(data);
         this.setState({data: data});
-        this.setState({solaredgedata: solaredgedata.energy.values});
+        //console.log(data);
     }
     
     async componentDidMount() {
-        this.setState({datefrom: moment().subtract(1, 'days').format('YYYY-MM-DD'), dateto: moment().format('YYYY-MM-DD')});
-        this.setDomoticzData();
-        await this.setData('2019-03-01', '2019-03-31');
-        /*
-        var data = await makeAPICall('/api/enelogic/data/dag/2019-03-01/2019-04-01', 'GET', null, await this.props.auth.getAccessToken());
-        data = data.filter((item, index) => index > 0)
-        var solaredgedata = await makeAPICall('/api/solaredge/data/day/2019-03-01/2019-03-31', 'GET', null, await this.props.auth.getAccessToken());
-        console.log(data, solaredgedata);
-        //const result = mergeByKey("datetime", array1, array2);
-        //var mergedList = _.map(data, function(item){
-          //  return _.extend(item, _.findWhere(solaredgedata.energy.values, { date: item.datetime }));
-        //});
-        //console.log(mergedList);
-        this.setState({data: data});
-        this.setState({solaredgedata: solaredgedata.energy.values});
-        * */
+        this.setState({datefrom: moment().format('YYYY-MM-DD'), dateto: moment().format('YYYY-MM-DD')});
+        await this.setLocalData();
+        await this.setData(this.state.datefrom, this.state.dateto);
     }
     
     handleChange = event => {
         this.setState({[event.target.name]: event.target.value});
+        console.log(event);
     };
     
     haalMeterstandenOp = async () => {
@@ -203,134 +228,62 @@ class MeterstandElektra extends Component {
     render(){
         return <div>
             <Form><Row>
-                <Col><StringInputField id="datefrom" label="Vanaf datum" value={this.state.datefrom} onFieldChange={this.handleChange} /></Col>
-                <Col><StringInputField id="dateto" label="Tot datum" value={this.state.dateto} onFieldChange={this.handleChange} /></Col>
+            <Col><Row><Form.Label>Vanaf datum</Form.Label></Row>
+            <Row><DatePicker
+                selected={moment(this.state.datefrom).toDate()}
+                selectsStart
+                startDate={moment(this.state.datefrom).toDate()}
+                endDate={moment(this.state.dateto).toDate()}
+                onChange={(data) => this.setState({datefrom: moment(data).format('YYYY-MM-DD')})}
+                className="form-control"
+                dateFormat="yyyy-MM-dd"
+            /></Row></Col>
+
+            <Col><Row><Form.Label>Tm datum</Form.Label></Row>
+            <Row><DatePicker
+                selected={moment(this.state.dateto).toDate()}
+                selectsEnd
+                startDate={moment(this.state.datefrom).toDate()}
+                endDate={moment(this.state.dateto).toDate()}
+                onChange={(data) => this.setState({dateto: moment(data).format('YYYY-MM-DD')})}
+                className="form-control"
+                dateFormat="yyyy-MM-dd"
+            /></Row></Col>
+                <Col><Form.Label>Timeframe</Form.Label><div name="timeframe" key='timeframe' className="mb-3">
+                  <Form.Check
+                    custom
+                    inline
+                    onChange={(data) => this.setState({datefrom: data})}
+                    label="Minuut"
+                    type='radio'
+                    id='minuut'
+                  />
+                  <Form.Check
+                    custom
+                    inline
+                    onChange={(data) => this.setState({dateto: data})}
+                    label="Dag"
+                    type='radio'
+                    id='dag'
+                  />
+                  <Form.Check
+                    custom
+                    inline
+                    onChange={this.handleChange}
+                    disabled
+                    label="Maand"
+                    type='radio'
+                    id='maand'
+                  />
+                </div></Col>
                 <Button variant="outline-primary" type="submit" onClick={this.haalMeterstandenOp} disabled={this.state.ophalen}>Haal op</Button>
             </Row></Form>
             <MeterstandenTabel 
                 data={this.state.data}
                 solaredgedata={this.state.solaredgedata}
+                timeframe={this.state.timeframe}
             />
         </div>
-        {/*
-        console.log(this.state.solaredgedata);
-        var totaal_bruto = 0;
-        var totaal_netto = 0;
-        const columns = [{
-            Header: 'Datum/tijd',
-            accessor: 'datetime', // String-based value accessors!
-            Cell: props => {return (moment(props.value).add(-1, 'days').format('YYYY-MM-DD'))}
-        }, {
-            Header: '180',
-            accessor: '180',
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-            Header: '180 Verbruik',
-            accessor: '180_diff',
-            Footer: () => {return this.getTotal(this.state.data, '180_diff')}
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-            Header: '181',
-            accessor: '181_diff',
-            Footer: () => {return this.getTotal(this.state.data, '181_diff')}
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-            Header: '182',
-            accessor: '182_diff',
-            Footer: () => {return this.getTotal(this.state.data, '182_diff')}
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-            Header: '280',
-            accessor: '280',
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-            Header: '280 Teruglevering',
-            accessor: '280_diff',
-            Footer: () => {return this.getTotal(this.state.data, '280_diff')}
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-            Header: '281',
-            accessor: '281_diff',
-            Footer: () => {return this.getTotal(this.state.data, '281_diff')}
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-            Header: '282',
-            accessor: '282_diff',
-            Footer: () => {return this.getTotal(this.state.data, '282_diff')}
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }, {
-           Header: 'Opwekking', 
-           Cell: row => {
-               var opwekking = this.state.solaredgedata.find(entry => moment(entry.date).add(1, 'days').format('YYYY-MM-DD') === moment(row.original.datetime).format('YYYY-MM-DD'));
-               //console.log(opwekking);
-               return (opwekking !== undefined ? opwekking.value : row.original.datetime);
-               
-            },
-            Footer: () => {return this.getTotal(this.state.solaredgedata, 'value')}
-        }, {
-           Header: 'Bruto verbruik',
-           Cell: row => {
-              var test = row;
-              var opwekking = this.state.solaredgedata.find(entry => moment(entry.date).add(1, 'days').format('YYYY-MM-DD') === moment(row.original.datetime).format('YYYY-MM-DD'));
-              console.log(row);
-              //var opwekking = this.state.solaredgedata.find(entry => entry.date === row.original.datetime);
-              if(opwekking !== undefined){
-                  totaal_bruto += row.original['180_diff']+ (Math.round(parseFloat(opwekking.value)) - row.original['280_diff']);
-                  return (<div>{row.original['180_diff']+ (Math.round(parseFloat(opwekking.value)) - row.original['280_diff'])}</div>) 
-              }
-
-              
-            },
-            Footer: () => {return (totaal_bruto)}
-        }, {
-            Header: 'Netto verbruik',
-            Cell: row => {
-                totaal_netto += row.original['180_diff']- (row.original['280_diff'])
-                return (<div>{row.original['180_diff']- (row.original['280_diff'])}</div>)
-                
-            },
-           Footer: () => {return totaal_netto}
-        }]  
-        
-        var data = this.getDataBetweenDates(this.state.data, "2019-01-01", "2019-01-02").sort((a, b) => (a.datetime > b.datetime) ? 1 : -1)
-        //console.log(this.extractColumn(this.state.data, "datetime"));  
-        //console.log(this.extractColumn(this.state.data, "kwh_180"));  
-        //console.log(this.getDifferenceArray(data, "kwh_180"));   
-        
-        //console.log(this.extractColumn(this.state.graphdata, "kwh_180"));
-        
-        return <div>
-        <Form>
-            <Row>
-            <Col><Form.Label>Dagstanden vanaf</Form.Label><Form.Control type="text" name="dagstanden_from" value={this.state.datums.dagstanden_from} onChange={this.handleChange} /></Col>
-            <Col><Form.Label>Dagstanden tm</Form.Label><Form.Control type="text" name="dagstanden_to" value={this.state.datums.dagstanden_to} onChange={this.handleChange} /></Col>
-            <Col><Form.Label>Kwartierstanden vanaf</Form.Label><Form.Control type="text" name="kwartierstanden_from" value={this.state.datums.kwartierstanden_from} onChange={this.handleChange} /></Col>
-            <Col><Form.Label>Kwartierstanden tm</Form.Label><Form.Control type="text" name="kwartierstanden_to" value={this.state.datums.kwartierstanden_to} onChange={this.handleChange} /></Col>
-            <Button variant="outline-primary" type="submit" onClick={this.haalMeterstandenOp} disabled={this.state.ophalen}>Haal op</Button>
-            </Row>
-        </Form>
-        <ReactTable
-            data={this.state.data}
-            columns={columns}
-            className='-highlight -striped'
-            defaultPageSize={17}
-            filterable={true}
-        />
-        
-        <Button variant="outline-primary" type="submit" onClick={this.zetDatums}>Zet datums</Button>
-        <VictoryChart>
-          <VictoryLine
-            y={this.extractColumn(this.state.graphdata, "kwh_180")}
-            x={this.extractColumn(this.state.graphdata, "datetime")}
-          />
-          <VictoryLine
-            y={this.extractColumn(this.state.graphdata, "kwh_180")}
-            x={this.extractColumn(this.state.graphdata, "datetime")}
-          />
-        </VictoryChart>
-        
-        </div>
-        * */}
     }
 }
 

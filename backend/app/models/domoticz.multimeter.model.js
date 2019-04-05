@@ -1,5 +1,6 @@
 
-var Moment = require('moment');
+
+var moment = require('moment-timezone');
 
 module.exports = (sequelize, Sequelize) => {
 	const MultiMeter = sequelize.define('MultiMeter', {
@@ -36,12 +37,13 @@ module.exports = (sequelize, Sequelize) => {
 		field: 'Value6',
 	  },
 	  Date: {
-		type: Sequelize.DATE,
+		type: Sequelize.STRING,
 		allowNull: false,
 		get: function () {
 			//return this.getDataValue('Date').toString().replace("Z","").replace("T","");
 			//return Moment(this.getDataValue('Date')).add(-1, 'hours');//.format().replace("+01:00","Z");
-			return Moment(this.getDataValue('Date')).utc().format().replace("Z","+01:00");
+			return moment.tz(moment(this.getDataValue('Date')).utc().format('YYYY-MM-DD HH:mm:ss'), 'Europe/Amsterdam');
+			//return moment.tz();
 		}
 	  }
 	},{

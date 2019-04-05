@@ -40,7 +40,7 @@ class MeterstandenTabel extends Component {
         const columns = [{
             Header: 'Datum/tijd',
             accessor: 'datetime', // String-based value accessors!
-            Cell: props => {return (moment(props.value).add(-1, 'days').format('YYYY-MM-DD'))}
+            Cell: props => {const date = moment(props.value);return (this.props.timeframe === 'day' ? date.subtract(1, 'days').format('YYYY-MM-DD') : date.format('YYYY-MM-DD HH:mm'))}
         }, {
             Header: '180',
             accessor: '180',
@@ -80,37 +80,20 @@ class MeterstandenTabel extends Component {
             Footer: () => {return this.getTotal(this.props.data, '282_diff')}
             //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
-           Header: 'Opwekking', 
-           Cell: row => {
-               var opwekking = this.props.solaredgedata.find(entry => moment(entry.date).add(1, 'days').format('YYYY-MM-DD') === moment(row.original.datetime).format('YYYY-MM-DD'));
-               //console.log(opwekking);
-               return (opwekking !== undefined ? opwekking.value : row.original.datetime);
-               
-            },
-            Footer: () => {return this.getTotal(this.props.solaredgedata, 'value')}
+            Header: 'Opwekking',
+            accessor: 'opwekking',
+            Footer: () => {return this.getTotal(this.props.data, 'opwekking')}
+            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
-           Header: 'Bruto verbruik',
-           Cell: row => {
-              var test = row;
-              var opwekking = this.props.solaredgedata.find(entry => moment(entry.date).add(1, 'days').format('YYYY-MM-DD') === moment(row.original.datetime).format('YYYY-MM-DD'));
-              //console.log(row);
-              //var opwekking = this.props.solaredgedata.find(entry => entry.date === row.original.datetime);
-              if(opwekking !== undefined){
-                  totaal_bruto += row.original['180_diff']+ (Math.round(parseFloat(opwekking.value)) - row.original['280_diff']);
-                  return (<div>{row.original['180_diff']+ (Math.round(parseFloat(opwekking.value)) - row.original['280_diff'])}</div>) 
-              }
-
-              
-            },
-            Footer: () => {return (totaal_bruto)}
+            Header: 'Bruto verbruik',
+            accessor: 'bruto',
+            Footer: () => {return this.getTotal(this.props.data, 'bruto')}
+            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }, {
             Header: 'Netto verbruik',
-            Cell: row => {
-                totaal_netto += row.original['180_diff']- (row.original['280_diff'])
-                return (<div>{row.original['180_diff']- (row.original['280_diff'])}</div>)
-                
-            },
-           Footer: () => {return totaal_netto}
+            accessor: 'netto',
+            Footer: () => {return this.getTotal(this.props.data, 'netto')}
+            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
         }]  
         
         //var data = this.getDataBetweenDates(this.props.data, "2019-01-01", "2019-01-02").sort((a, b) => (a.datetime > b.datetime) ? 1 : -1)
