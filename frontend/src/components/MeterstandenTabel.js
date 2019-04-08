@@ -10,23 +10,14 @@ class MeterstandenTabel extends Component {
     
     constructor(props) {
         super(props);
-        this.state = {
-            //data: props.data,
-            //graphdata: props.graphdata,
-            //solaredgedata: props.solaredgedata,
-            //ophalen: props.ophalen,
-            //datums: {dagstanden_from: "", dagstanden_to: "", kwartierstanden_from: "", kwartierstanden_to: ""}
-        }
+
     }
     
     getTotal = (array, column) => {
         let total = 0
-        //console.log(this.state.rekeningen);
-        //console.log(column);
         if(array.length > 0){
             for (let line of array) {
               total += line[column]
-              //console.log(rekening[column]);
             }
             return (<div>{total}</div>);
         }
@@ -34,13 +25,12 @@ class MeterstandenTabel extends Component {
     
     
     render(){
-        //console.log("sedata", this.props.solaredgedata);
         var totaal_bruto = 0;
         var totaal_netto = 0;
         const columns = [{
             Header: 'Datum/tijd',
             accessor: 'datetime', // String-based value accessors!
-            Cell: props => {const date = moment(props.value);return (this.props.timeframe === 'day' ? date.subtract(1, 'days').format('YYYY-MM-DD') : date.format('YYYY-MM-DD HH:mm'))}
+            //Cell: props => {const date = moment(props.value);return (this.props.timeframe === 'minute' ? date.format('YYYY-MM-DD HH:mm') : date.format('YYYY-MM-DD'))}
         }, {
             Header: '180',
             accessor: '180',
@@ -104,17 +94,6 @@ class MeterstandenTabel extends Component {
         //console.log(this.extractColumn(this.props.graphdata, "kwh_180"));
         
         return <div>
-        {/*
-        <Form>
-            <Row>
-            <Col><Form.Label>Dagstanden vanaf</Form.Label><Form.Control type="text" name="dagstanden_from" value={this.props.datums.dagstanden_from} onChange={this.handleChange} /></Col>
-            <Col><Form.Label>Dagstanden tm</Form.Label><Form.Control type="text" name="dagstanden_to" value={this.props.datums.dagstanden_to} onChange={this.handleChange} /></Col>
-            <Col><Form.Label>Kwartierstanden vanaf</Form.Label><Form.Control type="text" name="kwartierstanden_from" value={this.props.datums.kwartierstanden_from} onChange={this.handleChange} /></Col>
-            <Col><Form.Label>Kwartierstanden tm</Form.Label><Form.Control type="text" name="kwartierstanden_to" value={this.props.datums.kwartierstanden_to} onChange={this.handleChange} /></Col>
-            <Button variant="outline-primary" type="submit" onClick={this.haalMeterstandenOp} disabled={this.props.ophalen}>Haal op</Button>
-            </Row>
-        </Form>
-        * */}
         <ReactTable
             data={this.props.data}
             columns={columns}
