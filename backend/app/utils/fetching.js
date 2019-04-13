@@ -18,7 +18,8 @@ exports.makeAPICall = async (url, method, body, token) => {
       }
       return response;
     })
+    .catch((error) => console.log(error))
     .then(response => 
 	    response.clone().json().catch(() => response.text())
-    )
+    ).catch((error) => console.log(error))
 }

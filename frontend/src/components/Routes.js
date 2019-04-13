@@ -13,6 +13,7 @@ import Meterstanden from '../pages/Meterstanden';
 import MeterstandenKostenOverzicht from '../pages/Home';
 import SolarEdge from '../pages/SolarEdge';
 import DarkSky from '../pages/DarkSky';
+import Tado from '../pages/Tado';
 import Bunq from '../pages/Bunq';
 import BunqOauth from '../pages/BunqOauth';
 import Login from '../pages/Login';
@@ -40,6 +41,7 @@ const Routes = () => (
                   <SecureRoute exact path="/meterstanden_kosten" component={MeterstandenKostenOverzicht} />
                   <SecureRoute exact path="/solaredge" component={SolarEdge} />
                   <SecureRoute exact path="/darksky" component={DarkSky} />
+                  <SecureRoute exact path="/tado" component={Tado} />
                   <SecureRoute exact path="/bunq" component={Bunq} />
                   <SecureRoute exact path="/bunq/oauth" component={BunqOauth} />
                   

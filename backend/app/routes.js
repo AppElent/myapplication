@@ -107,6 +107,7 @@ module.exports = function(app, db, epilogue) {
 	//Custom routes
 	const custom = require('./controllers/custom.controller.js');
 	app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
+	app.post('/api/redirectcall', authenticationRequired, custom.redirectCall);
 	
 	
 

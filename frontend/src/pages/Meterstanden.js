@@ -1,52 +1,48 @@
 // ./src/car/car.component.jsx
-import React, { Component } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 //import { Table } from 'react-bootstrap';
-import ReactTable from "react-table";
+//import ReactTable from "react-table";
 import 'react-table/react-table.css'
 import { withAuth } from '@okta/okta-react';
 import {makeAPICall} from '../utils/fetching';
 //import {mergeArrayById} from '../utils/arrays';
-import { Button, Form, Row, Col } from 'react-bootstrap';
+import { Button, Form, Col } from 'react-bootstrap';
 import moment from 'moment';
-import Moment from 'react-moment';
+//import Moment from 'react-moment';
 import 'moment-timezone';
-import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, VictoryLabel, VictoryStack } from 'victory';
+//import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, VictoryLabel, VictoryStack } from 'victory';
 
 import DatePicker from "react-datepicker";
 
 import "react-datepicker/dist/react-datepicker.css";
 
 import MeterstandenTabel from '../components/MeterstandenTabel';
-import {StringInputField} from '../components/InputFields';
+//import {StringInputField} from '../components/InputFields';
 
-class MeterstandElektra extends Component {
+//class MeterstandElektra extends Component {
+const MeterstandElektra = ({auth}) => {
     
-    constructor() {
-        super();
-        this.state = {
-            datefrom: '',
-            dateto: '',
-            data: [],
-            graphdata: [],
-            solaredgedata: [],
-            localdata: [],
-            localdatastart: '',
-            timeframe: 'minute',
-            ophalen: false,
-        }
-    }
+    const [datefrom, setDatefrom] = useState(moment().format('YYYY-MM-DD'));
+    const [dateto, setDateto] = useState(moment().format('YYYY-MM-DD'));
+    const [data, setData] = useState([]);
+    const [graphdata, setGraphdata] = useState([]);
+    const [solaredgedata, setSolaredgedata] = useState([]);
+    const [localdata, setLocaldata] = useState([]);
+    const [timeframe, setTimeframe] = useState('quarter');
+    const [loading, setLoading] = useState(true);
+
     
 
     
     /*
     
     zetDatums = () => {
-        let datums = this.state.datums;
+        let datums = datums;
         
-        datums.dagstanden_from = moment(((this.state.data.find(obj => obj.kwh_181 !== null).datetime))).format("YYYY-MM-DD");
-        datums.dagstanden_to = moment(((this.state.data.find(obj => obj.kwh_181 !== null).datetime))).format("YYYY-MM-DD");
-        datums.kwartierstanden_from = moment(((this.state.data.find(obj => obj.kwh_180 !== null).datetime))).format("YYYY-MM-DD");
-        datums.kwartierstanden_to = moment(((this.state.data.find(obj => obj.kwh_180 !== null).datetime))).format("YYYY-MM-DD");
+        datums.dagstanden_from = moment(((data.find(obj => obj.kwh_181 !== null).datetime))).format("YYYY-MM-DD");
+        datums.dagstanden_to = moment(((data.find(obj => obj.kwh_181 !== null).datetime))).format("YYYY-MM-DD");
+        datums.kwartierstanden_from = moment(((data.find(obj => obj.kwh_180 !== null).datetime))).format("YYYY-MM-DD");
+        datums.kwartierstanden_to = moment(((data.find(obj => obj.kwh_180 !== null).datetime))).format("YYYY-MM-DD");
         this.setState({datums: datums});
         //console.log(datums);
     }
@@ -55,7 +51,7 @@ class MeterstandElektra extends Component {
     
     haalMeterstandenOp = async () => {
         this.setState({ophalen: true})
-        let datums = this.state.datums;
+        let datums = datums;
         let body = {
             dagstanden_from: (datums.dagstanden_from === "" ? null : datums.dagstanden_from),
             dagstanden_to: (datums.dagstanden_to === "" ? null : datums.dagstanden_to),
@@ -68,7 +64,7 @@ class MeterstandElektra extends Component {
     }
     
     handleChange = event => {
-        let datums = this.state.datums;
+        let datums = datums;
         let item = datums[event.target.name];
         let newValue = event.target.value
         datums[event.target.name] = newValue;
@@ -101,7 +97,7 @@ class MeterstandElektra extends Component {
     
     getTotal = (array, column) => {
         let total = 0
-        //console.log(this.state.rekeningen);
+        //console.log(rekeningen);
         //console.log(column);
         if(array.length > 0){
             for (let line of array) {
@@ -113,7 +109,11 @@ class MeterstandElektra extends Component {
     }
     * */
     
-    getDifferenceArray = async (array, id, columnArray) => {
+    const isDayQuery = (localtimeframe) => {
+        return (['minute', 'quarter', 'hour'].includes(localtimeframe) ? true : false);
+    }
+    
+    const getDifferenceArray = async (array, id, columnArray) => {
         var savedItems = {}
         //savedItems['first'] = array[0];
         savedItems['previous'] = array[0];
@@ -133,38 +133,36 @@ class MeterstandElektra extends Component {
         return array;
     }
     
-    setLocalData = async () => {
-        let ddata = await makeAPICall('/api/meterstanden', 'GET', null, await this.props.auth.getAccessToken());
-        ddata = ddata.sort((a, b) => (a.datetime > b.datetime) ? 1 : -1);
-        ddata = await this.getDifferenceArray(ddata, 'datetime', ['180', '181', '182', '280', '281', '282'])
-        
-        this.setState({localdata: ddata, localdatastart: ddata[0].datetime});
-        //console.log(this.state.localdatastart, this.state.localdata);
-    }
     
-    addSolarEdgeData = async (data) => {
-        const solarEdgeUrl = await (this.state.timeframe === 'day' ? '/api/solaredge/data/day/' + this.state.datefrom + '/' + moment(this.state.dateto).clone().add(1, 'days').format('YYYY-MM-DD') : '/api/solaredge/data/quarter_of_an_hour/' + this.state.datefrom + '/' + moment(this.state.dateto).clone().add(1, 'days').format('YYYY-MM-DD'));
+    const addSolarEdgeData = async (data) => {
+        let dayQuery = isDayQuery(timeframe);
+        let timeframeSolarEdge = timeframe;
+        timeframeSolarEdge = (dayQuery ? 'quarter_of_an_hour' : timeframeSolarEdge);
+        
+        let solarEdgeUrl = (dayQuery ? '/api/solaredge/data/quarter_of_an_hour/' + datefrom + '/' + moment(dateto).clone().add(1, 'days').format('YYYY-MM-DD') : '/api/solaredge/data/' + timeframeSolarEdge + '/' + datefrom + '/' + dateto);
+
+        //const solarEdgeUrl = await (timeframe === 'day' ? '/api/solaredge/data/day/' + datefrom + '/' + moment(dateto).clone().add(1, 'days').format('YYYY-MM-DD') : '/api/solaredge/data/quarter_of_an_hour/' + datefrom + '/' + moment(dateto).clone().add(1, 'days').format('YYYY-MM-DD'));
         console.log(solarEdgeUrl);
-        let solaredgedata = await makeAPICall(solarEdgeUrl, 'GET', null, await this.props.auth.getAccessToken());
+        let solaredgedata = await makeAPICall(solarEdgeUrl, 'GET', null, await auth.getAccessToken());
         solaredgedata = solaredgedata.energy.values;
         for(let item of data){
             //let item = data[i];
             let i = data.findIndex((e) => e.datetime === item.datetime);
             data[i]['opwekking'] = null;
             //console.log(item.datetime);
-            //let correctdate = this.state.timeframe === 'day' ? moment(item.datetime).subtract(1, 'days') : moment(item.datetime);
+            //let correctdate = timeframe === 'day' ? moment(item.datetime).subtract(1, 'days') : moment(item.datetime);
             let solaredgeitem = solaredgedata.find(entry => moment(entry.date).isSame(moment(item.datetime)));
             if(solaredgeitem !== undefined && solaredgeitem.value !== null){
                 data[i]['opwekking'] = (Math.round(parseFloat(solaredgeitem.value)));
                 //console.log(data[i]);
             }
         };
-        //console.log(moment(solaredgedata[0].date))
-        this.setState({solaredgedata: solaredgedata});
+
+        //setSolaredgedata(solaredgedata);
         return data;
     }
     
-    addBrutoNetto = async (data) => {
+    const addBrutoNetto = async (data) => {
         data.forEach((item, i) => {
             //let item = data[i];
             //let i = data.findIndex((e) => e.datetime === item.datetime);
@@ -177,130 +175,214 @@ class MeterstandElektra extends Component {
         return data;
     }
     
-    setData = async (from, to, timeframe) => {
+    const setElektraData = async (from, to, localtimeframe, passedlocaldata = null) => {
         
-        const dayQuery = ['minute', 'quarter', 'hour'].includes(timeframe) ? true : false;
+        
+        passedlocaldata = (passedlocaldata === null ? localdata : passedlocaldata)
+        const firstdate = passedlocaldata[0].datetime
+        
+        const dayQuery = isDayQuery(localtimeframe);
         
         const datefrom = moment(from);
         const dateto = moment(to);
-        //const sourcediff = moment().subtract(6, 'days');
-        console.log(from, to);
+        console.log(from, to, firstdate);
         
-        let localquery = (datefrom.isAfter(moment(this.state.localdatastart)) ? true: false);
-        let fillWithLocalData = (datefrom.isBefore(moment(this.state.localdatastart)) && dateto.isAfter(moment(this.localdatastart)) ? true: false);
-        //let timeframe = (from === to ? 'quarter' : 'day');
-        //this.setState({timeframe: timeframe});
+        let localquery = (datefrom.isAfter(moment(firstdate)) ? true: false);
+        console.log(localquery, datefrom, dateto, firstdate);
+        let fillWithLocalData = (datefrom.isBefore(moment(firstdate)) && dateto.isAfter(moment(firstdate)) ? true: false);
         let data = '';
         
         
         if(localquery){
             if(dayQuery){
-                data = this.state.localdata.filter((item: any) =>
+                data = passedlocaldata.filter((item: any) =>
                     moment(item.datetime) >= (moment(from)) && moment(item.datetime) <= (dateto.clone().add(1, 'days'))
                 );
-                if(timeframe === 'quarter'){
+                if(localtimeframe === 'quarter'){
                     data = data.filter((item: any) =>
                         ['15', '30', '45', '00'].includes(moment(item.datetime).format("mm"))
                     );
-                    data = await this.getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                    data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                }else if(localtimeframe === 'hour'){
+                    data = data.filter((item: any) =>
+                        moment(item.datetime).format("mm") === '00'
+                    );
+                    data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
                 }
-            }else if(timeframe === 'day'){
-                data = this.state.localdata.filter((item: any) =>
+                console.log(data);
+            }else if(localtimeframe === 'day'){
+                data = passedlocaldata.filter((item: any) =>
                     moment(item.datetime) >= (moment(from)) && moment(item.datetime) <= (dateto.clone().add(1, 'days')) && moment(item.datetime).format("HH:mm:ss") === "00:00:00"
                 );
-                data = await this.getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                //await data.forEach( item => item.datetime = moment(item.datetime).subtract(1, 'days') );
+                data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
             }
 
         }else{
-            let timeframeSolarEdge = timeframe;
-            timeframeSolarEdge = (dayQuery ? 'quarter_of_an_hour' : timeframeSolarEdge);
-            
-            let dataUrl = (timeframe === 'day' ? ('/api/enelogic/data/dag/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD')) : ('/api/enelogic/data/kwartier/' + datefrom.clone().add(1, 'days').format('YYYY-MM-DD')));
-            let solarEdgeUrl = (dayQuery ? '/api/solaredge/data/quarter_of_an_hour/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD') : '/api/solaredge/data/' + timeframeSolarEdge + '/' + from + '/' + to);
-            
-            //(timeframe === 'day' ? ('/api/solaredge/data/day/' + from + '/' + to) : ('/api/solaredge/data/quarter_of_an_hour/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD')));
-
-            console.log(dataUrl, solarEdgeUrl);
-            data = await makeAPICall(dataUrl, 'GET', null, await this.props.auth.getAccessToken());
-            data = data.filter((item, index) => index > 0)
-            if(dayQuery == false){
-                data.forEach( item => item.datetime = moment(item.datetime).subtract(1, 'days') );
+            //let fromdate = (timeframe === 'day' ? datefrom.clone())
+            let dataUrl = '';
+            if(dayQuery){
+                dataUrl = '/api/enelogic/data/kwartier/' + datefrom.format('YYYY-MM-DD')
+            }else if(localtimeframe === 'day'){
+                dataUrl = '/api/enelogic/data/dag/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD')
+            }else{
+                dataUrl = '/api/enelogic/data/dag/' + datefrom.clone().subtract(1, 'month').format('YYYY-MM-DD') + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD')
             }
             
-        }
-        if(fillWithLocalData){
 
+            console.log(dataUrl);
+            data = await makeAPICall(dataUrl, 'GET', null, await auth.getAccessToken());
+            if(localtimeframe === 'month'){
+                data = data.filter((item: any) =>
+                    moment(item.datetime).format("DD") === '01'
+                );
+                data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+            }
+            if(dayQuery === false){
+                data = data.filter((item, index) => index > 0)
+            }
+            
+            
+        }
+        
+        
+        
+        if(fillWithLocalData){
+            if(localtimeframe === 'day'){
+                const yesterday = moment();
+                let yesterdaydata = localdata.find((item: any) =>
+                    moment(item.datetime).format("YYYY-MM-DD HH:mm:ss") === (yesterday.format('YYYY-MM-DD') + " 00:00:00" )
+                );
+                console.log(data, yesterdaydata);
+                let index = data.findIndex(entry => moment(entry.datetime).isSame(moment(yesterdaydata.datetime)));
+                if(index === -1){
+                    data.push(yesterdaydata);
+                    data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                }
+
+            }
+        }
+        
+        if(localtimeframe === 'day'){
+            data.forEach( item => item.datetime = moment(item.datetime).subtract(1, 'days') );
+        }else if(localtimeframe === 'month'){
+            data.forEach( item => item.datetime = moment(item.datetime).subtract(1, 'months') );
         }
         
         //Zet datum formaat
-        const format = dayQuery ? "YYYY-MM-DD HH:mm" : "YYYY-MM-DD";
+        const format = dayQuery ? "YYYY-MM-DD HH:mm" : (localtimeframe === 'day' ? "YYYY-MM-DD" : "YYYY-MM");
         data.forEach( item => item.datetime = moment(item.datetime).format(format) );
         
-        data = await this.addSolarEdgeData(data);
-        data = await this.addBrutoNetto(data);
-        this.setState({data: data});
-        //console.log(data);
+        data = await addSolarEdgeData(data);
+        data = await addBrutoNetto(data);
+        setData(data);
+        console.log(data);
     }
     
-    async componentDidMount() {
-        this.setState({datefrom: moment().format('YYYY-MM-DD'), dateto: moment().format('YYYY-MM-DD')});
-        await this.setLocalData();
-        await this.setData(this.state.datefrom, this.state.dateto, this.state.timeframe);
+    const loadPage = async () => {
+        
+        let ddata = await makeAPICall('/api/meterstanden', 'GET', null, await auth.getAccessToken());
+        ddata = ddata.sort((a, b) => (a.datetime > b.datetime) ? 1 : -1);
+        ddata = await getDifferenceArray(ddata, 'datetime', ['180', '181', '182', '280', '281', '282'])
+        //setLocaldatastart(ddata[0].datetime);
+        await setLocaldata(ddata);
+        await setElektraData(datefrom, dateto, timeframe, ddata);
+        setLoading(false);
     }
     
-    handleChange = event => {
-        this.setState({[event.target.name]: event.target.value});
+    useEffect(() => {
+        loadPage();
+    }, [])
+    
+    const handleChange = event => {
+        setTimeframe(event.target.value);
         console.log(event.target.name);
     };
     
     
-    haalMeterstandenOp = async () => {
-        this.setState({ophalen: true})
-        await this.setData(this.state.datefrom, this.state.dateto, this.state.timeframe);
-        this.setState({ophalen: false})
+    const haalMeterstandenOp = async () => {
+        setLoading(true);
+        await setElektraData(datefrom, dateto, timeframe);
+        setLoading(false);
     }
     
-    render(){
-        return <div>
-            <Form><Row>
-            <Col><div className="form-group">Vanaf datum</div>
-            <DatePicker
-                selected={moment(this.state.datefrom).toDate()}
-                selectsStart
-                startDate={moment(this.state.datefrom).toDate()}
-                endDate={moment(this.state.dateto).toDate()}
-                onChange={(data) => this.setState({datefrom: moment(data).format('YYYY-MM-DD')})}
-                className="form-control"
-                dateFormat="yyyy-MM-dd"
-            /></Col>
-
-            <Col><div className="form-group">Tm datum</div>
-            <DatePicker
-                selected={moment(this.state.dateto).toDate()}
-                selectsEnd
-                startDate={moment(this.state.datefrom).toDate()}
-                endDate={moment(this.state.dateto).toDate()}
-                onChange={(data) => this.setState({dateto: moment(data).format('YYYY-MM-DD')})}
-                className="form-control"
-                dateFormat="yyyy-MM-dd"
-            /></Col>
-                <Col>     <Form.Label>Timeframe</Form.Label><div  className="form-control" name="timeframe" onChange={this.handleChange}>
-                    <input type="radio" value="minute" name="timeframe" defaultChecked disabled={this.state.datefrom === this.state.dateto ? false : true}/> Minuten  
-                    <input type="radio" value="quarter" name="timeframe" disabled={this.state.datefrom === this.state.dateto ? false : true}/> Kwartier  
-                    <input type="radio" value="hour" name="timeframe" disabled={this.state.datefrom === this.state.dateto ? false : true}/> Uur  
-                    <input type="radio" value="day" name="timeframe"/> Dag  
-                    <input type="radio" value="month" name="timeframe"/> Maand  
-                  </div><div name="timeframe" key='timeframe' className="mb-3">
-
-                </div></Col>
-                <Button variant="outline-primary" type="submit" onClick={this.haalMeterstandenOp} disabled={this.state.ophalen}>Haal op</Button>
-            </Row></Form>
-            <MeterstandenTabel 
-                data={this.state.data}
-                timeframe={this.state.timeframe}
-            />
-        </div>
+    const updateDatePicker = (date, data) => {
+        console.log(date, moment(data).format('YYYY-MM-DD'), dateto, timeframe);
+        if(date === 'datefrom'){
+            setDatefrom(moment(data).format('YYYY-MM-DD'));
+            if(dateto !== moment(data).format('YYYY-MM-DD') && isDayQuery(timeframe)){
+                setTimeframe('day');
+            }
+        }
+        if(date === 'dateto'){
+            setDateto(moment(data).format('YYYY-MM-DD'));
+            if(datefrom !== moment(data).format('YYYY-MM-DD') && isDayQuery(timeframe)){
+                setTimeframe('day');
+            }
+        }
     }
+    console.log(timeframe);
+    
+    const checkTimeframe = (localtimeframe) => {
+     console.log('jo', localtimeframe);
+     return true;   
+    }
+    
+    return <div>
+        <Form>
+            <Form.Row>
+                <Form.Group as={Col}>
+                    <Form.Label>Vanaf datum</Form.Label>
+                    <DatePicker
+                        id="datepicker_start"
+                        selected={moment(datefrom).toDate()}
+                        selectsStart
+                        startDate={moment(datefrom).toDate()}
+                        endDate={moment(dateto).toDate()}
+                        onChange={(data) => updateDatePicker('datefrom', data)}
+                        className="form-control"
+                        dateFormat="yyyy-MM-dd"
+                        minDate={moment().subtract(24, 'months').toDate()}
+                        maxDate={moment().toDate()}
+                        showMonthYearDropdown withPortal showWeekNumbers fixedHeight
+                    />
+                </Form.Group>
+                <Form.Group as={Col}>
+                    <Form.Label>Tm datum</Form.Label>
+                    <DatePicker
+                        selected={moment(dateto).toDate()}
+                        selectsEnd
+                        startDate={moment(datefrom).toDate()}
+                        endDate={moment(dateto).toDate()}
+                        onChange={(data) => updateDatePicker('dateto', data)}
+                        className="form-control"
+                        dateFormat="yyyy-MM-dd"
+                        minDate={moment().subtract(24, 'months').toDate()}
+                        maxDate={moment().toDate()}
+                        showMonthYearDropdown withPortal showWeekNumbers fixedHeight
+                    />
+                </Form.Group>
+                <Form.Group as={Col}>
+                    <Form.Label>Timeframe</Form.Label>
+                    <Form.Control as="select" className="form-control" name="timeframe" onChange={handleChange}>
+                        {(datefrom === dateto) && <option type="radio" value="minute" name="timeframe" checked={timeframe === 'minute'} onChange={handleChange} > Minuten</option> }
+                        {(datefrom === dateto) && <option type="radio" value="quarter" name="timeframe" checked={timeframe === 'quarter'} onChange={handleChange}  > Kwartier  </option>}
+                        {(datefrom === dateto) && <option type="radio" value="hour" name="timeframe" checked={timeframe === 'hour'} onChange={handleChange} > Uur  </option>}
+                        <option type="radio" value="day" name="timeframe" checked={timeframe === 'day'} onChange={handleChange} > Dag  </option>
+                        <option type="radio" value="month" name="timeframe" checked={timeframe === 'month'} onChange={handleChange} > Maand  </option>
+                    </Form.Control>
+                
+                </Form.Group>
+                <Form.Group as={Col}>
+                    <Button style={{marginTop: '32px'}} className="form-control" variant="outline-primary" type="submit" onClick={haalMeterstandenOp} disabled={loading}>Haal op</Button>
+                </Form.Group>
+                
+            </Form.Row>
+        </Form>
+        <MeterstandenTabel 
+            data={data} loading={loading}
+        />
+    </div>
 }
 
 export default withAuth(MeterstandElektra)

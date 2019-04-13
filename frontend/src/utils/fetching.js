@@ -29,3 +29,10 @@ export const makeAPICall = (url, method, body, token) => {
 	    response.clone().json().catch(() => response.text())
     )
 }
+
+export const makeAPICallFromNodeJS = async (url, method, headers, body, token) => {
+  const totalBody = {url: url, headers: headers, body: body, method: method}
+  const data = await makeAPICall('/api/redirectcall', 'POST', totalBody, token);
+  return (data);
+  
+}
