@@ -4,7 +4,8 @@ import { useAuth } from '../utils/auth';
 
 
 import { withAuth } from '@okta/okta-react';
-import {makeAPICall} from '../utils/fetching';
+import {makeAPICall, makeAPICallFromNodeJS} from '../utils/fetching';
+import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import moment from 'moment';
 import Moment from 'react-moment';
 import 'moment-timezone';
@@ -13,11 +14,18 @@ import DefaultFormRow from '../components/DefaultFormRow';
 
 const SolarEdge = ({auth}) => {
     const [data, setData] = useState([]);
-    const [apikey, setApiKey] = useState(localStorage.getItem('solaredge_api_key') || '');
-    const [siteID, setSiteID] = useState(localStorage.getItem('solaredge_site_id') || '');
-    const [inverterID, setInterverID] = useState(localStorage.getItem('solaredge_inverter_id') || '');
+    const [apikey, setApiKey] = useState(getLocalStorage('solaredge_api_key') || '');
+    const [siteID, setSiteID] = useState(getLocalStorage('solaredge_site_id') || '');
+    const [inverterID, setInterverID] = useState(getLocalStorage('solaredge_inverter_id') || '');
     const [loading, setLoading] = useState(false);
     
+    const solaredge_host = 'https://monitoringapi.solaredge.com'
+    
+    const getSolarEdgeData = async (url) => {
+        url = solaredge_host + url + "&api_key=" + apikey + "&format=application/json";
+        const data = await makeAPICallFromNodeJS(url, 'GET', undefined, undefined, await auth.getAccessToken());
+        return (data);
+    }
     
     const getData = async () => {
         const date = moment();
@@ -25,8 +33,20 @@ const SolarEdge = ({auth}) => {
         //setData(data.energy.values);
     }
     
+    const setSiteAndInverter = async () => {
+        const site = await getSolarEdgeData('/sites/list?size=1');
+        const siteID = site.sites.site[0].id;
+        const equipment = await getSolarEdgeData('/equipment/' + siteID + '/list?size=1')
+        const inverterSN = equipment.reporters.list[0].serialNumber;
+        setInterverID(inverterSN);
+        setSiteID(siteID);
+        setLocalStorage('solaredge_site_id', siteID);
+        setLocalStorage('solaredge_inverter_id', inverterSN);
+    }
+    
     useEffect(() => {
-        getData();
+        //getData();
+        //setSiteAndInverter();
     }, [])
 
     const columns = [{
@@ -41,7 +61,7 @@ const SolarEdge = ({auth}) => {
     
     const apiKeyHandler = (event) => setApiKey(event.target.value);
     
-    const buttonClickHandler = (event) => {event.preventDefault(); localStorage.setItem('solaredge_api_key', apikey);}
+    const buttonClickHandler = (event) => {event.preventDefault(); setLocalStorage('solaredge_api_key', apikey);setSiteAndInverter();}
     
     let formItems = [{
         id: 'apikey',
@@ -53,6 +73,8 @@ const SolarEdge = ({auth}) => {
     
     return <div><h2>SolarEdge connection</h2>
         <DefaultFormRow data={formItems} button={{click: buttonClickHandler, disabled: false, text: 'Sla API key op en laad gegevens'}} />
+        {siteID !== '' && <p>Site ID: {siteID}</p>}
+        {inverterID !== '' && <p>Inverter ID: {inverterID}</p>}
         {apikey !== '' && inverterID !== '' && siteID !== '' && <DefaultTable data={data} columns={columns}/>   }
     </div>  
         

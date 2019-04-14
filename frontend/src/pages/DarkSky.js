@@ -4,6 +4,7 @@ import { useAuth } from '../utils/auth';
 
 import { withAuth } from '@okta/okta-react';
 import {makeAPICall, makeAPICallFromNodeJS} from '../utils/fetching';
+import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import Moment from 'react-moment';
 import DefaultTable from '../components/DefaultTable';
 import DefaultFormRow from '../components/DefaultFormRow';
@@ -11,7 +12,7 @@ import { Button, ButtonToolbar } from 'react-bootstrap';
 
 const DarkSky = ({auth}) => {
     const [data, setData] = useState([]);
-    const [apikey, setApiKey] = useState(localStorage.getItem('darksky_api_key') || '');
+    const [apikey, setApiKey] = useState(getLocalStorage('darksky_api_key') || '');
     const [testUrl, setTestUrl] = useState('');
     const [testResult, setTestResult] = useState('');
     
@@ -38,7 +39,7 @@ const DarkSky = ({auth}) => {
     
     const apiKeyHandler = (event) => setApiKey(event.target.value);
     
-    const buttonClickHandler = (event) => {event.preventDefault(); localStorage.setItem('darksky_api_key', apikey);}
+    const buttonClickHandler = (event) => {event.preventDefault(); setLocalStorage('darksky_api_key', apikey);}
     
     const testhandler = (event) => setTestUrl(event.target.value);
     

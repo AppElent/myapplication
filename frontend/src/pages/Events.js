@@ -1,46 +1,39 @@
 // ./src/car/car.component.jsx
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 //import { Table } from 'react-bootstrap';
 import ReactTable from "react-table";
 import 'react-table/react-table.css'
 import { withAuth } from '@okta/okta-react';
 import {makeAPICall} from '../utils/fetching';
+import DefaultTable from '../components/DefaultTable';
 import Moment from 'react-moment';
 import 'moment-timezone';
 
-class Events extends Component {
+const Events = ({auth}) => {
+//class Events extends Component {
     
-    constructor() {
-        super();
-        this.state = {
-            data: [],
-        }
+    const [data, setEventData] = useState([])
+
+    const loadData = async () => {
+        const eventdata = await makeAPICall('/api/events', 'GET', null, await auth.getAccessToken())
+        setEventData(eventdata);
     }
     
-    async componentDidMount() {
-        makeAPICall('/api/events', 'GET', null, await this.props.auth.getAccessToken())
-        .then((data) => {this.setState({data: data})})
-    }
+    useEffect(() => {
+        loadData();
+    }, [])
     
-    render(){
-        const columns = [{
-            Header: 'Datum/tijd',
-            accessor: 'datetime', // String-based value accessors!
-            Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
-        }, {
-            Header: 'Event',
-            accessor: 'value',
-            //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
-        }]        
-        
-        return <ReactTable
-            data={this.state.data}
-            columns={columns}
-            className='-highlight -striped'
-            defaultPageSize={17}
-            filterable={true}
-        />
-    }
+    const columns = [{
+        Header: 'Datum/tijd',
+        accessor: 'datetime', // String-based value accessors!
+        Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
+    }, {
+        Header: 'Event',
+        accessor: 'value',
+    }]        
+    
+    return <DefaultTable data={data} columns={columns} loading={data.length > 0 ? false : true} />
+
 }
 
 export default withAuth(Events)

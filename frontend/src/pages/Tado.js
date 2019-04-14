@@ -4,6 +4,7 @@ import { useAuth } from '../utils/auth';
 
 import { withAuth } from '@okta/okta-react';
 import {makeAPICall} from '../utils/fetching';
+import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import Moment from 'react-moment';
 import DefaultTable from '../components/DefaultTable';
 import DefaultFormRow from '../components/DefaultFormRow';
@@ -11,8 +12,8 @@ import { Button, ButtonToolbar } from 'react-bootstrap';
 
 const Tado = ({auth}) => {
     const [data, setData] = useState([]);
-    const [username, setUsername] = useState(localStorage.getItem('tado_username') || '');
-    const [password, setPassword] = useState(localStorage.getItem('tado_password') || '');
+    const [username, setUsername] = useState(getLocalStorage('tado_username') || '');
+    const [password, setPassword] = useState(getLocalStorage('tado_password') || '');
     
     const getData = async () => {
         //const data = await makeAPICall('/api/darksky/current', 'GET', null, await auth.getAccessToken())
@@ -35,7 +36,7 @@ const Tado = ({auth}) => {
     
     //const change = (event) => setApiKey(event.target.value);
     
-    const buttonClickHandler = (event) => {event.preventDefault(); localStorage.setItem('tado_username', username); localStorage.setItem('tado_password', password);}
+    const buttonClickHandler = (event) => {event.preventDefault(); setLocalStorage('tado_username', username); setLocalStorage('tado_password', password);}
     
     let formItems = [{
         id: 'un',

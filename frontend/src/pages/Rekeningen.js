@@ -132,65 +132,7 @@ class Rekeningen extends Component {
                    <Button variant="danger" onClick={() => this.handleDelete(row.original)}>Delete</Button>
                </div>
            )
-        });
-        /*
-        , {
-            Header: 'Januari',
-            accessor: 'januari',
-            Cell: this.renderEditable
-        }, {
-            Header: 'Februari',
-            accessor: 'februari',
-            Cell: this.renderEditable
-        }, {
-            Header: 'Maart',
-            accessor: 'maart',
-            Cell: this.renderEditable
-        }, {
-            Header: 'April',
-            accessor: 'april',
-            Cell: this.renderEditable
-        }, {
-            Header: 'Mei',
-            accessor: 'mei',
-            Cell: this.renderEditable
-        }, {
-            Header: 'Juni',
-            accessor: 'juni',
-            Cell: this.renderEditable
-        }, {
-            Header: 'Juli',
-            accessor: 'juli',
-            Cell: this.renderEditable
-        }, {
-            Header: 'Augustus',
-            accessor: 'augustus',
-            Cell: this.renderEditable
-        }, {
-            Header: 'September',
-            accessor: 'september',
-            Cell: this.renderEditable
-        }, {
-            Header: 'Oktober',
-            accessor: 'oktober',
-            Cell: this.renderEditable
-        }, {
-            Header: 'November',
-            accessor: 'november',
-            Cell: this.renderEditable
-        }, {
-            Header: 'December',
-            accessor: 'december',
-            Cell: this.renderEditable
-        },    {
-           Header: '',
-           Cell: row => (
-               <div>
-                   <Button variant="danger" onClick={() => this.handleDelete(row.original)}>Delete</Button>
-               </div>
-           )
-        }]   
-        * */         
+        });      
 
         return (
         <div>
