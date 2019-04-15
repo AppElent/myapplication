@@ -5,6 +5,7 @@ import { Button, ListGroup, Form, Col, Row } from 'react-bootstrap';
 //import BunqJSClient from '@bunq-community/bunq-js-client';
 //const BunqJSClient = require("../../dist/BunqJSClient").default;
 import {makeAPICall} from '../utils/fetching'
+//import {groupBy, createArrayFromObject} from '../utils/arrays'
 import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import { withAuth } from '@okta/okta-react';
 import DefaultTable from '../components/DefaultTable';
@@ -127,7 +128,7 @@ const Bunq = ({auth}) => {
 
         setPreconditions(currentstate);
         //setPreconditions('test');
-        console.log(currentstate);
+        console.log(currentstate, preconditions);
         setScriptRunning(false);
         //this.setState({preconditions: currentstate});
     }
@@ -199,31 +200,15 @@ const Bunq = ({auth}) => {
     console.log(preconditions, preconditions['balance'] !== null)
     return (<div><h1>Bunq</h1>
             <DefaultTable data={rekeningen} columns={rekeningColumns} loading={rekeningen.length === 0} pageSize={15}/>
-            {/*
-            <ReactTable
-                data={rekeningen}
-                columns={rekeningColumns}
-                className='-highlight -striped'
-                showPagination={false}
-                pageSize={rekeningen.length}
-                filterable={true}
-                //sorted={[{ // the sorting model for the table
-                   //id: 'rekening',
-                   //desc: false
-                //}]}
-            />  
-            * */}
             <Form>
                 <Row>
                 <Col><Form.Label>Netto salaris</Form.Label><Form.Control type="text" name="salaris" value={salaris} onChange={(event) => setSalaris(event.target.value)} /></Col>
                 <Col><Form.Label>Eigen geld</Form.Label><Form.Control type="text" name="eigen_geld" value={eigen_geld} onChange={(event) => setEigenGeld(event.target.value)} /></Col>
-                <Button variant="primary" onClick={checkPreconditions} disabled={!page_loaded || script_running}>Controleer</Button>
+                <Button variant="primary" onClick={() => {checkPreconditions();console.log(preconditions);}} disabled={!page_loaded || script_running}>Controleer</Button>
                 {preconditions.succeeded === true && <Button variant="primary" onClick={runScript} disabled={script_running}>Boeken</Button>}
                 </Row>
             </Form>
-            
-            
-            
+
             <ListGroup>
             {JSON.stringify(preconditions)}
                 {preconditions.balance !== null ?<ListGroup.Item variant="success">Huidig saldo Algemene rekening: {preconditions.balance}</ListGroup.Item> : ""}

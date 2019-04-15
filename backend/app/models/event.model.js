@@ -1,5 +1,5 @@
 
-var Moment = require('moment');
+var moment = require('moment');
 
 module.exports = (sequelize, Sequelize) => {
 
@@ -8,13 +8,25 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.DATE,
 		defaultValue: Sequelize.NOW,
 		get: function () {
-			return Moment(this.getDataValue('datetime')).tz('Europe/Amsterdam');
+			return moment(this.getDataValue('datetime')).tz('Europe/Amsterdam');
 		}
+	  },
+	  user: {
+		type: Sequelize.STRING
 	  },
 	  value: {
 		type: Sequelize.STRING
 	  }
-	});
+	},{
+	  scopes: {
+		last_week: {
+		  where: {
+			datetime: {
+				$gte: moment().subtract(7, 'days').toDate(),
+			  }
+		  }
+		}
+  }});
 	
 	return Event;
 }

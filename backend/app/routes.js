@@ -17,6 +17,42 @@ module.exports = function(app, db, epilogue) {
 	    aud: 'api://default',
 	  },
 	});
+	
+
+	const checkAuthenticated = async (req, res) => {
+		//Checken of er een custom token is
+		const token = "homebridge-authenticated"
+		const authHeader = req.headers.authorization || '';
+		
+		const apimatch = authHeader.match(/Apitoken (.+)/);
+		const remoteIP = req.socket.remoteAddress;
+		if (apimatch && token) {
+			const accessToken = apimatch[1];
+			console.log(accessToken, token);
+			const localaddress = (remoteIP.endsWith('192.168.178.1') ? true : false)
+			return (accessToken === token && localaddress ? true : false);
+			//return res.status(401).end();
+		}
+		
+
+		
+		const bearermatch = authHeader.match(/Bearer (.+)/);
+
+		if (!bearermatch) {
+			return false
+		}
+
+		const accessToken = bearermatch[1];
+		try{
+			const jwt = oktaJwtVerifier.verifyAccessToken(accessToken);
+			return jwt;
+		}catch(error){
+			console.log(error);
+			return false;
+		}
+		
+		
+	}
 
 	/**
 	 * A simple middleware that asserts valid access tokens and sends 401 responses
@@ -26,6 +62,32 @@ module.exports = function(app, db, epilogue) {
 
 	
 	async function epilogueAuthenticationRequired(req, res, context){
+	  const authenticated = await checkAuthenticated(req, res);
+	  console.log('authenticated', authenticated);
+	  if(authenticated === true){
+		console.log(1);
+		return context.continue;  
+	  }else if(authenticated === false){
+		return context.stop;
+	  }else{
+		req.jwt = authenticated;
+		req.uid = authenticated.claims.uid;
+		console.log(req.uid);
+		return context.continue;
+	  }
+	  /*
+	  authenticated(req, res)
+	    .then((jwt) => {
+	      req.jwt = jwt;
+	      req.uid = jwt.claims.uid;
+	      console.log(req.uid);
+	      return context.continue;
+	    })
+	    .catch((err) => {
+	      console.log(err);
+	      return context.stop;
+	    });
+	  
 	  const authHeader = req.headers.authorization || '';
 	  const match = authHeader.match(/Bearer (.+)/);
 
@@ -38,13 +100,21 @@ module.exports = function(app, db, epilogue) {
 	  return oktaJwtVerifier.verifyAccessToken(accessToken)
 	    .then((jwt) => {
 	      req.jwt = jwt;
+	      req.uid = jwt.claims.uid;
+	      console.log(req.uid);
 	      return context.continue;
 	    })
 	    .catch((err) => {
+	      console.log(err);
 	      return context.stop;
 	    });
+	    * */
 	}
+	
+	/*
 	async function epilogueCustomToken(req, res, token, context){
+	  
+	  
 	  const authHeader = req.headers.authorization || '';
 	  //console.log(req.headers);
 	  const match = authHeader.match(/Apitoken (.+)/);
@@ -58,8 +128,42 @@ module.exports = function(app, db, epilogue) {
 	  console.log(accessToken, token);
 	  return (accessToken === token ? context.continue : context.stop);
 	}
+	* */
 	
-	function authenticationRequired(req, res, next) {
+	const authenticationRequired = async (req, res, next) => {
+	  const authenticated = await checkAuthenticated(req, res);
+	  console.log('authenticated', authenticated);
+	  if(authenticated === true){
+		next();
+	  }else if(authenticated === false){
+		return res.status(401).end();
+	  }else{
+		req.jwt = authenticated;
+		req.uid = jwt.claims.uid;
+		console.log(req.uid);
+		next();
+	  }
+	  
+	  
+	  /*
+	  authenticated(req, res)
+	    .then((jwt) => {
+		    con
+		    if(authenticated){
+		      req.jwt = jwt;
+		      req.uid = jwt.claims.uid;
+		      console.log(req.uid);
+		      next()
+		    }else{
+		      res.status(401).end();
+		    }
+	    })
+	    .catch((err) => {
+	      console.log(err);
+	      return res.status(401).end();
+	    });
+	  
+	  /*
 	  const authHeader = req.headers.authorization || '';
 	  const match = authHeader.match(/Bearer (.+)/);
 
@@ -72,11 +176,32 @@ module.exports = function(app, db, epilogue) {
 	  return oktaJwtVerifier.verifyAccessToken(accessToken)
 	    .then((jwt) => {
 	      req.jwt = jwt;
+	      req.uid = jwt.claims.uid;
+	      console.log(req.uid);
 	      next();
 	    })
 	    .catch((err) => {
 	      res.status(401).send(err.message);
 	    });
+	    * */
+	}
+	
+	redirectCall = async (req, res) => {
+		
+	  const body = req.body.body === null ? undefined : req.body.body;
+	  const headers = req.body.headers === null ? undefined : req.body.headers;
+	  const url = req.body.url;
+	  
+	  console.log('Making call to ' + url + ' with method ' + req.body.method);
+	  const data = await fetch(url, {    
+		    method: req.body.method ,
+		    headers: headers,
+		    body: JSON.stringify(body)
+		  })
+	  const jsondata = await data.json();
+
+	  res.send( jsondata)
+		
 	}
 
 
@@ -107,10 +232,11 @@ module.exports = function(app, db, epilogue) {
 	//Custom routes
 	const custom = require('./controllers/custom.controller.js');
 	app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
-	app.post('/api/redirectcall', authenticationRequired, custom.redirectCall);
+	app.post('/api/redirectcall', authenticationRequired, redirectCall);
 	
-	
-
+	app.get('/api/testtest', authenticationRequired, function (req, res) {
+	  res.send('GET request to the homepage')
+	})
 
 	
 	
@@ -198,8 +324,11 @@ module.exports = function(app, db, epilogue) {
 	  pagination: false,
 	});
 	eventResource.all.auth(async function (req, res, context) {
-	  return await epilogueCustomToken(req, res, 'homebridge-authenticated', context);
+	  return await epilogueAuthenticationRequired(req, res, context);
 	});
+	//eventResource.all.auth(async function (req, res, context) {
+	  //return await epilogueCustomToken(req, res, 'homebridge-authenticated', context);
+	//});
 	eventResource.delete.auth(function(req, res, context) {
     		throw new ForbiddenError("can't delete an event");
 	});

@@ -23,6 +23,7 @@ db.events = require('../models/event.model.js')(sequelize, Sequelize);
 db.config = require('../models/config.model.js')(sequelize, Sequelize);
 db.rekeningen = require('../models/rekening.model.js')(sequelize, Sequelize);
 db.meterstanden = require('../models/meterstanden.model.js')(sequelize, Sequelize);
+db.users = require('../models/user.model.js')(sequelize, Sequelize);
 
 //Domoticz tabellen
 db.multimeter = require('../models/domoticz.multimeter.model.js')(sequelizeDomoticz, Sequelize);
