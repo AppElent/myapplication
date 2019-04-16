@@ -9,7 +9,7 @@ import {makeAPICall} from '../utils/fetching'
 import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import { withAuth } from '@okta/okta-react';
 import DefaultTable from '../components/DefaultTable';
-
+import DefaultFormRow from '../components/DefaultFormRow';
 
 const Bunq = ({auth}) => {
 //class Bunq extends Component {
@@ -82,10 +82,9 @@ const Bunq = ({auth}) => {
     
     const checkPreconditions = () => {
         //check
-        setScriptRunning(true);
         const algemeen_account = getAccountByName("Algemeen");
         let maandnummer = (new Date()).getMonth()+1;
-        let currentstate = preconditions;
+        let currentstate = {...preconditions};
         currentstate.succeeded = true;
         currentstate.maandtotaal = 0;
         currentstate.incomeSufficient = true;
@@ -127,10 +126,6 @@ const Bunq = ({auth}) => {
         }
 
         setPreconditions(currentstate);
-        //setPreconditions('test');
-        console.log(currentstate, preconditions);
-        setScriptRunning(false);
-        //this.setState({preconditions: currentstate});
     }
     
     const runScript = async () => {
@@ -197,9 +192,21 @@ const Bunq = ({auth}) => {
             Footer: getTotal
         });
     }
-    console.log(preconditions, preconditions['balance'] !== null)
+    
+    const formItems = [
+        {name: 'salaris', type: 'input', label: 'Netto salaris:', value: salaris, changehandler: (e) => {setSalaris(e.target.value)}},
+        {name: 'eigen_geld', type: 'input', label: 'Eigen geld:', value: eigen_geld, changehandler: (e) => {setEigenGeld(e.target.value)}}
+    ]
+    
+    const formButtons = [
+        {id: 'checkpreconditions', click: checkPreconditions, disabled: !page_loaded || script_running, text: 'Controleer'},
+        {id: 'runscript', click: runScript, disabled: script_running || preconditions.succeeded === false, text: 'Boeken'}
+    ]
+    
     return (<div><h1>Bunq</h1>
             <DefaultTable data={rekeningen} columns={rekeningColumns} loading={rekeningen.length === 0} pageSize={15}/>
+            <DefaultFormRow data={formItems} buttons={formButtons}/>
+            {/*
             <Form>
                 <Row>
                 <Col><Form.Label>Netto salaris</Form.Label><Form.Control type="text" name="salaris" value={salaris} onChange={(event) => setSalaris(event.target.value)} /></Col>
@@ -208,9 +215,8 @@ const Bunq = ({auth}) => {
                 {preconditions.succeeded === true && <Button variant="primary" onClick={runScript} disabled={script_running}>Boeken</Button>}
                 </Row>
             </Form>
-
+            */}
             <ListGroup>
-            {JSON.stringify(preconditions)}
                 {preconditions.balance !== null ?<ListGroup.Item variant="success">Huidig saldo Algemene rekening: {preconditions.balance}</ListGroup.Item> : ""}
                 {preconditions.accountsExist.map((rek, i) => {return <ListGroup.Item  key={i} variant="danger">Rekening {rek} bestaat niet</ListGroup.Item>})}
                 {preconditions.balanceSufficient === false ? <ListGroup.Item variant="danger">Niet voldoende saldo. Salaris nog niet binnen?</ListGroup.Item> : ""}

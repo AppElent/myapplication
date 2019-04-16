@@ -59,10 +59,10 @@ const DarkSky = ({auth}) => {
     
     return <div><h2>DarkSky connection</h2>
 
-        <DefaultFormRow data={formItems} button={{click: buttonClickHandler, disabled: false, text: 'Sla API key op'}} />
+        <DefaultFormRow data={formItems} buttons={[{id: 'saveapikey', click: buttonClickHandler, disabled: false, text: 'Sla API key op'}]} />
         {apikey !== '' &&
         <div>
-        <DefaultFormRow data={[{id:'url', type:'input', label:'Test API', value:testUrl, changehandler:testhandler}]} button={{click: testButtonClickHandler, disabled: false, text: 'Test'}} />
+        <DefaultFormRow data={[{id:'url', type:'input', label:'Test API', value:testUrl, changehandler:testhandler}]} buttons={[{id: 'testapikey', click: testButtonClickHandler, disabled: false, text: 'Test'}]} />
         <div>{JSON.stringify(testResult, null, 4)}</div>
         <DefaultTable data={data} columns={columns}/> </div>  }
     </div>  

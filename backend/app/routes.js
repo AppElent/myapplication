@@ -19,16 +19,16 @@ module.exports = function(app, db, epilogue) {
 	});
 	
 
-	const checkAuthenticated = async (req, res) => {
+	const checkAuthenticated = async (req, res, token = null) => {
 		//Checken of er een custom token is
-		const token = "homebridge-authenticated"
+		//const token = "homebridge-authenticated"
 		const authHeader = req.headers.authorization || '';
 		
 		const apimatch = authHeader.match(/Apitoken (.+)/);
 		const remoteIP = req.socket.remoteAddress;
 		if (apimatch && token) {
 			const accessToken = apimatch[1];
-			console.log(accessToken, token);
+			console.log(accessToken, token, remoteIP, remoteIP.endsWith('192.168.178.1'));
 			const localaddress = (remoteIP.endsWith('192.168.178.1') ? true : false)
 			return (accessToken === token && localaddress ? true : false);
 			//return res.status(401).end();
@@ -61,9 +61,9 @@ module.exports = function(app, db, epilogue) {
 	 */
 
 	
-	async function epilogueAuthenticationRequired(req, res, context){
-	  const authenticated = await checkAuthenticated(req, res);
-	  console.log('authenticated', authenticated);
+	async function epilogueAuthenticationRequired(req, res, context, token = null){
+	  const authenticated = await checkAuthenticated(req, res, token);
+	  //console.log('authenticated', authenticated);
 	  if(authenticated === true){
 		console.log(1);
 		return context.continue;  
@@ -132,14 +132,14 @@ module.exports = function(app, db, epilogue) {
 	
 	const authenticationRequired = async (req, res, next) => {
 	  const authenticated = await checkAuthenticated(req, res);
-	  console.log('authenticated', authenticated);
+	  //console.log('authenticated', authenticated);
 	  if(authenticated === true){
 		next();
 	  }else if(authenticated === false){
 		return res.status(401).end();
 	  }else{
 		req.jwt = authenticated;
-		req.uid = jwt.claims.uid;
+		req.uid = authenticated.claims.uid;
 		console.log(req.uid);
 		next();
 	  }
@@ -324,7 +324,7 @@ module.exports = function(app, db, epilogue) {
 	  pagination: false,
 	});
 	eventResource.all.auth(async function (req, res, context) {
-	  return await epilogueAuthenticationRequired(req, res, context);
+	  return await epilogueAuthenticationRequired(req, res, context, 'homebridge-authenticated');
 	});
 	//eventResource.all.auth(async function (req, res, context) {
 	  //return await epilogueCustomToken(req, res, 'homebridge-authenticated', context);

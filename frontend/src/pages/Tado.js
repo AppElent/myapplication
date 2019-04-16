@@ -54,9 +54,8 @@ const Tado = ({auth}) => {
     
     return <div><h2>Tado connection</h2>
 
-        <DefaultFormRow data={formItems} button={{click: buttonClickHandler, disabled: false, text: 'Sla credentials op'}} />
-        {username !== '' &&
-        <DefaultTable data={data} columns={columns}/>  }
+        <DefaultFormRow data={formItems} buttons={[{id: 'savecredentials', click: buttonClickHandler, disabled: false, text: 'Sla credentials op'}]} />
+        {username !== '' && <DefaultTable data={data} columns={columns}/>  }
     </div>  
         
 }

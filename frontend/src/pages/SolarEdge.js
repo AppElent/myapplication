@@ -72,7 +72,7 @@ const SolarEdge = ({auth}) => {
     }] 
     
     return <div><h2>SolarEdge connection</h2>
-        <DefaultFormRow data={formItems} button={{click: buttonClickHandler, disabled: false, text: 'Sla API key op en laad gegevens'}} />
+        <DefaultFormRow data={formItems} buttons={[{id: 'saveapikey', click: buttonClickHandler, disabled: false, text: 'Sla API key op en laad gegevens'}]} />
         {siteID !== '' && <p>Site ID: {siteID}</p>}
         {inverterID !== '' && <p>Inverter ID: {inverterID}</p>}
         {apikey !== '' && inverterID !== '' && siteID !== '' && <DefaultTable data={data} columns={columns}/>   }

@@ -364,12 +364,12 @@ const MeterstandElektra = ({auth}) => {
                 </Form.Group>
                 <Form.Group as={Col}>
                     <Form.Label>Timeframe</Form.Label>
-                    <Form.Control as="select" className="form-control" name="timeframe" onChange={handleChange}>
-                        {(datefrom === dateto) && <option type="radio" value="minute" name="timeframe" checked={timeframe === 'minute'} onChange={handleChange} > Minuten</option> }
-                        {(datefrom === dateto) && <option type="radio" value="quarter" name="timeframe" checked={timeframe === 'quarter'} onChange={handleChange}  > Kwartier  </option>}
-                        {(datefrom === dateto) && <option type="radio" value="hour" name="timeframe" checked={timeframe === 'hour'} onChange={handleChange} > Uur  </option>}
-                        <option type="radio" value="day" name="timeframe" checked={timeframe === 'day'} onChange={handleChange} > Dag  </option>
-                        <option type="radio" value="month" name="timeframe" checked={timeframe === 'month'} onChange={handleChange} > Maand  </option>
+                    <Form.Control as="select" className="form-control" name="timeframe" onChange={handleChange} value={timeframe}>
+                        {(datefrom === dateto) && <option type="radio" value="minute" name="timeframe" > Minuten</option> }
+                        {(datefrom === dateto) && <option type="radio" value="quarter" name="timeframe"  > Kwartier  </option>}
+                        {(datefrom === dateto) && <option type="radio" value="hour" name="timeframe" > Uur  </option>}
+                        <option type="radio" value="day" name="timeframe" > Dag  </option>
+                        <option type="radio" value="month" name="timeframe" > Maand  </option>
                     </Form.Control>
                 
                 </Form.Group>
