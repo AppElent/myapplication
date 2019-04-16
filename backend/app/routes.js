@@ -34,7 +34,7 @@ module.exports = function(app, db, epilogue) {
 			//return res.status(401).end();
 		}
 		
-
+		
 		
 		const bearermatch = authHeader.match(/Bearer (.+)/);
 
@@ -53,6 +53,18 @@ module.exports = function(app, db, epilogue) {
 		
 		
 	}
+	
+	const checkUser = async (id) => {
+		console.log(id);
+		const user = await db.users.findOne({where: {uid: {$eq: id}}});
+		if(user === null){
+			return false;
+		}
+		return true;
+	}
+	
+	//checkUser('abc').then(data => console.log(data))
+	//checkUser('00uaz3xmdoobfWWnY356').then(data => console.log(data))
 
 	/**
 	 * A simple middleware that asserts valid access tokens and sends 401 responses
@@ -72,7 +84,18 @@ module.exports = function(app, db, epilogue) {
 	  }else{
 		req.jwt = authenticated;
 		req.uid = authenticated.claims.uid;
-		console.log(req.uid);
+		console.log(req.params);
+		const userid = req.params.user;
+		console.log(req.params);
+		if(userid !== undefined){
+			console.log('userid', userid);
+			const checkuser = await checkUser(userid);
+			console.log('param goed', checkuser);
+			if(checkuser === false){
+				return context.stop;
+			}
+		}
+		
 		return context.continue;
 	  }
 	  /*
@@ -319,7 +342,7 @@ module.exports = function(app, db, epilogue) {
 	// Create REST resource
 	var eventResource = epilogue.resource({
 	  model: db.events,
-	  endpoints: ['/api/events', '/api/events/:id'],
+	  endpoints: ['/api/events/:user', '/api/events/:user/:id'],
 	  sort: {default: '-datetime'},
 	  pagination: false,
 	});
