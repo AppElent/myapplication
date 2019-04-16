@@ -13,8 +13,8 @@ const Events = ({auth}) => {
     const [all, setAll] = useState(false)
 
     const loadData = async (givenScope) => {
-        const scope = (givenScope ? '' : '?scope=last_week')
-        const eventurl = '/api/events/' + (await auth.getUser()).sub + scope;
+        const queryparams = (givenScope ? '?user=' + (await auth.getUser()).sub : '?scope=last_week&user=' + (await auth.getUser()).sub)
+        const eventurl = '/api/events/' + queryparams
         console.log(eventurl);
         const eventdata = await makeAPICall(eventurl, 'GET', null, await auth.getAccessToken())
         setEventData(eventdata);

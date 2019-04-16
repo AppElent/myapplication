@@ -84,13 +84,9 @@ module.exports = function(app, db, epilogue) {
 	  }else{
 		req.jwt = authenticated;
 		req.uid = authenticated.claims.uid;
-		console.log(req.params);
-		const userid = req.params.user;
-		console.log(req.params);
+		const userid = req.query.user;
 		if(userid !== undefined){
-			console.log('userid', userid);
 			const checkuser = await checkUser(userid);
-			console.log('param goed', checkuser);
 			if(checkuser === false){
 				return context.stop;
 			}
@@ -342,7 +338,7 @@ module.exports = function(app, db, epilogue) {
 	// Create REST resource
 	var eventResource = epilogue.resource({
 	  model: db.events,
-	  endpoints: ['/api/events/:user', '/api/events/:user/:id'],
+	  endpoints: ['/api/events', '/api/events/:id'],
 	  sort: {default: '-datetime'},
 	  pagination: false,
 	});
