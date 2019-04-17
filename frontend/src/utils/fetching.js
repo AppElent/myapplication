@@ -10,6 +10,7 @@ export const getObject = object => {
 
 export const makeAPICall = (url, method, body, token) => {
   if(body == null){body = undefined}
+  console.log('Making ' + method + ' API call to ' + url);
   return fetch(url, {    
 	    method: method ,
             headers: {

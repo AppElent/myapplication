@@ -1,30 +1,26 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 //import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import {makeAPICall} from '../utils/fetching'
+import { withAuth } from '@okta/okta-react';
 
-class BunqGenerate extends Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-          url: null,
-        }        
-      
+const BunqOauth = ({auth}) => {
+    
+    const [url, setUrl] = useState(null);
+    
+    const loadUrl = async () => {
+        makeAPICall('/api/bunq/oauth/formatUrl', 'GET', null, await auth.getAccessToken()).then(data => setUrl(data));
     }
     
-   
-    async componentDidMount(){
-        makeAPICall('/api/bunq/oauth/formatUrl', 'GET', null, null)
-        .then((data) => {this.setState({url: data})})
-    }
+    useEffect(() => {
+        loadUrl()
+    }, [])
     
     
-    render(){
-        return (<div><h1>Bunq Generate</h1>
-            <Button variant="primary" href={this.state.url} disabled={this.state.url === null ? true : false}>Get Key</Button>
-            </div>
-        );
-    }
+    return (<div><h1>Bunq Generate</h1>
+        <Button variant="primary" href={url} disabled={url === null}>Get Key</Button>
+        </div>
+    );
 } 
 
-export default BunqGenerate
+export default withAuth(BunqOauth)

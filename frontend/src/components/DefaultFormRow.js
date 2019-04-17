@@ -17,7 +17,7 @@ const DefaultFormRow = ({data, buttons = null}) => {
     
     const buttonItems = (buttons === null ? null : buttons.map((buttonItem) => {
         return <Form.Group as={Col} key={buttonItem.id}>
-                <Button style={{marginTop: '32px'}} className="form-control" variant="outline-primary" type="submit" onClick={buttonItem.click} disabled={buttonItem.disabled}>{buttonItem.text}</Button>
+                <Button style={{marginTop: '32px'}} className="form-control" variant="outline-primary" type="button" onClick={buttonItem.click} disabled={buttonItem.disabled}>{buttonItem.text}</Button>
             </Form.Group>
     }))
 

@@ -31,7 +31,7 @@ const Routes = () => (
                   client_id='0oabepfc2Yo0a3Q0H356'
                   redirect_uri={window.location.origin + '/implicit/callback'}
                   onAuthRequired={onAuthRequired} >
-                  <Route exact path="/" component={Home} />
+                  <SecureRoute exact path="/" component={Home} />
                   <SecureRoute exact path='/protected' component={Protected} />
                   <SecureRoute exact path="/cars" component={Car} />
                   <SecureRoute exact path="/events" component={Events} />

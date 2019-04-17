@@ -179,7 +179,7 @@ const MeterstandElektra = ({auth}) => {
         
         
         passedlocaldata = (passedlocaldata === null ? localdata : passedlocaldata)
-        const firstdate = passedlocaldata[0].datetime
+        const firstdate = passedlocaldata.count > 0 ? passedlocaldata[0].datetime : moment().add(2, 'days').format('YYYY-MM-DD')
         
         const dayQuery = isDayQuery(localtimeframe);
         
@@ -280,13 +280,16 @@ const MeterstandElektra = ({auth}) => {
     }
     
     const loadPage = async () => {
-        
-        let ddata = await makeAPICall('/api/meterstanden', 'GET', null, await auth.getAccessToken());
-        ddata = ddata.sort((a, b) => (a.datetime > b.datetime) ? 1 : -1);
-        ddata = await getDifferenceArray(ddata, 'datetime', ['180', '181', '182', '280', '281', '282'])
-        //setLocaldatastart(ddata[0].datetime);
-        await setLocaldata(ddata);
-        await setElektraData(datefrom, dateto, timeframe, ddata);
+        let ddata = []
+        if((await auth.getUser()).sub === '00uaz3xmdoobfWWnY356'){
+            ddata = await makeAPICall('/api/meterstanden', 'GET', null, await auth.getAccessToken());
+            ddata = ddata.sort((a, b) => (a.datetime > b.datetime) ? 1 : -1);
+            ddata = await getDifferenceArray(ddata, 'datetime', ['180', '181', '182', '280', '281', '282'])
+            //setLocaldatastart(ddata[0].datetime);
+            await setLocaldata(ddata);
+            await setElektraData(datefrom, dateto, timeframe, ddata); 
+        }  
+        //await setElektraData(datefrom, dateto, timeframe, ddata); 
         setLoading(false);
     }
     

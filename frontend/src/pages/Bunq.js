@@ -21,6 +21,7 @@ const Bunq = ({auth}) => {
     const [eigen_geld, setEigenGeld] = useState(getLocalStorage('bunq_eigen_geld') || '');
     const [sparen, setSparen] = useState(0);
     const [page_loaded, setPageLoaded] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [script_running, setScriptRunning] = useState(false);
     
     useEffect(() => {
@@ -52,17 +53,18 @@ const Bunq = ({auth}) => {
     };
     
     const loadRekeningen = async () => {
-        const data = await makeAPICall('/api/rekeningen', 'GET', null, await auth.getAccessToken());
+        const data = await makeAPICall('/api/rekeningen?user=' + (await auth.getUser()).sub, 'GET', null, await auth.getAccessToken());
         const grouped = await groupBy(data, 'rekening');
         setRekeningen(grouped);
     }
     
     const loadPage = async () => {
+        setLoading(true);
         let call1 = makeAPICall('/api/bunq/accounts', 'GET', null, await auth.getAccessToken()).then((accounts) => { setAccounts(accounts)  })
-        let call2 = loadRekeningen()
+        let call2 = loadRekeningen().then(setLoading(false));
 
         await Promise.all([call1, call2]);
-        setPageLoaded(true);
+        //setPageLoaded(true);
     }
     
     useEffect(() => {
@@ -199,12 +201,12 @@ const Bunq = ({auth}) => {
     ]
     
     const formButtons = [
-        {id: 'checkpreconditions', click: checkPreconditions, disabled: !page_loaded || script_running, text: 'Controleer'},
+        {id: 'checkpreconditions', click: checkPreconditions, disabled: loading || script_running, text: 'Controleer'},
         {id: 'runscript', click: runScript, disabled: script_running || preconditions.succeeded === false, text: 'Boeken'}
     ]
     
     return (<div><h1>Bunq</h1>
-            <DefaultTable data={rekeningen} columns={rekeningColumns} loading={rekeningen.length === 0} pageSize={15}/>
+            <DefaultTable data={rekeningen} columns={rekeningColumns} loading={loading} pageSize={15}/>
             <DefaultFormRow data={formItems} buttons={formButtons}/>
             {/*
             <Form>

@@ -11,13 +11,16 @@ const Events = ({auth}) => {
     
     const [data, setEventData] = useState([])
     const [all, setAll] = useState(false)
+    const [loading, setLoading] = useState(true);
 
     const loadData = async (givenScope) => {
+        setLoading(true)
         const queryparams = (givenScope ? '?user=' + (await auth.getUser()).sub : '?scope=last_week&user=' + (await auth.getUser()).sub)
         const eventurl = '/api/events/' + queryparams
         console.log(eventurl);
         const eventdata = await makeAPICall(eventurl, 'GET', null, await auth.getAccessToken())
         setEventData(eventdata);
+        setLoading(false);
     }
     
     useEffect(() => {
@@ -36,7 +39,7 @@ const Events = ({auth}) => {
         accessor: 'value',
     }]        
     
-    return <div><h1>Events</h1><Button onClick={() => {setAll(all => !all)}}>{all ? 'Last week' : 'All'}</Button> <DefaultTable data={data} columns={columns} loading={data.length > 0 ? false : true} /></div>
+    return <div><h1>Events</h1><Button onClick={() => {setAll(all => !all)}}>{all ? 'Last week' : 'All'}</Button> <DefaultTable data={data} columns={columns} loading={loading} /></div>
 
 }
 

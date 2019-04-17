@@ -54,13 +54,32 @@ module.exports = function(app, db, epilogue) {
 		
 	}
 	
-	const checkUser = async (id) => {
-		console.log(id);
-		const user = await db.users.findOne({where: {uid: {$eq: id}}});
+	const checkUser = async (authid, id, scoped) => {
+		if(id !== undefined){
+			if(id !== authid){
+				return false;
+			}
+		}else{
+			if(scoped === true){
+				return false;
+			}else if (scoped === false){
+				return true;
+			}
+		}
+
+		const user = await db.users.findByPk(id);
 		if(user === null){
 			return false;
 		}
+		
+		if(Number.isInteger(scoped)){
+			if(user.access_level < scoped){
+				return false;
+			}	
+		}
+		
 		return true;
+
 	}
 	
 	//checkUser('abc').then(data => console.log(data))
@@ -73,7 +92,7 @@ module.exports = function(app, db, epilogue) {
 	 */
 
 	
-	async function epilogueAuthenticationRequired(req, res, context, token = null){
+	async function epilogueAuthenticationRequired(req, res, context, token = null, scoped = false){
 	  const authenticated = await checkAuthenticated(req, res, token);
 	  //console.log('authenticated', authenticated);
 	  if(authenticated === true){
@@ -84,15 +103,23 @@ module.exports = function(app, db, epilogue) {
 	  }else{
 		req.jwt = authenticated;
 		req.uid = authenticated.claims.uid;
+		const checkuser = await checkUser(req.uid, req.query.user, scoped);
+		return (checkuser === true ? context.continue : context.stop);
+		/*
 		const userid = req.query.user;
 		if(userid !== undefined){
 			const checkuser = await checkUser(userid);
 			if(checkuser === false){
 				return context.stop;
 			}
+		}else{
+			if(scoped === true){
+				return context.stop;
+			}
 		}
 		
 		return context.continue;
+		* */
 	  }
 	  /*
 	  authenticated(req, res)
@@ -149,8 +176,8 @@ module.exports = function(app, db, epilogue) {
 	}
 	* */
 	
-	const authenticationRequired = async (req, res, next) => {
-	  const authenticated = await checkAuthenticated(req, res);
+	const authenticationRequired = async (req, res, next, token = null, scoped = false) => {
+	  const authenticated = await checkAuthenticated(req, res, token);
 	  //console.log('authenticated', authenticated);
 	  if(authenticated === true){
 		next();
@@ -160,6 +187,10 @@ module.exports = function(app, db, epilogue) {
 		req.jwt = authenticated;
 		req.uid = authenticated.claims.uid;
 		console.log(req.uid);
+		const checkuser = await checkUser(req.uid, req.query.user, scoped);
+		if(checkuser === false){
+			return res.status(401).end();
+		}
 		next();
 	  }
 	  
@@ -249,8 +280,8 @@ module.exports = function(app, db, epilogue) {
 
 
 	//Custom routes
-	const custom = require('./controllers/custom.controller.js');
-	app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
+	//const custom = require('./controllers/custom.controller.js');
+	//app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
 	app.post('/api/redirectcall', authenticationRequired, redirectCall);
 	
 	app.get('/api/testtest', authenticationRequired, function (req, res) {
@@ -371,7 +402,15 @@ module.exports = function(app, db, epilogue) {
 	  return context.continue;//await epilogueAuthenticationRequired(req, res, context);
 	});
 	
-
+	// Create REST resource
+	var userResource = epilogue.resource({
+	  model: db.users,
+	  endpoints: ['/api/users', '/api/users/:id'],
+	  //sort: {default: '-datetime'},
+	  pagination: false
+	}).all.auth(async function (req, res, context) {
+	  //return context.continue;//await epilogueAuthenticationRequired(req, res, context);
+	});
 	
 	// Create REST resource
 	epilogue.resource({

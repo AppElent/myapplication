@@ -4,15 +4,19 @@ var moment = require('moment');
 module.exports = (sequelize, Sequelize) => {
 
 	const User = sequelize.define('users', {
-	  uid: {
+	  id: {
 		type: Sequelize.STRING,
-		unique: true
+		unique: true,
+		primaryKey: true,
 	  },
 	  email: {
 		type: Sequelize.STRING
 	  },
 	  access_level: {
 		type: Sequelize.INTEGER
+	  },
+	  options: {
+		type: Sequelize.STRING
 	  }
 	},{
 	  tableName: 'users',
@@ -26,6 +30,6 @@ module.exports = (sequelize, Sequelize) => {
 		  }
 		}
   }});
-	
+	//User.removeAttribute('id');
 	return User;
 }

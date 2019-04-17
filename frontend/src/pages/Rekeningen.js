@@ -14,13 +14,16 @@ const Rekeningen = ({auth}) => {
     
     const [data, setData] = useState([]);
     const [newEntry, setNewEntry] = useState(newEntryTemplate);
+    const [loading, setLoading] = useState(true);
 
     
     
     const loadData = async () => {
-        const resultdata = await makeAPICall('/api/rekeningen', 'GET', null, await auth.getAccessToken())
+        setLoading(true);
+        const resultdata = await makeAPICall('/api/rekeningen?user=' + (await auth.getUser()).sub, 'GET', null, await auth.getAccessToken())
         setData(resultdata);
         console.log(resultdata);
+        setLoading(false);
     }
     
     useEffect(() => {
@@ -45,15 +48,19 @@ const Rekeningen = ({auth}) => {
           //this.setState({ lastName: event.target.value });
     };
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        setLoading(true);
+        //e.preventDefault();
         let newEntryData = {...newEntry}
         for(var i = 1; i < 13; i++){
             newEntryData['month_'+i] = newEntryData.bedrag
         }
         //console.log(newEntryData);
+        newEntryData['user'] = (await auth.getUser()).sub
         let returndata = await makeAPICall('/api/rekeningen', 'POST', newEntryData, await auth.getAccessToken());
-        setData(prevState => prevState, returndata)
+        setData([...data, returndata])
         setNewEntry(newEntryTemplate)
+        setLoading(false);
         /*
         this.setState(prevState => ({
           data: [...prevState.data, returndata],
@@ -64,13 +71,14 @@ const Rekeningen = ({auth}) => {
     };
     
     const handleDelete = async (row) => {
+        setLoading(true);
         console.log(row);
         await makeAPICall('/api/rekeningen/' + row.id, 'DELETE', null, await auth.getAccessToken());
         const newdata = data.filter(function(item) { 
             return item.id !== row.id
         })
         setData(newdata);
-        
+        setLoading(false);
     }
     
     const renderEditable = (cellInfo) => {
@@ -134,7 +142,7 @@ const Rekeningen = ({auth}) => {
        Header: '',
        Cell: row => (
            <div>
-               <Button variant="danger" onClick={() => handleDelete(row.original)}>Delete</Button>
+               <Button variant="danger" onClick={() => handleDelete(row.original)} disabled={loading}>Delete</Button>
            </div>
        )
     });  
@@ -189,6 +197,7 @@ const Rekeningen = ({auth}) => {
         //showPagination={false}
         //pageSize={this.state.data.length}
         filterable={true}
+        loading={loading}
     />   
     <h3>Nieuwe rekening toevoegen</h3>
     <DefaultFormRow data={formItems} buttons={buttonItems}/>

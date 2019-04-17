@@ -27,3 +27,8 @@ export const setLocalStorage = (key, data) => {
   }
   localStorage.setItem(localstoragekey, JSON.stringify(object));
 }
+
+export const getUserSettings = async (auth, key) => {
+  const user = await auth.getUser();
+  
+}
