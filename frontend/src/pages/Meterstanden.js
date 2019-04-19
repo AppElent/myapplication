@@ -31,84 +31,6 @@ const MeterstandElektra = ({auth}) => {
     const [timeframe, setTimeframe] = useState('quarter');
     const [loading, setLoading] = useState(true);
 
-    
-
-    
-    /*
-    
-    zetDatums = () => {
-        let datums = datums;
-        
-        datums.dagstanden_from = moment(((data.find(obj => obj.kwh_181 !== null).datetime))).format("YYYY-MM-DD");
-        datums.dagstanden_to = moment(((data.find(obj => obj.kwh_181 !== null).datetime))).format("YYYY-MM-DD");
-        datums.kwartierstanden_from = moment(((data.find(obj => obj.kwh_180 !== null).datetime))).format("YYYY-MM-DD");
-        datums.kwartierstanden_to = moment(((data.find(obj => obj.kwh_180 !== null).datetime))).format("YYYY-MM-DD");
-        this.setState({datums: datums});
-        //console.log(datums);
-    }
-    
-    
-    
-    haalMeterstandenOp = async () => {
-        this.setState({ophalen: true})
-        let datums = datums;
-        let body = {
-            dagstanden_from: (datums.dagstanden_from === "" ? null : datums.dagstanden_from),
-            dagstanden_to: (datums.dagstanden_to === "" ? null : datums.dagstanden_to),
-            kwartierstanden_from: (datums.kwartierstanden_from === "" ? null : datums.kwartierstanden_from),
-            kwartierstanden_to: (datums.kwartierstanden_to === "" ? null : datums.kwartierstanden_to),
-        }
-        await makeAPICall('/api/meterstanden/elektra/update', 'POST', body, await this.props.auth.getAccessToken())
-        makeAPICall('/api/meterstanden/elektra', 'GET', null, await this.props.auth.getAccessToken())
-        .then((data) => {this.setState({data: data, ophalen: false})})
-    }
-    
-    handleChange = event => {
-        let datums = datums;
-        let item = datums[event.target.name];
-        let newValue = event.target.value
-        datums[event.target.name] = newValue;
-        
-        this.setState(datums);
-    };
-    * */
-    /*
-    extractColumn = (array, column) => {
-        return array.map(x => x[column]);
-    }
-    
-    getDataBetweenDates = (array, from, to) => {
-        return array.filter((item: any) =>
-            new Date(item.datetime) >= (new Date(from)) && new Date(item.datetime) <= (new Date(to))
-        );
-    }
-    
-    getDifferenceArray = (array, column) => {
-        let newArray = []
-        let oudElement = null;
-        for(var element of array){
-            //console.log(element + "-" + oudElement);
-            newArray.push(oudElement === null ? 0 : (oudElement[column] === null ? 0 : (parseFloat(element[column]) - parseFloat(oudElement[column]))))
-            oudElement = (element[column] === null ? oudElement : element);
-        }
-        return newArray;
-    }
-    
-    
-    getTotal = (array, column) => {
-        let total = 0
-        //console.log(rekeningen);
-        //console.log(column);
-        if(array.length > 0){
-            for (let line of array) {
-              total += line[column]
-              //console.log(rekening[column]);
-            }
-            return (<div>{total}</div>);
-        }
-    }
-    * */
-    
     const isDayQuery = (localtimeframe) => {
         return (['minute', 'quarter', 'hour'].includes(localtimeframe) ? true : false);
     }
@@ -164,8 +86,6 @@ const MeterstandElektra = ({auth}) => {
     
     const addBrutoNetto = async (data) => {
         data.forEach((item, i) => {
-            //let item = data[i];
-            //let i = data.findIndex((e) => e.datetime === item.datetime);
             data[i]['bruto'] = item['180_diff'];
             if(item.opwekking !== null){
                 data[i]['bruto'] = item['180_diff'] + item.opwekking - item['280_diff'];
@@ -179,16 +99,16 @@ const MeterstandElektra = ({auth}) => {
         
         
         passedlocaldata = (passedlocaldata === null ? localdata : passedlocaldata)
-        const firstdate = passedlocaldata.count > 0 ? passedlocaldata[0].datetime : moment().add(2, 'days').format('YYYY-MM-DD')
+        const firstdate = passedlocaldata.length > 0 ? passedlocaldata[0].datetime : moment().add(2, 'days').format('YYYY-MM-DD')
         
         const dayQuery = isDayQuery(localtimeframe);
         
         const datefrom = moment(from);
         const dateto = moment(to);
-        console.log(from, to, firstdate);
+        //console.log(from, to, firstdate, passedlocaldata, passedlocaldata.length);
         
         let localquery = (datefrom.isAfter(moment(firstdate)) ? true: false);
-        console.log(localquery, datefrom, dateto, firstdate);
+        //console.log(localquery, datefrom, dateto, firstdate);
         let fillWithLocalData = (datefrom.isBefore(moment(firstdate)) && dateto.isAfter(moment(firstdate)) ? true: false);
         let data = '';
         
@@ -202,20 +122,20 @@ const MeterstandElektra = ({auth}) => {
                     data = data.filter((item: any) =>
                         ['15', '30', '45', '00'].includes(moment(item.datetime).format("mm"))
                     );
-                    data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                    //--data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
                 }else if(localtimeframe === 'hour'){
                     data = data.filter((item: any) =>
                         moment(item.datetime).format("mm") === '00'
                     );
-                    data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                    //--data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
                 }
-                console.log(data);
+                //console.log(data);
             }else if(localtimeframe === 'day'){
                 data = passedlocaldata.filter((item: any) =>
                     moment(item.datetime) >= (moment(from)) && moment(item.datetime) <= (dateto.clone().add(1, 'days')) && moment(item.datetime).format("HH:mm:ss") === "00:00:00"
                 );
                 //await data.forEach( item => item.datetime = moment(item.datetime).subtract(1, 'days') );
-                data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                //--data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
             }
 
         }else{
@@ -236,7 +156,7 @@ const MeterstandElektra = ({auth}) => {
                 data = data.filter((item: any) =>
                     moment(item.datetime).format("DD") === '01'
                 );
-                data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                //--data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
             }
             if(dayQuery === false){
                 data = data.filter((item, index) => index > 0)
@@ -257,11 +177,13 @@ const MeterstandElektra = ({auth}) => {
                 let index = data.findIndex(entry => moment(entry.datetime).isSame(moment(yesterdaydata.datetime)));
                 if(index === -1){
                     data.push(yesterdaydata);
-                    data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+                    //--data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
                 }
 
             }
         }
+        
+        data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
         
         if(localtimeframe === 'day'){
             data.forEach( item => item.datetime = moment(item.datetime).subtract(1, 'days') );
@@ -276,7 +198,7 @@ const MeterstandElektra = ({auth}) => {
         data = await addSolarEdgeData(data);
         data = await addBrutoNetto(data);
         setData(data);
-        console.log(data);
+        //console.log(data);
     }
     
     const loadPage = async () => {
@@ -284,8 +206,9 @@ const MeterstandElektra = ({auth}) => {
         if((await auth.getUser()).sub === '00uaz3xmdoobfWWnY356'){
             ddata = await makeAPICall('/api/meterstanden', 'GET', null, await auth.getAccessToken());
             ddata = ddata.sort((a, b) => (a.datetime > b.datetime) ? 1 : -1);
-            ddata = await getDifferenceArray(ddata, 'datetime', ['180', '181', '182', '280', '281', '282'])
+            //ddata = await getDifferenceArray(ddata, 'datetime', ['180', '181', '182', '280', '281', '282']) --
             //setLocaldatastart(ddata[0].datetime);
+            //console.log(ddata);
             await setLocaldata(ddata);
             await setElektraData(datefrom, dateto, timeframe, ddata); 
         }  
@@ -297,10 +220,7 @@ const MeterstandElektra = ({auth}) => {
         loadPage();
     }, [])
     
-    const handleChange = event => {
-        setTimeframe(event.target.value);
-        console.log(event.target.name);
-    };
+    const handleChange = event => setTimeframe(event.target.value)
     
     
     const haalMeterstandenOp = async () => {
@@ -324,13 +244,8 @@ const MeterstandElektra = ({auth}) => {
             }
         }
     }
-    console.log(timeframe);
     
-    const checkTimeframe = (localtimeframe) => {
-     console.log('jo', localtimeframe);
-     return true;   
-    }
-    
+   
     return <div>
         <Form>
             <Form.Row>
@@ -377,7 +292,7 @@ const MeterstandElektra = ({auth}) => {
                 
                 </Form.Group>
                 <Form.Group as={Col}>
-                    <Button style={{marginTop: '32px'}} className="form-control" variant="outline-primary" type="submit" onClick={haalMeterstandenOp} disabled={loading}>Haal op</Button>
+                    <Button style={{marginTop: '32px'}} className="form-control" variant="outline-primary" type="button" onClick={haalMeterstandenOp} disabled={loading}>Haal op</Button>
                 </Form.Group>
                 
             </Form.Row>

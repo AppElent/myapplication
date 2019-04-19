@@ -18,6 +18,7 @@ import Bunq from '../pages/Bunq';
 import BunqOauth from '../pages/BunqOauth';
 import Login from '../pages/Login';
 import Protected from '../pages/Protected';
+import Settings from '../pages/Settings';
 
 function onAuthRequired({history}) {
   history.push('/login');
@@ -44,6 +45,7 @@ const Routes = () => (
                   <SecureRoute exact path="/tado" component={Tado} />
                   <SecureRoute exact path="/bunq" component={Bunq} />
                   <SecureRoute exact path="/bunq/oauth" component={BunqOauth} />
+                  <SecureRoute exact path="/settings" component={Settings} />
                   
                   <Route path='/login' render={() => <Login baseUrl='https://dev-810647.okta.com' />} />
                   <Route path='/implicit/callback' component={ImplicitCallback} />

@@ -26,11 +26,14 @@ module.exports = function(app, db, epilogue) {
 		
 		const apimatch = authHeader.match(/Apitoken (.+)/);
 		const remoteIP = req.socket.remoteAddress;
+		if(!apimatch && token !== null) return {result: false, reason: 'No API token given'}
 		if (apimatch && token) {
 			const accessToken = apimatch[1];
 			console.log(accessToken, token, remoteIP, remoteIP.endsWith('192.168.178.1'));
 			const localaddress = (remoteIP.endsWith('192.168.178.1') ? true : false)
-			return (accessToken === token && localaddress ? true : false);
+			if(localaddress === false) return {result: false, reason: 'No local address'}
+			if(accessToken !== token) return {result: false, reason: 'Token doesnt match'}
+			return {result: true, jwt: false}
 			//return res.status(401).end();
 		}
 		
@@ -38,17 +41,15 @@ module.exports = function(app, db, epilogue) {
 		
 		const bearermatch = authHeader.match(/Bearer (.+)/);
 
-		if (!bearermatch) {
-			return false
-		}
-
+		if (!bearermatch) return {result: false, reason: 'Bearer does not match'}
+		
 		const accessToken = bearermatch[1];
 		try{
-			const jwt = oktaJwtVerifier.verifyAccessToken(accessToken);
-			return jwt;
+			const jwt = await oktaJwtVerifier.verifyAccessToken(accessToken);
+			return {result: true, jwt: jwt}
 		}catch(error){
 			console.log(error);
-			return false;
+			return {result: false, reason: 'Accesstoken incorrect'}
 		}
 		
 		
@@ -57,28 +58,28 @@ module.exports = function(app, db, epilogue) {
 	const checkUser = async (authid, id, scoped) => {
 		if(id !== undefined){
 			if(id !== authid){
-				return false;
+				return {result: false, reason: 'Request for wrong user'}
 			}
 		}else{
 			if(scoped === true){
-				return false;
+				return {result: false, reason: 'Scoped=true and no user id given'}
 			}else if (scoped === false){
-				return true;
+				return {result: true, reason: 'Scoped=false, no user id given'}
 			}
 		}
 
-		const user = await db.users.findByPk(id);
+		const user = await db.users.findByPk(authid);
 		if(user === null){
-			return false;
+			return {result: false, reason: 'User not found'}
 		}
 		
 		if(Number.isInteger(scoped)){
 			if(user.access_level < scoped){
-				return false;
+				return {result: false, reason: 'Accesslevel not high enough'}
 			}	
 		}
 		
-		return true;
+		return {result: true, reason: ''}
 
 	}
 	
@@ -90,151 +91,45 @@ module.exports = function(app, db, epilogue) {
 	 * if the token is not present or fails validation.  If the token is valid its
 	 * contents are attached to req.jwt
 	 */
-
-	
-	async function epilogueAuthenticationRequired(req, res, context, token = null, scoped = false){
+	const requireAuthenticated = async (req, res, token = null, scoped = false, userparam = undefined) => {
 	  const authenticated = await checkAuthenticated(req, res, token);
-	  //console.log('authenticated', authenticated);
-	  if(authenticated === true){
-		console.log(1);
-		return context.continue;  
-	  }else if(authenticated === false){
-		return context.stop;
-	  }else{
-		req.jwt = authenticated;
-		req.uid = authenticated.claims.uid;
-		const checkuser = await checkUser(req.uid, req.query.user, scoped);
-		return (checkuser === true ? context.continue : context.stop);
-		/*
-		const userid = req.query.user;
-		if(userid !== undefined){
-			const checkuser = await checkUser(userid);
-			if(checkuser === false){
-				return context.stop;
-			}
-		}else{
-			if(scoped === true){
-				return context.stop;
-			}
-		}
-		
-		return context.continue;
-		* */
-	  }
-	  /*
-	  authenticated(req, res)
-	    .then((jwt) => {
-	      req.jwt = jwt;
-	      req.uid = jwt.claims.uid;
-	      console.log(req.uid);
-	      return context.continue;
-	    })
-	    .catch((err) => {
-	      console.log(err);
-	      return context.stop;
-	    });
+	  console.log('authenticated_result', authenticated.result, authenticated.reason, req.originalUrl);
+	  if(authenticated.result === false) return authenticated;
+	  if(authenticated.jwt === undefined) return authenticated;
 	  
-	  const authHeader = req.headers.authorization || '';
-	  const match = authHeader.match(/Bearer (.+)/);
+	  req.uid = authenticated.jwt.claims.uid;
+	  req.jwt = authenticated.jwt
+	  const checkuser = await checkUser(req.uid, userparam, scoped);
+	  console.log('checkuser_result', checkuser.result, checkuser.reason, req.originalUrl);
+	  return checkuser;
+	  //return (checkuser === true ? true : 'User is niet goed');
+	}
 
-	  if (!match) {
-	    return res.status(401).end();
-	  }
-
-	  const accessToken = match[1];
-
-	  return oktaJwtVerifier.verifyAccessToken(accessToken)
-	    .then((jwt) => {
-	      req.jwt = jwt;
-	      req.uid = jwt.claims.uid;
-	      console.log(req.uid);
+	
+	async function epilogueAuthenticationRequired(req, res, context, token = null, scoped = false, userparam = undefined){
+	  const authenticated = await requireAuthenticated(req, res, token, scoped, userparam);
+	  if(authenticated.result === true){
 	      return context.continue;
-	    })
-	    .catch((err) => {
-	      console.log(err);
-	      return context.stop;
-	    });
-	    * */
+	  }
+	  console.log("Error = " + authenticated.reason);
+	  return context.stop;
 	}
 	
-	/*
-	async function epilogueCustomToken(req, res, token, context){
-	  
-	  
-	  const authHeader = req.headers.authorization || '';
-	  //console.log(req.headers);
-	  const match = authHeader.match(/Apitoken (.+)/);
 
-	  if (!match) {
-	    return await epilogueAuthenticationRequired(req, res, context);
-	    //return res.status(401).end();
+	const authenticationRequired = (token = null, scoped = false, userparam = undefined) => {
+	  return function(req, res, next){
+		  requireAuthenticated(req, res, token, scoped, userparam)
+		  .then(authenticated => {
+			  if(authenticated.result === true){
+			      next();
+			  }else{
+			      return res.status(401).send(authenticated.reason);
+			  }
+		  })
 	  }
-
-	  const accessToken = match[1];
-	  console.log(accessToken, token);
-	  return (accessToken === token ? context.continue : context.stop);
 	}
-	* */
 	
-	const authenticationRequired = async (req, res, next, token = null, scoped = false) => {
-	  const authenticated = await checkAuthenticated(req, res, token);
-	  //console.log('authenticated', authenticated);
-	  if(authenticated === true){
-		next();
-	  }else if(authenticated === false){
-		return res.status(401).end();
-	  }else{
-		req.jwt = authenticated;
-		req.uid = authenticated.claims.uid;
-		console.log(req.uid);
-		const checkuser = await checkUser(req.uid, req.query.user, scoped);
-		if(checkuser === false){
-			return res.status(401).end();
-		}
-		next();
-	  }
-	  
-	  
-	  /*
-	  authenticated(req, res)
-	    .then((jwt) => {
-		    con
-		    if(authenticated){
-		      req.jwt = jwt;
-		      req.uid = jwt.claims.uid;
-		      console.log(req.uid);
-		      next()
-		    }else{
-		      res.status(401).end();
-		    }
-	    })
-	    .catch((err) => {
-	      console.log(err);
-	      return res.status(401).end();
-	    });
-	  
-	  /*
-	  const authHeader = req.headers.authorization || '';
-	  const match = authHeader.match(/Bearer (.+)/);
-
-	  if (!match) {
-	    return res.status(401).end();
-	  }
-
-	  const accessToken = match[1];
-
-	  return oktaJwtVerifier.verifyAccessToken(accessToken)
-	    .then((jwt) => {
-	      req.jwt = jwt;
-	      req.uid = jwt.claims.uid;
-	      console.log(req.uid);
-	      next();
-	    })
-	    .catch((err) => {
-	      res.status(401).send(err.message);
-	    });
-	    * */
-	}
+	const basicAuthentication = authenticationRequired();
 	
 	redirectCall = async (req, res) => {
 		
@@ -253,13 +148,9 @@ module.exports = function(app, db, epilogue) {
 	  res.send( jsondata)
 		
 	}
-
+	
 
 	//PROXY routes
-	//app.all("/domoticz/*", function(req, res) {
-	  //  console.log('redirecting to Domoticz');
-	    //apiProxy.web(req, res, {target: 'http://localhost:8090'});
-	//});
 	app.all('/domoticz(/*)?', (req, res) => {
 	    const urlRegex =  /^\/domoticz/gm;
 	    req.url = req.url.replace(urlRegex, '');
@@ -287,6 +178,10 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/testtest', authenticationRequired, function (req, res) {
 	  res.send('GET request to the homepage')
 	})
+	
+	//OKTA routes
+	const okta = require('./controllers/okta.controller.js');
+	app.post('/api/okta/create', authenticationRequired, okta.createUser)
 
 	
 	
@@ -307,11 +202,11 @@ module.exports = function(app, db, epilogue) {
 	//Bunq routes
 	const bunq = require('./controllers/bunq.controller.js');
 	app.get('/api/bunq/oauth/exchange', bunq.exchangeOAuthTokens);
-	app.get('/api/bunq/oauth/formatUrl', authenticationRequired, bunq.formatOAuthUrl);
-	app.get('/api/bunq/accounts/:name', authenticationRequired, bunq.getMonetaryAccountByName);
-	app.get('/api/bunq/accounts', authenticationRequired, bunq.getMonetaryAccounts);
-	app.post('/api/bunq/payment', authenticationRequired, bunq.postPaymentInternal);
-	app.get('/api/bunq/test', authenticationRequired, bunq.test);
+	app.get('/api/bunq/oauth/formatUrl', basicAuthentication, bunq.formatOAuthUrl);
+	app.get('/api/bunq/accounts/:name', basicAuthentication, bunq.getMonetaryAccountByName);
+	app.get('/api/bunq/accounts', authenticationRequired(null, 3, undefined), bunq.getMonetaryAccounts);
+	app.post('/api/bunq/payment', basicAuthentication, bunq.postPaymentInternal);
+	app.get('/api/bunq/test', basicAuthentication, bunq.test);
 
 
 
@@ -374,6 +269,9 @@ module.exports = function(app, db, epilogue) {
 	  pagination: false,
 	});
 	eventResource.all.auth(async function (req, res, context) {
+	  return await epilogueAuthenticationRequired(req, res, context);
+	});
+	eventResource.create.auth(async function (req, res, context) {
 	  return await epilogueAuthenticationRequired(req, res, context, 'homebridge-authenticated');
 	});
 	//eventResource.all.auth(async function (req, res, context) {
@@ -409,7 +307,7 @@ module.exports = function(app, db, epilogue) {
 	  //sort: {default: '-datetime'},
 	  pagination: false
 	}).all.auth(async function (req, res, context) {
-	  //return context.continue;//await epilogueAuthenticationRequired(req, res, context);
+	  return context.continue;//return await epilogueAuthenticationRequired(req, res, context);
 	});
 	
 	// Create REST resource

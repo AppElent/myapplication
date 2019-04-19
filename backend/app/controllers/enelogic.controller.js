@@ -60,7 +60,6 @@ async function getMeterstanden(from, to, period){
 	if(period === "day"){
 		datapointUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
 	}
-	console.log("Url: " + datapointUrl);
 	if(period === "quarter"){
 		const totalUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
 		const totalresponse = await fetch(totalUrl);

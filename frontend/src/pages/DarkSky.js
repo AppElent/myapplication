@@ -20,7 +20,8 @@ const DarkSky = ({auth}) => {
         const data = await makeAPICall('/api/darksky/current', 'GET', null, await auth.getAccessToken())
         setData(data.hourly.data);
         const test = await makeAPICallFromNodeJS('https://api.darksky.net/forecast/09cbbe0257a566a4aa20e1c8e0be4757/52.21860580000001, 5.280716600000005?units=auto&lang=nl', 'GET', undefined, undefined, await auth.getAccessToken());
-        console.log(test);
+        //console.log(testfetch);
+        //console.log(test);
     }
     
     useEffect(() => {

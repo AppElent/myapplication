@@ -47,6 +47,12 @@ const NavBar = () => (
               <NavDropdown.Divider />
               <NavDropdown.Item href="https://ericjansen.dynu.net/api/enelogic/oauth/formaturl">Enelogic OAuth</NavDropdown.Item>
             </NavDropdown>
+            <LinkContainer to="/settings">
+              <Nav.Link>Settings</Nav.Link>
+            </LinkContainer>
+            <LinkContainer to="/logout">
+              <Nav.Link>Logout</Nav.Link>
+            </LinkContainer>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

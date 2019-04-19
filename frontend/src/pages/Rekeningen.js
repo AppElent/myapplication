@@ -41,11 +41,6 @@ const Rekeningen = ({auth}) => {
         prevstate[event.target.name] = newValue;
         console.log(prevstate);
         setNewEntry(prevstate);
-        //console.log(newEntry);
-        //if (event.target.name === "firstName")
-          //this.setState({ firstName: event.target.value });
-        //if (event.target.name === "lastName")
-          //this.setState({ lastName: event.target.value });
     };
 
     const handleSubmit = async (e) => {
