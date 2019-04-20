@@ -39,13 +39,13 @@ const Tado = ({auth}) => {
     const buttonClickHandler = (event) => {event.preventDefault(); setLocalStorage('tado_username', username); setLocalStorage('tado_password', password);}
     
     let formItems = [{
-        id: 'un',
+        name: 'un',
         type: 'input',
         label: 'Username',
         value: username,
         changehandler: (event) => setUsername(event.target.value),
     },{
-        id: 'pw',
+        name: 'pw',
         type: 'password',
         label: 'Password',
         value: password,

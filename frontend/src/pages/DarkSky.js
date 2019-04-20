@@ -12,21 +12,19 @@ import { Button, ButtonToolbar } from 'react-bootstrap';
 
 const DarkSky = ({auth}) => {
     const [data, setData] = useState([]);
-    const [apikey, setApiKey] = useState(getLocalStorage('darksky_api_key') || '');
+    const [config, setConfig] = useState(getLocalStorage('darksky') || {api_key: '', success: false});
     const [testUrl, setTestUrl] = useState('');
     const [testResult, setTestResult] = useState('');
     
-    const getData = async () => {
+    const saveConfig = async () => {
         const data = await makeAPICall('/api/darksky/current', 'GET', null, await auth.getAccessToken())
         setData(data.hourly.data);
-        const test = await makeAPICallFromNodeJS('https://api.darksky.net/forecast/09cbbe0257a566a4aa20e1c8e0be4757/52.21860580000001, 5.280716600000005?units=auto&lang=nl', 'GET', undefined, undefined, await auth.getAccessToken());
-        //console.log(testfetch);
-        //console.log(test);
+        setConfig({api_key: config.api_key, success: true})
     }
     
     useEffect(() => {
-        getData();
-    }, [])
+        setLocalStorage('darksky', config)
+    }, [config])
 
     const columns = [{
         Header: 'Datum/tijd',
@@ -38,34 +36,22 @@ const DarkSky = ({auth}) => {
         //Cell: props => <span className='number'>{props.value}</span> // Custom cell components!
     }]  
     
-    const apiKeyHandler = (event) => setApiKey(event.target.value);
+    const configHandler = (event) => setConfig({...config, 'api_key': event.target.value});
     
-    const buttonClickHandler = (event) => {event.preventDefault(); setLocalStorage('darksky_api_key', apikey);}
-    
-    const testhandler = (event) => setTestUrl(event.target.value);
-    
-    const testButtonClickHandler = async (event) => {
-        event.preventDefault(); 
-        const data = await makeAPICallFromNodeJS(testUrl, 'GET', undefined, undefined, await auth.getAccessToken())
-        setTestResult(data);
-    };
+    const buttonClickHandler = (event) => saveConfig()
     
     let formItems = [{
-        id: 'apikey',
+        name: 'apikey',
         type: 'input',
         label: 'API key',
-        value: apikey,
-        changehandler: apiKeyHandler
+        value: config.api_key,
+        changehandler: configHandler
     }] 
     
     return <div><h2>DarkSky connection</h2>
 
         <DefaultFormRow data={formItems} buttons={[{id: 'saveapikey', click: buttonClickHandler, disabled: false, text: 'Sla API key op'}]} />
-        {apikey !== '' &&
-        <div>
-        <DefaultFormRow data={[{id:'url', type:'input', label:'Test API', value:testUrl, changehandler:testhandler}]} buttons={[{id: 'testapikey', click: testButtonClickHandler, disabled: false, text: 'Test'}]} />
-        <div>{JSON.stringify(testResult, null, 4)}</div>
-        <DefaultTable data={data} columns={columns}/> </div>  }
+        <p>Config correct: {config.success === true ? 'Ja' : 'Nee'} </p>
     </div>  
         
 }

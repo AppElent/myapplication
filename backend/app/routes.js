@@ -7,6 +7,8 @@ const OktaJwtVerifier = require('@okta/jwt-verifier');
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 
+const fetch = require("node-fetch");
+
 
 module.exports = function(app, db, epilogue) {
 
@@ -142,8 +144,8 @@ module.exports = function(app, db, epilogue) {
 		    method: req.body.method ,
 		    headers: headers,
 		    body: JSON.stringify(body)
-		  })
-	  const jsondata = await data.json();
+		  }).catch(err => res.status(500).send(err))
+	  const jsondata = await data.json().catch(err => res.status(500).send(err));
 
 	  res.send( jsondata)
 		
@@ -173,9 +175,9 @@ module.exports = function(app, db, epilogue) {
 	//Custom routes
 	//const custom = require('./controllers/custom.controller.js');
 	//app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
-	app.post('/api/redirectcall', authenticationRequired, redirectCall);
+	app.post('/api/redirectcall', basicAuthentication, redirectCall);
 	
-	app.get('/api/testtest', authenticationRequired, function (req, res) {
+	app.get('/api/testtest', basicAuthentication, function (req, res) {
 	  res.send('GET request to the homepage')
 	})
 	
