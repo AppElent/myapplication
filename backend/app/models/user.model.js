@@ -9,11 +9,21 @@ module.exports = (sequelize, Sequelize) => {
 		unique: true,
 		primaryKey: true,
 	  },
+	  firstname: {
+		type: Sequelize.STRING,
+		allowNull: false
+	  },
+	  lastname: {
+		type: Sequelize.STRING,
+		allowNull: false
+	  },
 	  email: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+		allowNull: false
 	  },
 	  access_level: {
-		type: Sequelize.INTEGER
+		type: Sequelize.INTEGER,
+		allowNull: false
 	  },
 	  options: {
 		type: Sequelize.STRING

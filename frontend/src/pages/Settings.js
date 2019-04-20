@@ -29,8 +29,26 @@ const Settings = ({auth}) => {
     
     const handleSubmit = async (e) => {
         setLoading(true);
-        //e.preventDefault();
         let newEntryData = {...newEntry}
+        
+        
+        //User aanmaken in okta
+        const body = {
+          "profile": {
+            "firstName": newEntryData.firstname,
+            "lastName": newEntryData.lastname,
+            "email": newEntryData.email,
+            "login": newEntryData.email,
+          }
+        }
+        console.log(body)
+        const user = await makeAPICall('/api/okta/create', 'POST', body, await auth.getAccessToken());
+        console.log(user);
+        
+        //User toevoegen in database
+        //e.preventDefault();
+        
+        newEntryData['id'] = user.id
         let returndata = await makeAPICall('/api/users', 'POST', newEntryData, await auth.getAccessToken());
         setUserdata([...userdata, returndata])
         setNewEntry(newEntryTemplate)
@@ -74,7 +92,7 @@ const Settings = ({auth}) => {
         value: newEntry.firstname,
         changehandler: handleChange
     },{
-        name: 'Lastname',
+        name: 'lastname',
         type: 'input',
         label: 'Lastname:',
         value: newEntry.lastname,

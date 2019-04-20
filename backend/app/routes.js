@@ -181,7 +181,7 @@ module.exports = function(app, db, epilogue) {
 	
 	//OKTA routes
 	const okta = require('./controllers/okta.controller.js');
-	app.post('/api/okta/create', authenticationRequired, okta.createUser)
+	app.post('/api/okta/create', okta.createUser)
 
 	
 	
