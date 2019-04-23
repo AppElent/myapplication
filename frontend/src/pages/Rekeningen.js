@@ -1,6 +1,6 @@
 // ./src/car/car.component.jsx
 import React, { useState, useEffect } from 'react';
-import { Button, Form } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import ReactTable from "react-table";
 import 'react-table/react-table.css';
 import { withAuth } from '@okta/okta-react';

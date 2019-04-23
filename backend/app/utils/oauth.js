@@ -34,6 +34,33 @@ exports.retrieveAccessTokenObject = async (credentials, store, name) => {
 	return accessToken;
 }
 
+exports.getAccessToken = async (tokenObject) => {
+
+	try{
+		var accessToken = credentials.accessToken.create(tokenObject);
+		
+		if(accessToken === null){
+			return undefined;
+		}
+
+		if (accessToken.expired()) {
+			try {
+				accessToken =  await accessToken.refresh();
+				console.log("Accesstoken vernieuwd", accessToken.token.access_token);
+			} catch (error) {
+				
+			}
+		}else{
+		
+		}
+		
+		return accessToken;
+	}catch(error){
+		console.log('Error parsing tokenobject: ' + error);
+		return undefined;
+	}
+}
+
 exports.createPasswordTokenObject = async (oauthObject, tokenConfig) => {
 	// Save the access token
 	try {

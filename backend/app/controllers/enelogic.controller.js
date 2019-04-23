@@ -45,6 +45,87 @@ const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 //var accessToken = '';
 //oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic').then(token => {accessToken = token});
 
+exports.formatUrl = (req, res) =>{
+
+		// Authorization oauth2 URI
+		const authorizationUri = enelogic_oauth.authorizationCode.authorizeURL({
+		  redirect_uri: process.env.ENELOGIC_REDIRECT_URI,
+		  scope: 'account' 
+		});
+
+		// Redirect example using Express (see http://expressjs.com/api.html#res.redirect)
+		res.redirect(authorizationUri);
+}
+
+exports.format = (req, res) => {
+		// Authorization oauth2 URI
+		const authorizationUri = enelogic_oauth.authorizationCode.authorizeURL({
+		  redirect_uri: 'http://192.168.178.108:3000/enelogic/oauth',
+		  scope: 'account' 
+		});
+
+		// Redirect example using Express (see http://expressjs.com/api.html#res.redirect)
+		res.send(authorizationUri);
+}
+
+exports.exchange = async (req, res) => {
+	// Get the access token object (the authorization code is given from the previous step).
+	const tokenConfig = {
+	  code: req.body.code,
+	  redirect_uri: 'http://192.168.178.108:3000/enelogic/oauth',
+	  scope: 'account', // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
+	};
+	console.log(tokenConfig)
+	// Save the access token
+	try {
+		const result = await enelogic_oauth.authorizationCode.getToken(tokenConfig)
+		console.log(result);
+		//enelogic_store.set('enelogic', result);
+		return res.send(enelogic_oauth.accessToken.create(result));
+		//accessToken = enelogic_oauth.accessToken.create(result);
+		//enelogic_store.set('enelogic', accessToken);
+		//res.redirect(process.env.APP_ROOT);
+	} catch (error) {
+		return res.status(500).send('Creation failed: ' + error)
+	}
+}
+
+
+
+exports.exchangeEnelogicOauthToken = async (req, res) => {
+	if(req.query.code == null){
+		res.send("Geen auth code meegegeven");
+	}else{
+		// Get the access token object (the authorization code is given from the previous step).
+		const tokenConfig = {
+		  code: req.query.code,
+		  redirect_uri: process.env.ENELOGIC_REDIRECT_URI,
+		  scope: 'account', // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
+		};
+
+		// Save the access token
+		try {
+			const result = await enelogic_oauth.authorizationCode.getToken(tokenConfig)
+			console.log(result);
+			//enelogic_store.set('enelogic', result);
+			accessToken = enelogic_oauth.accessToken.create(result);
+			enelogic_store.set('enelogic', accessToken);
+			res.redirect(process.env.APP_ROOT);
+		} catch (error) {
+			console.log('Access Token Error', error.message);
+		}
+	}
+}
+
+
+exports.refresh = async (req, res) => {
+	// Check if the token is expired. If expired it is refreshed.
+	//await refreshEnelogicOauthToken();
+	res.send(req);
+}
+
+
+
 
 
 async function getMeterstanden(from, to, period){
@@ -167,49 +248,9 @@ async function updateMeterstanden(from, to, period){
 	return {success: true}
 }
 
-exports.formatEnelogicAuthorizationUrl = (req, res) =>{
-
-		// Authorization oauth2 URI
-		const authorizationUri = enelogic_oauth.authorizationCode.authorizeURL({
-		  redirect_uri: process.env.ENELOGIC_REDIRECT_URI,
-		  scope: 'account' 
-		});
-
-		// Redirect example using Express (see http://expressjs.com/api.html#res.redirect)
-		res.redirect(authorizationUri);
-}
-
-exports.exchangeEnelogicOauthToken = async (req, res) => {
-	if(req.query.code == null){
-		res.send("Geen auth code meegegeven");
-	}else{
-		// Get the access token object (the authorization code is given from the previous step).
-		const tokenConfig = {
-		  code: req.query.code,
-		  redirect_uri: process.env.ENELOGIC_REDIRECT_URI,
-		  scope: 'account', // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
-		};
-
-		// Save the access token
-		try {
-			const result = await enelogic_oauth.authorizationCode.getToken(tokenConfig)
-			console.log(result);
-			//enelogic_store.set('enelogic', result);
-			accessToken = enelogic_oauth.accessToken.create(result);
-			enelogic_store.set('enelogic', accessToken);
-			res.redirect(process.env.APP_ROOT);
-		} catch (error) {
-			console.log('Access Token Error', error.message);
-		}
-	}
-}
 
 
-exports.refreshEnelogicOauthToken = async (req, res) => {
-	// Check if the token is expired. If expired it is refreshed.
-	await refreshEnelogicOauthToken();
-	res.send(accessToken);
-}
+
 
 
 exports.updateElektraMeterstanden = async (req, res) => {

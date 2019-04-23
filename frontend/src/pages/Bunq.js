@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 //import { Link } from 'react-router-dom';
-import { Button, ListGroup, Form, Col, Row } from 'react-bootstrap';
+import { ListGroup} from 'react-bootstrap';
 
 //import BunqJSClient from '@bunq-community/bunq-js-client';
 //const BunqJSClient = require("../../dist/BunqJSClient").default;
@@ -19,8 +19,8 @@ const Bunq = ({auth}) => {
     const [rekeningen, setRekeningen] = useState([]);
     const [salaris, setSalaris] = useState(getLocalStorage('bunq_salaris') || '');
     const [eigen_geld, setEigenGeld] = useState(getLocalStorage('bunq_eigen_geld') || '');
-    const [sparen, setSparen] = useState(0);
-    const [page_loaded, setPageLoaded] = useState(false);
+    //const [sparen, setSparen] = useState(0);
+    //const [page_loaded, setPageLoaded] = useState(false);
     const [loading, setLoading] = useState(true);
     const [script_running, setScriptRunning] = useState(false);
     

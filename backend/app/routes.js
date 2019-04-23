@@ -190,9 +190,9 @@ module.exports = function(app, db, epilogue) {
 	//Meterstanden bijwerken en Enelogic routes
 	const enelogic = require('./controllers/enelogic.controller.js');
 	app.post('/api/meterstanden/elektra/update', authenticationRequired, enelogic.updateElektraMeterstanden);
-	app.get('/api/enelogic/oauth/formatUrl', enelogic.formatEnelogicAuthorizationUrl);
-	app.get('/api/enelogic/oauth/exchangeToken', enelogic.exchangeEnelogicOauthToken);
-	app.get('/api/enelogic/oauth/refreshToken', enelogic.refreshEnelogicOauthToken);
+	app.get('/api/enelogic/oauth/formatUrl', enelogic.format);
+	app.post('/api/enelogic/oauth/exchange', enelogic.exchange);
+	app.post('/api/enelogic/oauth/refresh', enelogic.refresh);
 	app.get('/api/enelogic/updatedata/:type/:start/:end', enelogic.updateEnelogicData);
 	app.get('/api/enelogic/data/dag/:start/:end', enelogic.getEnelogicDagData);
 	app.get('/api/enelogic/data/kwartier/:datum', enelogic.getEnelogicKwartierData);

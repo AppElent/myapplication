@@ -12,17 +12,18 @@ import { Button, ButtonToolbar } from 'react-bootstrap';
 
 const Tado = ({auth}) => {
     const [data, setData] = useState([]);
+    const [config, setConfig] = useState(getLocalStorage('tado') || {username: '', password: '', token: '', refreshToken: '', success: false});
     const [username, setUsername] = useState(getLocalStorage('tado_username') || '');
     const [password, setPassword] = useState(getLocalStorage('tado_password') || '');
     
-    const getData = async () => {
-        //const data = await makeAPICall('/api/darksky/current', 'GET', null, await auth.getAccessToken())
-        //setData(data.hourly.data);
+   
+    const saveConfig = async () => {
+        
     }
     
     useEffect(() => {
-        getData();
-    }, [])
+        setLocalStorage('tado', config)
+    }, [config])
 
     const columns = [{
         Header: 'Datum/tijd',
@@ -36,7 +37,7 @@ const Tado = ({auth}) => {
     
     //const change = (event) => setApiKey(event.target.value);
     
-    const buttonClickHandler = (event) => {event.preventDefault(); setLocalStorage('tado_username', username); setLocalStorage('tado_password', password);}
+    const buttonClickHandler = (event) => saveConfig()
     
     let formItems = [{
         name: 'un',
@@ -53,9 +54,7 @@ const Tado = ({auth}) => {
     }] 
     
     return <div><h2>Tado connection</h2>
-
         <DefaultFormRow data={formItems} buttons={[{id: 'savecredentials', click: buttonClickHandler, disabled: false, text: 'Sla credentials op'}]} />
-        {username !== '' && <DefaultTable data={data} columns={columns}/>  }
     </div>  
         
 }

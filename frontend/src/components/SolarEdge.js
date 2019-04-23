@@ -1,19 +1,13 @@
 // ./src/car/car.component.jsx
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../utils/auth';
-
 
 import { withAuth } from '@okta/okta-react';
-import {makeAPICall, makeAPICallFromNodeJS} from '../utils/fetching';
+import {makeAPICallFromNodeJS} from '../utils/fetching';
 import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
-import moment from 'moment';
-import Moment from 'react-moment';
 import 'moment-timezone';
-import DefaultTable from '../components/DefaultTable';
 import DefaultFormRow from '../components/DefaultFormRow';
 
 const SolarEdge = ({auth}) => {
-    const [data, setData] = useState([]);
     const [solaredgeConfig, setSolaredgeConfig] = useState(getLocalStorage('solaredge') || {api_key: '', site: null, inverter: null, success: false});
     //const [apikey, setApiKey] = useState(getLocalStorage('solaredge_api_key') || '');
     //const [siteID, setSiteID] = useState(getLocalStorage('solaredge_site_id') || '');
@@ -29,13 +23,8 @@ const SolarEdge = ({auth}) => {
         console.log(data);
         return (data);
     }
-    
-    const getData = async () => {
-        //const date = moment();
-        //const data = await makeAPICall('/api/solaredge/data/DAY/2019-02-25/' + date.format('YYYY-MM-DD'), 'GET', null, await auth.getAccessToken())
-        //setData(data.energy.values);
-    }
-    
+     
+   
     const saveSolarEdgeConfig = async () => {
         const site = await getSolarEdgeData('/sites/list?size=1');
         if(site.message !== undefined){
@@ -71,8 +60,15 @@ const SolarEdge = ({auth}) => {
         changehandler: apiKeyHandler
     }] 
     
+    let buttonItems = [{
+        id: 'sveapikey',
+        click: buttonClickHandler,
+        text: 'Sla API key op en laad gegevens',
+        buttonclass: (solaredgeConfig.success ? 'success' : 'danger')
+    }]
+    
     return <div><h2>SolarEdge connection</h2>
-        <DefaultFormRow data={formItems} buttons={[{id: 'saveapikey', click: buttonClickHandler, disabled: false, text: 'Sla API key op en laad gegevens'}]} />
+        <DefaultFormRow data={formItems} buttons={buttonItems} />
         {solaredgeConfig.success && <p>Configuratie correct <br /> Site ID: {solaredgeConfig.site}<br /> Inverter ID: {solaredgeConfig.inverter}</p>}
         {solaredgeConfig.success === false && <p>Geen of onjuiste API KEY ingevuld</p>}
     </div>  

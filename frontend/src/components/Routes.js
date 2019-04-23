@@ -11,11 +11,9 @@ import Rekeningen from '../pages/Rekeningen';
 import MeterstandenWarmte from '../pages/Home';
 import Meterstanden from '../pages/Meterstanden';
 import MeterstandenKostenOverzicht from '../pages/Home';
-import SolarEdge from '../pages/SolarEdge';
-import DarkSky from '../pages/DarkSky';
-import Tado from '../pages/Tado';
 import Bunq from '../pages/Bunq';
 import BunqOauth from '../pages/BunqOauth';
+import EnelogicOauth from '../pages/EnelogicOauth';
 import Login from '../pages/Login';
 import Protected from '../pages/Protected';
 import Settings from '../pages/Settings';
@@ -31,6 +29,7 @@ const Routes = () => (
             <Security issuer='https://dev-810647.okta.com/oauth2/default'
                   client_id='0oabepfc2Yo0a3Q0H356'
                   redirect_uri={window.location.origin + '/implicit/callback'}
+                  scope={['openid', 'email', 'profile', 'groups']}
                   onAuthRequired={onAuthRequired} >
                   <SecureRoute exact path="/" component={Home} />
                   <SecureRoute exact path='/protected' component={Protected} />
@@ -40,13 +39,11 @@ const Routes = () => (
                   <SecureRoute exact path="/meterstanden_warmte" component={MeterstandenWarmte} />
                   <SecureRoute exact path="/meterstanden" component={Meterstanden} />
                   <SecureRoute exact path="/meterstanden_kosten" component={MeterstandenKostenOverzicht} />
-                  <SecureRoute exact path="/solaredge" component={SolarEdge} />
-                  <SecureRoute exact path="/darksky" component={DarkSky} />
-                  <SecureRoute exact path="/tado" component={Tado} />
                   <SecureRoute exact path="/bunq" component={Bunq} />
-                  <SecureRoute exact path="/bunq/oauth" component={BunqOauth} />
                   <SecureRoute exact path="/settings" component={Settings} />
                   
+                  <SecureRoute exact path="/enelogic/oauth" component={EnelogicOauth} />
+                  <SecureRoute exact path="/bunq/oauth" component={BunqOauth} />
                   <Route path='/login' render={() => <Login baseUrl='https://dev-810647.okta.com' />} />
                   <Route path='/implicit/callback' component={ImplicitCallback} />
             </Security>

@@ -16,8 +16,10 @@ const DefaultFormRow = ({data, buttons = null}) => {
     });
     
     const buttonItems = (buttons === null ? null : buttons.map((buttonItem) => {
+        const buttonclass = (buttonItem.buttonclass === undefined ? 'primary' : buttonItem.buttonclass)
+        const buttondisabled = (buttonItem.disabled === undefined ? false : buttonItem.disabled)
         return <Form.Group as={Col} key={buttonItem.id}>
-                <Button style={{marginTop: '32px'}} className="form-control" variant="outline-primary" type="button" onClick={buttonItem.click} disabled={buttonItem.disabled}>{buttonItem.text}</Button>
+                <Button style={{marginTop: '32px'}} className="form-control" variant={buttonclass} type="button" onClick={buttonItem.click} disabled={buttondisabled}>{buttonItem.text}</Button>
             </Form.Group>
     }))
 
