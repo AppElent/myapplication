@@ -22,7 +22,8 @@ export const makeAPICall = (url, method, body, token) => {
           })//.catch(error => console.error(error))
     .then(response => {
       if (!response.ok) {
-        console.log("Network failure")
+        console.log(response)
+	throw new Error('Network error')
       }
       return response;
     })

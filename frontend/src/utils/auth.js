@@ -27,9 +27,9 @@ export const useAuth = auth => {
 
 export const exchangeOAuthToken = async (url, code, auth) => {
     const body = {code: code}
-    const accesstoken = await makeAPICall(url, 'POST', body, await auth.getAccessToken())
+    const accesstoken = await makeAPICall(url, 'POST', body, await auth.getAccessToken()).catch(err => undefined)
     console.log(accesstoken);
-    if(accesstoken.token !== undefined){
+    if(accesstoken !== undefined){
         const config = {
             success: true, 
             access_token: accesstoken.token.access_token, 

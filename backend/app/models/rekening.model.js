@@ -67,6 +67,14 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  }
+	}, {
+	  hooks: {
+		afterFind: function(rekeningen, options) {
+		  //rekeningen.forEach((rekening, index) => {
+			//  rekeningen[index].user = 'aap'
+		  //})
+		}
+	  }
 	});
 	
 	return Rekening;

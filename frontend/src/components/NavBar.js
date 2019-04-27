@@ -1,10 +1,15 @@
 // navBar.jsx
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import { Navbar, Nav, NavDropdown} from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
+import { withAuth } from '@okta/okta-react';
 
-const NavBar = () => (
-      <Navbar bg="light" expand="lg" collapseOnSelect>
+//const NavBar = () => (
+const NavBar = ({auth}) => {
+
+  const navbar = () => {
+
+    return <Navbar bg="light" expand="lg" collapseOnSelect>
         <LinkContainer to="/">
           <Navbar.Brand href="#home">My Application</Navbar.Brand>
         </LinkContainer>
@@ -47,15 +52,19 @@ const NavBar = () => (
               <NavDropdown.Divider />
               <NavDropdown.Item href="https://ericjansen.dynu.net/api/enelogic/oauth/formaturl">Enelogic OAuth</NavDropdown.Item>
             </NavDropdown>
-            <LinkContainer to="/settings">
+            <><LinkContainer to="/settings">
               <Nav.Link>Settings</Nav.Link>
             </LinkContainer>
             <LinkContainer to="/logout">
               <Nav.Link>Logout</Nav.Link>
-            </LinkContainer>
+            </LinkContainer></>
           </Nav>
         </Navbar.Collapse>
       </Navbar>
-)
+  }
+  
+ 
+  return navbar()
+}
 
-export default NavBar
+export default withAuth(NavBar)

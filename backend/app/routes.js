@@ -25,7 +25,7 @@ module.exports = function(app, db, epilogue) {
 		//Checken of er een custom token is
 		//const token = "homebridge-authenticated"
 		const authHeader = req.headers.authorization || '';
-		
+		//console.log(req.headers);
 		const apimatch = authHeader.match(/Apitoken (.+)/);
 		const remoteIP = req.socket.remoteAddress;
 		if(!apimatch && token !== null) return {result: false, reason: 'No API token given'}
@@ -103,6 +103,7 @@ module.exports = function(app, db, epilogue) {
 	  req.jwt = authenticated.jwt
 	  const checkuser = await checkUser(req.uid, userparam, scoped);
 	  console.log('checkuser_result', checkuser.result, checkuser.reason, req.originalUrl);
+	  checkuser.jwt = authenticated.jwt;
 	  return checkuser;
 	  //return (checkuser === true ? true : 'User is niet goed');
 	}
@@ -111,6 +112,7 @@ module.exports = function(app, db, epilogue) {
 	async function epilogueAuthenticationRequired(req, res, context, token = null, scoped = false, userparam = undefined){
 	  const authenticated = await requireAuthenticated(req, res, token, scoped, userparam);
 	  if(authenticated.result === true){
+		  req.jwt = authenticated.jwt;
 	      return context.continue;
 	  }
 	  console.log("Error = " + authenticated.reason);
@@ -123,6 +125,7 @@ module.exports = function(app, db, epilogue) {
 		  requireAuthenticated(req, res, token, scoped, userparam)
 		  .then(authenticated => {
 			  if(authenticated.result === true){
+			      req.jwt = authenticated.jwt;
 			      next();
 			  }else{
 			      return res.status(401).send(authenticated.reason);
@@ -288,7 +291,7 @@ module.exports = function(app, db, epilogue) {
 	  model: db.rekeningen,
 	  endpoints: ['/api/rekeningen', '/api/rekeningen/:id']
 	}).all.auth(async function (req, res, context) {
-	  return await epilogueAuthenticationRequired(req, res, context);
+	  return context.continue;//await epilogueAuthenticationRequired(req, res, context);
 	});	
 
 

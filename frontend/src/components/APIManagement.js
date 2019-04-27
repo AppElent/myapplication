@@ -14,17 +14,24 @@ import SolarEdge from '../components/SolarEdge';
 import DarkSky from '../components/DarkSky';
 import Tado from '../components/Tado';
 import Enelogic from '../components/Enelogic'
+import APISetting from '../components/APISetting'
+import OAuthSetting from '../components/OAuthSetting'
 
 const APIManagement = ({auth}) => {
     
-
+    const saveTado = (config) => {console.log('the config is', config)}
+    const saveSolarEdge = (config) => {
+        config.success = true;
+        //setConfig(config); <-- deze kan ik hier niet gebruiken want setConfig bestaat alleen IN APISetting
+    }
     
     return <div>
         <SolarEdge />
         <Tado />
         <DarkSky />
         <Enelogic />
-        
+        <OAuthSetting title='Enelogic' formatUrl='/api/enelogic/oauth/formaturl' lskey='enelogic'/> 
+        <APISetting title='Tado connection' lskey='tado' fields={[{name: 'username', label: 'Username'},{name: 'password', label: 'Password', visible:false}]} saveFunction={saveTado}/>
     </div>
         
 }

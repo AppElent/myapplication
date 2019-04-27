@@ -6,25 +6,16 @@ import {makeAPICall} from '../utils/fetching';
 import DefaultTable from '../components/DefaultTable';
 import Moment from 'react-moment';
 import 'moment-timezone';
+import useFetch from '../hooks/useFetch'
 
 const Events = ({auth}) => {
     
-    const [data, setEventData] = useState([])
+    const [data, setData, loading, error, request] = useFetch('/api/events', {}, auth)
     const [all, setAll] = useState(false)
-    const [loading, setLoading] = useState(true);
-
-    const loadData = async (givenScope) => {
-        setLoading(true)
-        const queryparams = (givenScope ? '?user=' + (await auth.getUser()).sub : '?scope=last_week&user=' + (await auth.getUser()).sub)
-        const eventurl = '/api/events/' + queryparams
-        console.log(eventurl);
-        const eventdata = await makeAPICall(eventurl, 'GET', null, await auth.getAccessToken())
-        setEventData(eventdata);
-        setLoading(false);
-    }
     
     useEffect(() => {
-        loadData(all);
+        const queryparams = (all ? '' : '?scope=last_week')
+        request.get('/api/events', queryparams)
     }, [all])
     
     const columns = [{

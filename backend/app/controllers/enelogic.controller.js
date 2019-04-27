@@ -60,7 +60,7 @@ exports.formatUrl = (req, res) =>{
 exports.format = (req, res) => {
 		// Authorization oauth2 URI
 		const authorizationUri = enelogic_oauth.authorizationCode.authorizeURL({
-		  redirect_uri: 'http://192.168.178.108:3000/enelogic/oauth',
+		  redirect_uri: 'https://ericjansen.dynu.net/enelogic/oauth',
 		  scope: 'account' 
 		});
 
@@ -72,7 +72,7 @@ exports.exchange = async (req, res) => {
 	// Get the access token object (the authorization code is given from the previous step).
 	const tokenConfig = {
 	  code: req.body.code,
-	  redirect_uri: 'http://192.168.178.108:3000/enelogic/oauth',
+	  redirect_uri: 'https://ericjansen.dynu.net/enelogic/oauth',
 	  scope: 'account', // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
 	};
 	console.log(tokenConfig)

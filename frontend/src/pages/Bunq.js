@@ -10,18 +10,22 @@ import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import { withAuth } from '@okta/okta-react';
 import DefaultTable from '../components/DefaultTable';
 import DefaultFormRow from '../components/DefaultFormRow';
+import useFetch from '../hooks/useFetch'
 
 const Bunq = ({auth}) => {
 //class Bunq extends Component {
 
-    const [accounts, setAccounts] = useState([]);
+    //const [accounts, setAccounts] = useState([]);
+    const [accounts, setAccounts, accountsLoading, accountsError, accountsRequest] = useFetch('/api/bunq/accounts', {onMount: true}, auth)
     const [preconditions, setPreconditions] = useState({run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null});
-    const [rekeningen, setRekeningen] = useState([]);
+    //const [rekeningen, setRekeningen] = useState([]);
+    const [rekeningen, setRekeningen, rekeningenLoading, rekeningenError, rekeningenRequest] = useFetch('/api/rekeningen', {onMount: true}, auth)
+    const [groupedData, setGroupedData] = useState([]);
     const [salaris, setSalaris] = useState(getLocalStorage('bunq_salaris') || '');
     const [eigen_geld, setEigenGeld] = useState(getLocalStorage('bunq_eigen_geld') || '');
     //const [sparen, setSparen] = useState(0);
     //const [page_loaded, setPageLoaded] = useState(false);
-    const [loading, setLoading] = useState(true);
+    //const [loading, setLoading] = useState(true);
     const [script_running, setScriptRunning] = useState(false);
     
     useEffect(() => {
@@ -52,24 +56,34 @@ const Bunq = ({auth}) => {
       return result
     };
     
+    /*
     const loadRekeningen = async () => {
         const data = await makeAPICall('/api/rekeningen?user=' + (await auth.getUser()).sub, 'GET', null, await auth.getAccessToken());
         const grouped = await groupBy(data, 'rekening');
         setRekeningen(grouped);
     }
-    
+    * */
+    /*
     const loadPage = async () => {
-        setLoading(true);
+        /*
+        //setLoading(true);
         let call1 = makeAPICall('/api/bunq/accounts', 'GET', null, await auth.getAccessToken()).then((accounts) => { setAccounts(accounts)  })
-        let call2 = loadRekeningen().then(setLoading(false));
+        let call2 = loadRekeningen()
 
         await Promise.all([call1, call2]);
         //setPageLoaded(true);
+        * *
+        if(rekeningen.length > 0){
+            console.log('jepjep');
+            setRekeningen(await groupBy(rekeningen, 'rekening'))
+        }
     }
+    * */
     
     useEffect(() => {
-        loadPage();
-    }, [])
+        groupBy(rekeningen, 'rekening').then(groupedrek => {setGroupedData(groupedrek)})
+    }, [rekeningen])
+
     
     const getAccountByName = (name) => {
         for(var account of accounts){
@@ -201,12 +215,14 @@ const Bunq = ({auth}) => {
     ]
     
     const formButtons = [
-        {id: 'checkpreconditions', click: checkPreconditions, disabled: loading || script_running, text: 'Controleer'},
+        {id: 'checkpreconditions', click: checkPreconditions, disabled: accountsLoading || script_running, text: 'Controleer'},
         {id: 'runscript', click: runScript, disabled: script_running || preconditions.succeeded === false, text: 'Boeken'}
     ]
     
+    
+    
     return (<div><h1>Bunq</h1>
-            <DefaultTable data={rekeningen} columns={rekeningColumns} loading={loading} pageSize={15}/>
+            <DefaultTable data={groupedData} columns={rekeningColumns} loading={rekeningenLoading} pageSize={15}/>
             <DefaultFormRow data={formItems} buttons={formButtons}/>
             {/*
             <Form>
