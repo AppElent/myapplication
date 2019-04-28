@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 
 const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]'
 
-export function useFetch(arg1, arg2, auth) {
+export function useFetch(arg1, arg2, auth, defaultData = []) {
   let url = null
   let options = {}
   let onMount = false
@@ -31,7 +31,7 @@ export function useFetch(arg1, arg2, auth) {
     handleOptions(arg1)
   }
 
-  const [data, setData] = useState([])
+  const [data, setData] = useState(defaultData)
   const [loading, setLoading] = useState(onMount)
   const [error, setError] = useState(null)
 

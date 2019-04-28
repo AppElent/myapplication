@@ -19,39 +19,18 @@ const Rekeningen = ({auth}) => {
         for(var i = 1; i < 13; i++){
             newEntryData['month_'+i] = newEntryData.bedrag
         }
-        //console.log(newEntryData);
         newEntryData['user'] = user.sub
         await request.post(newEntryData);
         setData([...data, newEntryData]);
-        //request.get();
     };
     
     
-    //const newEntryTemplate = {naam: "", dag: 1, type: "", rekening: "", bedrag: 0}
-    const [ newEntry, handleChange, handleSubmit ] = useForm(submitForm, {naam: "", dag: 1, type: "", rekening: "", bedrag: 0});
+    const [ newEntry, handleChange, handleSubmit, submitting, changing ] = useForm(submitForm, {naam: "", dag: 1, type: "", rekening: "", bedrag: 0});
 
 
     const [authenticated, user, sub] = useAuth(auth);
     const [data, setData, loading, error, request] = useFetch('/api/rekeningen', {onMount: true}, auth)
-    //const [newEntry, setNewEntry] = useState(newEntryTemplate);
-    
-    /*
-    const handleChange = event => {
-        console.log(event.target.name, event.target.value);
-        let prevstate = {...newEntry}
-        let newEntryItem = prevstate[event.target.name];
-        let newValue = event.target.value
-        if(Number.isInteger(newEntryItem)){
-            newValue = parseInt(newValue);
-        }
-        prevstate[event.target.name] = newValue;
-        console.log(prevstate);
-        setNewEntry(prevstate);
-    };
-    * */
 
-
-    
     const handleDelete = async (row) => {
         await request.delete('/api/rekeningen/' + row.id)
         const newdata = data.filter(function(item) { 
@@ -59,35 +38,7 @@ const Rekeningen = ({auth}) => {
         })
         setData(newdata);
     }
-    
-    /*
-    const renderEditable = (cellInfo) => {
-        return (
-          <div
-            //style={{ backgroundColor: "#fafafa" }}
-            contentEditable
-            suppressContentEditableWarning
-            onBlur={async (e) => {
-              const newdata = [...data];
-              let newValue = e.target.innerHTML;
-              if(Number.isInteger(data[cellInfo.index][cellInfo.column.id])){
-                  newValue = parseInt(newValue);
-              }
-              if(newValue !== newdata[cellInfo.index][cellInfo.column.id]){
-                  newdata[cellInfo.index][cellInfo.column.id] = newValue;
-                  let toChangeItem = {[cellInfo.column.id]: newValue}
-                  console.log('/api/rekeningen/' + newdata[cellInfo.index].id, toChangeItem);
-                  await request.put('/api/rekeningen/' + newdata[cellInfo.index].id, toChangeItem);
-              }
-            }}
-            dangerouslySetInnerHTML={{
-              __html: data[cellInfo.index][cellInfo.column.id]
-            }}
-          />
-        );
-    };
-    * */
-    
+   
    
     var columns = [{
         Header: 'Naam',

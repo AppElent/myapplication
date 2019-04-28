@@ -8,10 +8,12 @@ import { Switch } from 'react-router-dom'
 import Profile from '../components/Profile';
 import Usersettings from '../components/Usersettings'
 import APIManagement from '../components/APIManagement'
+const queryString = require('query-string');
 
 const Settings = ({auth}) => {
     
-    const [activeTab, setActiveTab] = useState('profile')
+    console.log(window.location.search);
+    const [activeTab, setActiveTab] = useState(queryString.parse(window.location.search).tab || 'profile')
     
     return <div>
         <h1>Settings</h1>
@@ -19,6 +21,7 @@ const Settings = ({auth}) => {
             id="controlled-tab-example"
             activeKey={activeTab}
             onSelect={key => setActiveTab(key)}
+            mountOnEnter
           >
             <Tab eventKey="profile" title="Profile">
               <Profile />

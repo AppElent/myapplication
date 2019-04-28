@@ -5,7 +5,7 @@ import React, { Component, useState, useEffect } from 'react';
 import 'react-table/react-table.css'
 import { withAuth } from '@okta/okta-react';
 import {makeAPICall} from '../utils/fetching';
-//import {mergeArrayById} from '../utils/arrays';
+import {getDifferenceArray} from '../utils/arrays';
 import { Button, Form, Col } from 'react-bootstrap';
 import moment from 'moment';
 //import Moment from 'react-moment';
@@ -22,6 +22,7 @@ import MeterstandenTabel from '../components/MeterstandenTabel';
 //class MeterstandElektra extends Component {
 const MeterstandElektra = ({auth}) => {
     
+    //const [dates, handleChange, handleSubmit ] = useForm(submitForm, {naam: "", dag: 1, type: "", rekening: "", bedrag: 0});
     const [datefrom, setDatefrom] = useState(moment().format('YYYY-MM-DD'));
     const [dateto, setDateto] = useState(moment().format('YYYY-MM-DD'));
     const [data, setData] = useState([]);
@@ -34,7 +35,7 @@ const MeterstandElektra = ({auth}) => {
     const isDayQuery = (localtimeframe) => {
         return (['minute', 'quarter', 'hour'].includes(localtimeframe) ? true : false);
     }
-    
+    /*
     const getDifferenceArray = async (array, id, columnArray) => {
         var savedItems = {}
         //savedItems['first'] = array[0];
@@ -54,7 +55,7 @@ const MeterstandElektra = ({auth}) => {
         }
         return array;
     }
-    
+    */
     
     const addSolarEdgeData = async (data) => {
         let dayQuery = isDayQuery(timeframe);

@@ -176,7 +176,10 @@ module.exports = function(app, db, epilogue) {
 
 
 	//Custom routes
-	//const custom = require('./controllers/custom.controller.js');
+	const basic = require('./controllers/basic.controller.js');
+	app.get('/api/dynamic/test/:id', basic.get(db.events));
+	app.get('/api/dynamic/test', basic.list(db.events));
+	app.get('/api/dynamic/test/:column/:value', basic.findOne(db.events));
 	//app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
 	app.post('/api/redirectcall', basicAuthentication, redirectCall);
 	
@@ -279,6 +282,10 @@ module.exports = function(app, db, epilogue) {
 	eventResource.create.auth(async function (req, res, context) {
 	  return await epilogueAuthenticationRequired(req, res, context, 'homebridge-authenticated');
 	});
+	eventResource.list.fetch.before(function(req, res, context) {
+		req.query.user = req.jwt.claims.uid
+		return context.continue;
+	})
 	//eventResource.all.auth(async function (req, res, context) {
 	  //return await epilogueCustomToken(req, res, 'homebridge-authenticated', context);
 	//});
@@ -314,6 +321,22 @@ module.exports = function(app, db, epilogue) {
 	}).all.auth(async function (req, res, context) {
 	  return context.continue;//return await epilogueAuthenticationRequired(req, res, context);
 	});
+	
+	//Usersettings
+	var userSettingsResource = epilogue.resource({
+	  model: db.usersettings,
+	  endpoints: ['/api/usersettings', '/api/usersettings/:id'],
+	  pagination: false
+	})
+	userSettingsResource.all.auth(async (req, res, context) => { return await epilogueAuthenticationRequired(req, res, context);  })
+	userSettingsResource.list.fetch.before((req, res, context) => { req.query.user = req.jwt.claims.uid; return context.continue;  })
+	userSettingsResource.create.write.before((req, res, context) => { console.log(req.body);req.body.user = req.jwt.claims.uid; return context.continue;  })
+	userSettingsResource.update.write.before((req, res, context) => { console.log(req.body);req.body.user = req.jwt.claims.uid; console.log(req.body, context); return context.continue;  })
+	
+	
+	
+	
+	
 	
 	// Create REST resource
 	epilogue.resource({

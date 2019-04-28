@@ -181,8 +181,8 @@ const Bunq = ({auth}) => {
  
     const getTotal = (cellInfo) => {
         let total = 0
-        if(rekeningen.length > 0){
-            for (let rekening of rekeningen) {
+        if(groupedData.length > 0){
+            for (let rekening of groupedData) {
               total += rekening[cellInfo.column.id]
             }
             let sparen = (salaris - eigen_geld - total);
