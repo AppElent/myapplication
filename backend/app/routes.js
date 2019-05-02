@@ -2,16 +2,19 @@ var ForbiddenError = require('epilogue').Errors.ForbiddenError;
 require('dotenv').config();
 
 const path = require('path');
-const OktaJwtVerifier = require('@okta/jwt-verifier');
+//const OktaJwtVerifier = require('@okta/jwt-verifier');
 
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 
 const fetch = require("node-fetch");
 
+const auth = require("./middleware/authentication")
+
 
 module.exports = function(app, db, epilogue) {
-
+	
+	/*
 	const oktaJwtVerifier = new OktaJwtVerifier({
 	  issuer: 'https://dev-810647.okta.com/oauth2/default',
 	  clientId: process.env.OKTA_CLIENT_ID,
@@ -92,7 +95,7 @@ module.exports = function(app, db, epilogue) {
 	 * A simple middleware that asserts valid access tokens and sends 401 responses
 	 * if the token is not present or fails validation.  If the token is valid its
 	 * contents are attached to req.jwt
-	 */
+	 
 	const requireAuthenticated = async (req, res, token = null, scoped = false, userparam = undefined) => {
 	  const authenticated = await checkAuthenticated(req, res, token);
 	  console.log('authenticated_result', authenticated.result, authenticated.reason, req.originalUrl);
@@ -133,9 +136,11 @@ module.exports = function(app, db, epilogue) {
 		  })
 	  }
 	}
+	*/
 	
-	const basicAuthentication = authenticationRequired();
+	const basicAuthentication = auth.authenticationRequired();
 	
+	/*
 	redirectCall = async (req, res) => {
 		
 	  const body = req.body.body === null ? undefined : req.body.body;
@@ -153,6 +158,7 @@ module.exports = function(app, db, epilogue) {
 	  res.send( jsondata)
 		
 	}
+	* */
 	
 
 	//PROXY routes
@@ -173,29 +179,64 @@ module.exports = function(app, db, epilogue) {
 	    });
 	});
 
-
-
 	//Custom routes
-	const basic = require('./controllers/basic.controller.js');
-	app.get('/api/dynamic/test/:id', basic.get(db.events));
-	app.get('/api/dynamic/test', basic.list(db.events));
-	app.get('/api/dynamic/test/:column/:value', basic.findOne(db.events));
-	//app.get('/api/groupedrekeningen', authenticationRequired, custom.groupedOverview);
-	app.post('/api/redirectcall', basicAuthentication, redirectCall);
+	const custom = require('./controllers/custom.controller.js');
+	app.post('/api/redirectcall', basicAuthentication, custom.redirectCall);
 	
-	app.get('/api/testtest', basicAuthentication, function (req, res) {
-	  res.send('GET request to the homepage')
-	})
+	//Basic routes
+	const basic = require('./controllers/basic.controller.js');
+
+	
+	//Usersettings
+	app.get('/api/usersettings/:id', basicAuthentication, basic.get(db.usersettings));
+	app.get('/api/usersettings', basicAuthentication, basic.list(db.usersettings));
+	app.get('/api/usersettings/:column/:value', basicAuthentication, basic.findOne(db.usersettings));
+	app.post('/api/usersettings', basicAuthentication, basic.create(db.usersettings))
+	app.put('/api/usersettings/:id', basicAuthentication, basic.update(db.usersettings))
+	
+	//Rekeningen
+	app.get('/api/rekeningen/:id', basicAuthentication, basic.get(db.rekeningen));
+	app.get('/api/rekeningen', basicAuthentication, basic.list(db.rekeningen));
+	app.get('/api/rekeningen/:column/:value', basicAuthentication, basic.findOne(db.rekeningen));
+	app.post('/api/rekeningen', basicAuthentication, basic.create(db.rekeningen))
+	app.put('/api/rekeningen/:id', basicAuthentication, basic.update(db.rekeningen))
+	
+	//Meterstanden
+	app.get('/api/meterstanden/:id', basicAuthentication, basic.get(db.meterstanden));
+	app.get('/api/meterstanden', basicAuthentication, basic.list(db.meterstanden));
+	app.get('/api/meterstanden/:column/:value', basicAuthentication, basic.findOne(db.meterstanden));
+	app.post('/api/meterstanden', basicAuthentication, basic.create(db.meterstanden))
+	app.put('/api/meterstanden/:id', basicAuthentication, basic.update(db.meterstanden))
+	
+	//Users
+	app.get('/api/users/:id', basicAuthentication, basic.get(db.users));
+	app.get('/api/users', basicAuthentication, basic.list(db.users));
+	app.get('/api/users/:column/:value', basicAuthentication, basic.findOne(db.users));
+	app.post('/api/users', basicAuthentication, basic.create(db.users))
+	app.put('/api/users/:id', basicAuthentication, basic.update(db.users))
+	
+	//Events
+	app.get('/api/events/:id', basicAuthentication, basic.get(db.events));
+	app.get('/api/events', basicAuthentication, basic.list(db.events));
+	app.get('/api/events/:column/:value', basicAuthentication, basic.findOne(db.events));
+	app.post('/api/events', basicAuthentication, basic.create(db.events))
+	app.put('/api/events/:id', basicAuthentication, basic.update(db.events))
 	
 	//OKTA routes
 	const okta = require('./controllers/okta.controller.js');
 	app.post('/api/okta/create', okta.createUser)
+	
+	//OAuth routes
+	const oauth = require('./controllers/oauth.controller.js');
+	app.get('/api/oauth/formatUrl/:application', oauth.format);
+	app.post('/api/oauth/exchange/:application', oauth.exchange);
+	app.post('/api/oauth/refresh/:application', oauth.refresh);
 
 	
 	
 	//Meterstanden bijwerken en Enelogic routes
 	const enelogic = require('./controllers/enelogic.controller.js');
-	app.post('/api/meterstanden/elektra/update', authenticationRequired, enelogic.updateElektraMeterstanden);
+	app.post('/api/meterstanden/elektra/update', auth.authenticationRequired, enelogic.updateElektraMeterstanden);
 	app.get('/api/enelogic/oauth/formatUrl', enelogic.format);
 	app.post('/api/enelogic/oauth/exchange', enelogic.exchange);
 	app.post('/api/enelogic/oauth/refresh', enelogic.refresh);
@@ -212,7 +253,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/bunq/oauth/exchange', bunq.exchangeOAuthTokens);
 	app.get('/api/bunq/oauth/formatUrl', basicAuthentication, bunq.formatOAuthUrl);
 	app.get('/api/bunq/accounts/:name', basicAuthentication, bunq.getMonetaryAccountByName);
-	app.get('/api/bunq/accounts', authenticationRequired(null, 3, undefined), bunq.getMonetaryAccounts);
+	app.get('/api/bunq/accounts', basicAuthentication, bunq.getMonetaryAccounts);
 	app.post('/api/bunq/payment', basicAuthentication, bunq.postPaymentInternal);
 	app.get('/api/bunq/test', basicAuthentication, bunq.test);
 
@@ -252,7 +293,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/darksky/current', darksky.getCurrentData);
 	app.get('/api/darksky/:date', darksky.getDateData);
 
-
+	/*
 	// Create REST resource
 	var customerResource = epilogue.resource({
 	  	model: db.customers,
@@ -292,7 +333,8 @@ module.exports = function(app, db, epilogue) {
 	eventResource.delete.auth(function(req, res, context) {
     		throw new ForbiddenError("can't delete an event");
 	});
-
+	
+	
 	// Create REST resource
 	var rekeningResource = epilogue.resource({
 	  model: db.rekeningen,
@@ -300,7 +342,7 @@ module.exports = function(app, db, epilogue) {
 	}).all.auth(async function (req, res, context) {
 	  return context.continue;//await epilogueAuthenticationRequired(req, res, context);
 	});	
-
+	
 
 	// Create REST resource
 	var meterstandenResource = epilogue.resource({
@@ -321,7 +363,9 @@ module.exports = function(app, db, epilogue) {
 	}).all.auth(async function (req, res, context) {
 	  return context.continue;//return await epilogueAuthenticationRequired(req, res, context);
 	});
+	* */
 	
+	/*
 	//Usersettings
 	var userSettingsResource = epilogue.resource({
 	  model: db.usersettings,
@@ -332,7 +376,7 @@ module.exports = function(app, db, epilogue) {
 	userSettingsResource.list.fetch.before((req, res, context) => { req.query.user = req.jwt.claims.uid; return context.continue;  })
 	userSettingsResource.create.write.before((req, res, context) => { console.log(req.body);req.body.user = req.jwt.claims.uid; return context.continue;  })
 	userSettingsResource.update.write.before((req, res, context) => { console.log(req.body);req.body.user = req.jwt.claims.uid; console.log(req.body, context); return context.continue;  })
-	
+	*/
 	
 	
 	

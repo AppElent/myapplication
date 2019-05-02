@@ -12,11 +12,13 @@ const useFetchedForm = (auth, url, saveFunction, defaultvalues) => {
     console.log(data, data.length)
     
     useEffect(() => {
-        if(data.length !== undefined){
-            let fetched = JSON.parse(data[0].data);
-            fetched.id = data[0].id
+        console.log('data is er', data);
+        if(data.data !== undefined){
+            let fetched = JSON.parse(data.data);
+            fetched.id = data.id
             setConfig(fetched);
         }
+
     }, [data])
 
     return [config, handleChange, handleSubmit, setConfig, request]

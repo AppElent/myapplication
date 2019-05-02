@@ -13,7 +13,7 @@ import Meterstanden from '../pages/Meterstanden';
 import MeterstandenKostenOverzicht from '../pages/Home';
 import Bunq from '../pages/Bunq';
 import BunqOauth from '../pages/BunqOauth';
-import EnelogicOauth from '../pages/EnelogicOauth';
+//import EnelogicOauth from '../pages/EnelogicOauth';
 import Login from '../pages/Login';
 import Protected from '../pages/Protected';
 import Settings from '../pages/Settings';
@@ -44,9 +44,8 @@ const Routes = () => (
                         <SecureRoute exact path="/bunq" component={Bunq} />
                         <SecureRoute exact path="/settings" component={Settings} />
                         
-                        <SecureRoute exact path="/enelogic2/oauth" component={EnelogicOauth} />
                         <SecureRoute exact path="/bunq2/oauth" component={BunqOauth} />
-                        <SecureRoute exact path='/enelogic/oauth' render={() => <OAuth url='/api/enelogic/oauth/exchange' lskey='enelogic' />} />
+                        <SecureRoute exact path='/enelogic/oauth' render={() => <OAuth url='/api/oauth/exchange/enelogic' lskey='enelogic' />} />
                         <SecureRoute exact path='/bunq/oauth' render={() => <OAuth url='/api/bunq/oauth/exchange' lskey='bunq' />} />
                         <Route path='/implicit/callback' component={ImplicitCallback} />
                         <Route path='/login' render={() => <Login baseUrl='https://dev-810647.okta.com' />} />

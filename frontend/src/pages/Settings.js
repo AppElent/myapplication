@@ -12,7 +12,7 @@ const queryString = require('query-string');
 
 const Settings = ({auth}) => {
     
-    console.log(window.location.search);
+    //console.log(window.location.search);
     const [activeTab, setActiveTab] = useState(queryString.parse(window.location.search).tab || 'profile')
     
     return <div>

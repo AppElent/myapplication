@@ -3,38 +3,53 @@ var moment = require('moment');
 const fetch = require("node-fetch");
 
 
-module.exports.get = (model) =>  async (req, res) => {
-   const entry = await model.findByPk(req.params.id);
-
-   res.send(entry);
+module.exports.get = (model, idColumnName = 'id', userColumnName = 'user') =>  async (req, res) => {
+    const entry = await model.findByPk(req.params[idColumnName]);
+    if(!entry) return res.status(404).send('Niets gevonden')
+    if(userColumnName !== null){
+	if(entry[userColumnName] === undefined) return res.status(401).send('Geen user op model');
+	if(req.jwt === undefined) return res.status(401).send('Geen token')
+	if(entry[userColumnName] !== req.jwt.claims.uid) return res.status(401).send('Niet toegestaan')
+    }
+    res.send(entry);
 }
 
-module.exports.findOne = (model) =>  async (req, res) => {
-   const entry = await model.findOne({ where: {[req.params.column]: req.params.value} })
-
-   res.send(entry);
+module.exports.findOne = (model, userColumnName = 'user') =>  async (req, res) => {
+    const conditions = { where: {[req.params.column]: req.params.value} }
+    if(userColumnName !== null && req.jwt !== undefined) conditions.where[userColumnName] = req.jwt.claims.uid;
+    const entry = await model.findOne(conditions)
+    if(!entry) return res.status(404).send('Niets gevonden')
+    res.send(entry);
 }
 
-module.exports.list = (model) => async (req, res) => {
-   const entries = await model.findAll();
+module.exports.list = (model, userColumnName = 'user') => async (req, res) => {
+    const conditions = { where: {[userColumnName]: req.jwt.claims.uid} }
+    
+    const entries = await model.findAll(conditions);
 
-   res.send(entries)
+    res.send(entries)
 }
 
-module.exports.create = (model) => async (req, res) => {
-   const entry = await model.create(req.body)
+module.exports.create = (model, userColumnName = 'user') => async (req, res) => {
+    const body = req.body;
+    if(req.jwt === undefined) return res.status(401).send('Geen token')
+    body[userColumnName] = req.jwt.claims.uid;
+    const entry = await model.create(body)
 
-   res.send(entry)
+    res.send(entry)
 }
 
-module.exports.update = (model) => async (req, res) => {
-   const entry = await model.update(req.body)
+module.exports.update = (model, idColumnName = 'id', userColumnName = 'user') => async (req, res) => {
+    const body = req.body;
+    if(req.jwt === undefined) return res.status(401).send('Geen token')
+    body[userColumnName] = req.jwt.claims.uid;
+    const entry = await model.update(body, {where: {[idColumnName]: req.params[idColumnName]}})
 
-   res.send(entry)
+    res.send(entry)
 }
 
-module.exports.update = (model) => async (req, res) => {
-   const entry = await model.destroy({ where: { id: req.params.id  } })
-
-   res.send(entry)
+module.exports.delete = (model, idColumnName = 'id', userColumnName = 'user') => async (req, res) => {
+    const entry = await model.destroy({ where: { id: req.params[idColumnName]  } })
+    console.log(entry);
+    res.send(entry)
 }

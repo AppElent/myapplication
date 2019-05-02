@@ -24,7 +24,7 @@ export const useAuth = auth => {
   return [authenticated, user];
 };
 
-
+/* 
 export const exchangeOAuthToken = async (url, code, auth) => {
     const body = {code: code}
     const accesstoken = await makeAPICall(url, 'POST', body, await auth.getAccessToken()).catch(err => undefined)
@@ -43,3 +43,4 @@ export const exchangeOAuthToken = async (url, code, auth) => {
     }
     return undefined;
 }
+* */

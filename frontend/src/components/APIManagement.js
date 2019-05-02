@@ -37,22 +37,16 @@ const EnelogicSetting = ({auth}) => {
     
     const saveEnelogic = async () => {
         //user: await (auth.getUser()).sub, 
-        request.put('/api/usersettings/' + config.id, {setting: 'enelogic', data: JSON.stringify(config)})
+        if(config.id !== undefined){
+            request.put('/api/usersettings/' + config.id, {setting: 'enelogic', data: JSON.stringify(config)})
+        }else{
+            request.post('/api/usersettings', {setting: 'enelogic', data: JSON.stringify(config)})
+        }
     }
-    const [config, handleChange, handleSubmit, setConfig, request ] = useFetchedForm(auth, '/api/usersettings?setting=enelogic', saveEnelogic, {api_key: '', success: false});
+    
+    const [config, handleChange, handleSubmit, setConfig, request ] = useFetchedForm(auth, '/api/usersettings/setting/enelogic', saveEnelogic, {api_key: '', success: false});
     const fields = [{name: 'api_key', label: 'API Key'}]
 
-    /*
-    const defaultSetting = {username: '', password: '', success: false}
-    
-
-    
-    const [data, setData, loading, error, request] = useFetch('/api/usersettings?setting=enelogic', {onMount: true}, auth, {success: false})
-    console.log(1, data, data.length, config)
-    if(data.length > 1){console.log('Meer dan 1 entry gevonden', data);alert('Meer dan 1 entry gevonden')}
-
-    const [config, handleChange, handleSubmit ] = useForm(saveEnelogic, {username: '', password: '', success: false});
-    */
     return <div><h2>Enelogic</h2>
         <DefaultFormRow data={getFormItems(fields, config, handleChange)} buttons={[{id: 'savecredentials', click: handleSubmit, disabled: false, text: 'Save'}]} />
     </div>  
@@ -73,7 +67,7 @@ const APIManagement = ({auth}) => {
         <DarkSky />
         <Enelogic />
         <EnelogicSetting auth={auth}/>
-        <OAuthSetting title='Enelogic' formatUrl='/api/enelogic/oauth/formaturl' lskey='enelogic'/> 
+        <OAuthSetting title='Enelogic' formatUrl='/api/oauth/formaturl/enelogic' lskey='enelogic' redirectUri='/settings?tab=apimanagement'/> 
         <APISetting title='Tado connection' lskey='tado' fields={[{name: 'username', label: 'Username'},{name: 'password', label: 'Password', visible:false}]} saveFunction={saveTado}/>
     </div>
         
