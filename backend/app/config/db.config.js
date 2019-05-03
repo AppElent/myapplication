@@ -1,4 +1,6 @@
 const env = require('./env.js');
+var fs = require('fs');
+const path = require('path');
  
 const Sequelize = require('sequelize');
 var sequelize = new Sequelize('mainDB', null, null, {
@@ -16,7 +18,7 @@ const db = {};
  
 db.sequelize = sequelize;
 db.sequelizeDomoticz = sequelizeDomoticz;
- 
+ /*
 //Models/tables
 db.customers = require('../models/customer.model.js')(sequelize, Sequelize);
 db.events = require('../models/event.model.js')(sequelize, Sequelize);
@@ -31,5 +33,17 @@ db.multimeter = require('../models/domoticz.multimeter.model.js')(sequelizeDomot
 db.multimeter_calendar = require('../models/domoticz.multimeter_calendar.model.js')(sequelizeDomoticz, Sequelize);
 db.meter = require('../models/domoticz.meter.model.js')(sequelizeDomoticz, Sequelize);
 db.meter_calendar = require('../models/domoticz.meter_calendar.model.js')(sequelizeDomoticz, Sequelize);
+*/
+var normalizedPath = require("path").join(__dirname, "../models");
+
+require("fs").readdirSync(normalizedPath).forEach(function(file) {
+  const modelname = file.replace('.model.js', '').replace('domoticz.', '')
+  if(file.startsWith('domoticz')){
+      db[modelname] = require("../models/" + file)(sequelizeDomoticz, Sequelize);
+  }else{
+      db[modelname] = require("../models/" + file)(sequelize, Sequelize);
+  }
+  console.log('Model ' + file + ' wordt geladen');
+});
  
 module.exports = db;

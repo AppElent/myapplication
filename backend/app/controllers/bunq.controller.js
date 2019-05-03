@@ -5,7 +5,9 @@ const BunqJSClient = require("@bunq-community/bunq-js-client").default;
 const path = require("path");
 require('dotenv').config();
 
-const customStoreInstance = customStore(`${__dirname}${path.sep}storage.json`);
+console.log('pad', path.resolve(__dirname, "../bunq/storage.json"))
+//const customStoreInstance = customStore(`${__dirname}${path.sep}storage.json`);
+const customStoreInstance = customStore(path.resolve(__dirname, "../bunq/storage.json"));
 
 const BunqClient = new BunqJSClient(customStoreInstance);
 

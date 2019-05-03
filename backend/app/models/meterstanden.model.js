@@ -6,10 +6,13 @@ module.exports = (sequelize, Sequelize) => {
 	const Meterstanden = sequelize.define('meterstanden', {
 	  datetime: {
 		type: Sequelize.DATE,
-		primaryKey: true,
 		get: function () {
 			return Moment(this.getDataValue('datetime')).tz('Europe/Amsterdam');//.format('YYYY-MM-DD HH:mm:ss');
 		}
+	  },
+	  user: {
+		type: Sequelize.STRING,
+		allowNull: false,
 	  },
 	  180: {
 		type: Sequelize.STRING

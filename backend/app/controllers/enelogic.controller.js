@@ -13,7 +13,7 @@ const oauth = require('../utils/oauth');
 const arrays = require('../utils/arrays');
 
 
-
+/*
 
 
 //var apikey = "ODE5NzlmMDBmZWNiMjZkMGU0NDcxZDI5MDJjMjRmMTdlMmI1NTE2M2FhYThhZmJlNTYwZDM3YTM1MzRhNTBkYw";
@@ -124,7 +124,7 @@ exports.refresh = async (req, res) => {
 	res.send(req);
 }
 
-
+*/
 
 
 
@@ -133,10 +133,13 @@ async function getMeterstanden(from, to, period){
 	if(from === '0'){
 		from = earliest;
 	}
-	let results = []
-	var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
-	let apikey = accessToken.token.access_token;
-	const baseUrl = host+'/api/measuringpoints/'+measuringpoint;
+	let results = [];
+	const config = await db.usersettings.findOne({ where: {user: req.uid, setting: 'enelogic'} })
+	if(config === null || config.success === false) return false;
+	//var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
+	let apikey = config.api_key;
+	let measuringpoint = config.measuringpoint;
+	const baseUrl = 'https://enelogic.com/api/measuringpoints/'+measuringpoint;
 	let datapointUrl = baseUrl+'/datapoints/'+from+'/'+to+'?access_token='+apikey;
 	if(period === "day"){
 		datapointUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
@@ -172,12 +175,7 @@ async function getMeterstanden(from, to, period){
 		
 	}
 	results.sort((a,b) => (a.datetime > b.datetime) ? 1 : -1); 
-	//let previous1 = results[0][180];
-	//let previous2 = results[0][280];
-	//let start1a = results[0][181];
-	//let start1b = results[0][182];
-	//let start2a = results[0][281];
-	//let start2b = results[0][282];
+
 	let previous = results[0];
 	for(var entry of results){
 		let index = results.findIndex((e) => e.datetime === entry.datetime);
@@ -215,6 +213,8 @@ async function getMeterstanden(from, to, period){
 	results = arrays.getDifferenceArray(results, 'datetime', ['180', '181', '182', '280', '281', '282']);
 	return (results);
 }
+
+/*
 
 async function updateMeterstanden(from, to, period){
 	let apikey = enelogic_store.get('enelogic').token.access_token;
@@ -281,6 +281,12 @@ exports.updateEnelogicData = async (req, res) => {
 		res.send (await updateMeterstanden(req.params.start, req.params.end, req.params.type));
 	}
 	
+	
+}
+* 
+* */
+
+exports.getEnelogicData = (period) => (req, res) => {
 	
 }
 

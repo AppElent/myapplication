@@ -6,10 +6,12 @@ module.exports = (sequelize, Sequelize) => {
 		allowNull: false,
 	  },
 	  user: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+		allowNull: false,
 	  },
 	  dag: {
-		type: Sequelize.INTEGER
+		type: Sequelize.INTEGER,
+		allowNull: false,
 	  },
 	  type: {
 		type: Sequelize.STRING,
@@ -67,14 +69,9 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.INTEGER,
 		allowNull: false,
 	  }
-	}, {
-	  hooks: {
-		afterFind: function(rekeningen, options) {
-		  //rekeningen.forEach((rekening, index) => {
-			//  rekeningen[index].user = 'aap'
-		  //})
-		}
-	  }
+	},{
+	  tableName: 'rekeningen',
+	  allowNull: false,
 	});
 	
 	return Rekening;

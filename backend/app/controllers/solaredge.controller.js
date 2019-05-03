@@ -37,7 +37,7 @@ const setupSolarEdge = async () => {
 		console.log('Solaredge data al opgezocht');
 	}
 }
-setupSolarEdge();
+//setupSolarEdge();
 
 
 

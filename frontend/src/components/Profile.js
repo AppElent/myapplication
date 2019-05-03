@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../utils/auth';
 
 
 import { withAuth } from '@okta/okta-react';

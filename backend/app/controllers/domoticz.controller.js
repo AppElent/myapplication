@@ -16,19 +16,23 @@ exports.updateMeterstanden = async (req, res) => {
 	
 	//console.log('meterstanden', meterstanden);
 	
-	const lastentry = await db.meterstanden.findAll({
-		limit: 1,
+	const lastentry = await db.meterstanden.findOne({
 		where: {
 			//your where conditions, or without them if you need ANY entry
-			
+			user: '00uaz3xmdoobfWWnY356'
 		},
 		order: [ [ 'datetime', 'DESC' ]]
 	})
-	console.log('Meterstanden moeten vanaf ' + lastentry[0].datetime + ' worden bijgewerkt');
+	let lastdate = moment().add(-1, 'days')
+	if(lastentry !== null){
+		console.log('Meterstanden moeten vanaf ' + lastentry.datetime + ' worden bijgewerkt');
+		lastdate = lastentry.datetime;
+	}
+	
 	
 	if(req.params.force !== 'force'){
 		meterstanden = meterstanden.filter((item) =>
-			new Date(item.Date) >= (new Date(lastentry[0].datetime))
+			new Date(item.Date) >= (new Date(lastdate))
 		);
 	}
 
@@ -53,9 +57,10 @@ exports.updateMeterstanden = async (req, res) => {
 			280: ((stand['281'] + stand['282'])),
 			281: stand['281'],
 			282: stand['282'],
+			user: '00uaz3xmdoobfWWnY356'
 		}
 		//console.log(values);
-		var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: rounded} });
+		var gevondenmeterstand = await db.meterstanden.findOne({ where: {datetime: rounded, user: '00uaz3xmdoobfWWnY356'} });
 		if(gevondenmeterstand == null){
 			gevondenmeterstand = await db.meterstanden.create(values);
 			//console.log("Moet toegevoegd worden");

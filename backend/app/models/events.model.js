@@ -12,10 +12,12 @@ module.exports = (sequelize, Sequelize) => {
 		}
 	  },
 	  user: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+		allowNull: false,
 	  },
 	  value: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+		allowNull: false,
 	  }
 	},{
 	  scopes: {

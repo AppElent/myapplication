@@ -139,6 +139,7 @@ module.exports = function(app, db, epilogue) {
 	*/
 	
 	const basicAuthentication = auth.authenticationRequired();
+	const adminAuthentication = auth.authenticationRequired(null, 'Admins');
 	
 	/*
 	redirectCall = async (req, res) => {
@@ -209,11 +210,11 @@ module.exports = function(app, db, epilogue) {
 	app.put('/api/meterstanden/:id', basicAuthentication, basic.update(db.meterstanden))
 	
 	//Users
-	app.get('/api/users/:id', basicAuthentication, basic.get(db.users));
-	app.get('/api/users', basicAuthentication, basic.list(db.users));
-	app.get('/api/users/:column/:value', basicAuthentication, basic.findOne(db.users));
-	app.post('/api/users', basicAuthentication, basic.create(db.users))
-	app.put('/api/users/:id', basicAuthentication, basic.update(db.users))
+	app.get('/api/users/:id', adminAuthentication, basic.get(db.users, 'id', null));
+	app.get('/api/users', adminAuthentication, basic.list(db.users, null));
+	app.get('/api/users/:column/:value', adminAuthentication, basic.findOne(db.users, null));
+	app.post('/api/users', adminAuthentication, basic.create(db.users, null))
+	app.put('/api/users/:id', adminAuthentication, basic.update(db.users, 'id', null))
 	
 	//Events
 	app.get('/api/events/:id', basicAuthentication, basic.get(db.events));
@@ -224,7 +225,8 @@ module.exports = function(app, db, epilogue) {
 	
 	//OKTA routes
 	const okta = require('./controllers/okta.controller.js');
-	app.post('/api/okta/create', okta.createUser)
+	app.post('/api/okta/create', adminAuthentication, okta.createUser)
+	app.get('/api/okta/groups', basicAuthentication, okta.getGroups);
 	
 	//OAuth routes
 	const oauth = require('./controllers/oauth.controller.js');
@@ -236,11 +238,11 @@ module.exports = function(app, db, epilogue) {
 	
 	//Meterstanden bijwerken en Enelogic routes
 	const enelogic = require('./controllers/enelogic.controller.js');
-	app.post('/api/meterstanden/elektra/update', auth.authenticationRequired, enelogic.updateElektraMeterstanden);
-	app.get('/api/enelogic/oauth/formatUrl', enelogic.format);
-	app.post('/api/enelogic/oauth/exchange', enelogic.exchange);
-	app.post('/api/enelogic/oauth/refresh', enelogic.refresh);
-	app.get('/api/enelogic/updatedata/:type/:start/:end', enelogic.updateEnelogicData);
+	//app.post('/api/meterstanden/elektra/update', auth.authenticationRequired, enelogic.updateElektraMeterstanden);
+	//app.get('/api/enelogic/oauth/formatUrl', enelogic.format);
+	//app.post('/api/enelogic/oauth/exchange', enelogic.exchange);
+	//app.post('/api/enelogic/oauth/refresh', enelogic.refresh);
+	//app.get('/api/enelogic/updatedata/:type/:start/:end', enelogic.updateEnelogicData);
 	app.get('/api/enelogic/data/dag/:start/:end', enelogic.getEnelogicDagData);
 	app.get('/api/enelogic/data/kwartier/:datum', enelogic.getEnelogicKwartierData);
 	

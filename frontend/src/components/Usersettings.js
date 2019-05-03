@@ -17,7 +17,7 @@ const Settings = ({auth}) => {
     const loadData = async () => {
         const call1 = makeAPICall('/api/users', 'GET', null, await auth.getAccessToken()).then(data1 => setUserdata(data1))
         const call2 = makeAPICall('/api/users/' + (await auth.getUser()).sub, 'GET', null, await auth.getAccessToken()).then(data2 => setProfileData(data2))
-    }
+    } 
     
     const createOktaUser = async () => {
         
