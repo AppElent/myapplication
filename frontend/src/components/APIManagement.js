@@ -37,13 +37,13 @@ const EnelogicSetting = ({auth}) => {
     const saveEnelogic = async () => {
         //user: await (auth.getUser()).sub, 
         if(config.id !== undefined){
-            request.put('/api/usersettings/' + config.id, {setting: 'enelogic', data: JSON.stringify(config)})
+            request.put('/api/apisettings/' + config.id, {setting: 'enelogic', data: JSON.stringify(config)})
         }else{
-            request.post('/api/usersettings', {setting: 'enelogic', data: JSON.stringify(config)})
+            request.post('/api/apisettings', {setting: 'enelogic', data: JSON.stringify(config)})
         }
     }
     
-    const [config, handleChange, handleSubmit, setConfig, request ] = useFetchedForm(auth, '/api/usersettings/setting/enelogic', saveEnelogic, {api_key: '', success: false});
+    const [config, handleChange, handleSubmit, setConfig, request ] = useFetchedForm(auth, '/api/apisettings/name/enelogic', saveEnelogic, {api_key: '', success: false});
     const fields = [{name: 'api_key', label: 'API Key'}]
 
     return <div><h2>Enelogic</h2>

@@ -5,7 +5,7 @@ const BunqJSClient = require("@bunq-community/bunq-js-client").default;
 const path = require("path");
 require('dotenv').config();
 
-console.log('pad', path.resolve(__dirname, "../bunq/storage.json"))
+//console.log('pad', path.resolve(__dirname, "../bunq/storage.json"))
 //const customStoreInstance = customStore(`${__dirname}${path.sep}storage.json`);
 const customStoreInstance = customStore(path.resolve(__dirname, "../bunq/storage.json"));
 
@@ -78,8 +78,8 @@ setup().then(async BunqClient => {
 	const users = await BunqClient.getUsers(true).catch(defaultErrorLogger);
 	userInfo = users[Object.keys(users)[0]];	
 
-	await setAccounts();
-	console.log("\nAccounts: ", accounts.length);
+	//await setAccounts();
+	//console.log("\nAccounts: ", accounts.length);
 }).catch(error => {
 	if (error.response) {
 		console.log(error.response.data);

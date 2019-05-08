@@ -5,7 +5,6 @@ const db = require('../config/db.config.js');
 var moment = require('moment');
 const path = require("path");
 const arrays = require('../utils/arrays');
-const to = require('await-to-js').default;
 const fetch = require("node-fetch");
 
 const solaredge_api_key = process.env.SOLAREDGE_API_KEY;
@@ -17,7 +16,7 @@ const timeUnits = ['HOUR', 'DAY', 'MONTH', 'QUARTER_OF_AN_HOUR', 'YEAR']
 
 const getSolarEdgeData = async (url) => {
 	url = solaredge_host + url + "&api_key=" + solaredge_api_key + "&format=application/json";
-	const [error, data] = await to(fetch(url));//.catch(err => console.log(err));
+	const [error, data] = await fetch(url);//.catch(err => console.log(err));
 	if(!data) return ('no data');
 	//console.log(data);
 	return (await data.json());

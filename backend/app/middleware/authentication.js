@@ -25,15 +25,15 @@ const isMemberOfGroup = async (req, group) => {
 }
 
 
-const checkAuthenticated = async (req, res, token = null, group = null) => {
+const checkAuthenticated = async (req, res, options = {}) => {
 	//Checken of er een custom token is
 	//const token = "homebridge-authenticated"
 	const authHeader = req.headers.authorization || '';
 	//console.log(req.headers);
 	const apimatch = authHeader.match(/Apitoken (.+)/);
 	const remoteIP = req.socket.remoteAddress;
-	if(!apimatch && token !== null) return {result: false, reason: 'No API token given'}
-	if (apimatch && token) {
+	if(!apimatch && options.token !== undefined) return {result: false, reason: 'No API token given'}
+	if (apimatch && options.token) {
 		const accessToken = apimatch[1];
 		console.log(accessToken, token, remoteIP, remoteIP.endsWith('192.168.178.1'));
 		const localaddress = (remoteIP.endsWith('192.168.178.1') ? true : false)
@@ -46,22 +46,25 @@ const checkAuthenticated = async (req, res, token = null, group = null) => {
 	
 	
 	const bearermatch = authHeader.match(/Bearer (.+)/);
-
+	if (!bearermatch && process.env.ENV === 'DEV') {
+	  console.log('Authentication passed, env=DEV');
+	  return {result: true, jwt: {claims: {uid: '00uh1btgtpVNlyc4k356'}}}
+	}
 	if (!bearermatch) return {result: false, reason: 'Bearer does not match'}
 	
 	const accessToken = bearermatch[1];
 	try{
 		const jwt = await oktaJwtVerifier.verifyAccessToken(accessToken);
 		try{
-		    if(group !== null){
-			const groupMember = await isMemberOfGroup(req, group);
+		    if(options.group !== undefined){
+			const groupMember = await isMemberOfGroup(req, options.group);
 			if(groupMember === false){
-			  return {result: false, reason: 'Not member of specified group (' + group + ')'}
+			  return {result: false, reason: 'Not member of specified group (' + options.group + ')'}
 			}
 		    }
 		}catch(grouperror){
 		    console.log(grouperror);
-		    return {result: false, reason: 'Not member of specified group (' + group + ')'}
+		    return {result: false, reason: 'Not member of specified group (' + options.group + ')'}
 		}
 		return {result: true, jwt: jwt}
 	}catch(error){
@@ -71,79 +74,25 @@ const checkAuthenticated = async (req, res, token = null, group = null) => {
 	
 	
 }
-/*
-const checkUser = async (authid, id, scoped) => {
-	if(id !== undefined){
-		if(id !== authid){
-			return {result: false, reason: 'Request for wrong user'}
-		}
-	}else{
-		if(scoped === true){
-			return {result: false, reason: 'Scoped=true and no user id given'}
-		}else if (scoped === false){
-			return {result: true, reason: 'Scoped=false, no user id given'}
-		}
-	}
 
-	const user = await db.users.findByPk(authid);
-	if(user === null){
-		return {result: false, reason: 'User not found'}
-	}
-	
-	if(Number.isInteger(scoped)){
-		if(user.access_level < scoped){
-			return {result: false, reason: 'Accesslevel not high enough'}
-		}	
-	}
-	
-	return {result: true, reason: ''}
-
+module.exports.epilogueAuthenticationRequired = async (req, res, context, options) => {
+    const authenticated = await checkAuthenticated(req, res, options);
+    console.log('Authentication result ' + authenticated.result);
+    if(authenticated.result === true){
+	    req.jwt = authenticated.jwt;
+	    if(authenticated.jwt !== false){
+	      req.uid = req.jwt.claims.uid;
+	    }
+	    
+	    return context.continue;
+    }
+    console.log("Error = " + authenticated.reason);
+    return context.stop;
 }
 
 
-//checkUser('abc').then(data => console.log(data))
-//checkUser('00uaz3xmdoobfWWnY356').then(data => console.log(data))
-
-/**
- * A simple middleware that asserts valid access tokens and sends 401 responses
- * if the token is not present or fails validation.  If the token is valid its
- * contents are attached to req.jwt
-
-const requireAuthenticated = async (req, res, token = null, scoped = false, userparam = undefined) => {
-  const authenticated = await checkAuthenticated(req, res, token);
-  console.log('authenticated_result', authenticated.result, authenticated.reason, req.originalUrl);
-  if(authenticated.result === false) return authenticated;
-  if(authenticated.jwt === undefined) return authenticated;
-  
-  req.uid = authenticated.jwt.claims.uid;
-  req.jwt = authenticated.jwt
-  //const checkuser = await checkUser(req.uid, userparam, scoped);
-  console.log('checkuser_result', checkuser.result, checkuser.reason, req.originalUrl);
-  checkuser.jwt = authenticated.jwt;
-  return checkuser;
-  //return (checkuser === true ? true : 'User is niet goed');
-}
-* */
-
-
-module.exports.epilogueAuthenticationRequired = async (req, res, context, token = null) => {
-  const authenticated = await checkAuthenticated(req, res, token);
-  console.log('Authentication result ' + authenticated.result);
-  if(authenticated.result === true){
-	  req.jwt = authenticated.jwt;
-	  if(authenticated.jwt !== false){
-	    req.uid = req.jwt.claims.uid;
-	  }
-	  
-	  return context.continue;
-  }
-  console.log("Error = " + authenticated.reason);
-  return context.stop;
-}
-
-
-module.exports.authenticationRequired = (token = null, group = null) => (req, res, next) => {
-    checkAuthenticated(req, res, token, group)
+module.exports.authenticationRequired = (options) => (req, res, next) => {
+    checkAuthenticated(req, res, options)
     .then(authenticated => {
 	    console.log('Authentication result ' + authenticated.result);
 	    if(authenticated.result === true){
@@ -157,19 +106,6 @@ module.exports.authenticationRequired = (token = null, group = null) => (req, re
 		    return res.status(401).send(authenticated.reason);
 	    }
     })
-	  /*
-  return function(req, res, next){
-	  requireAuthenticated(req, res, token)
-	  .then(authenticated => {
-		  if(authenticated.result === true){
-			  req.jwt = authenticated.jwt;
-			  next();
-		  }else{
-			  return res.status(401).send(authenticated.reason);
-		  }
-	  })
-  }
-  * */
 }
 	
 

@@ -3,18 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/wwws"
+      "build": "babel src -d dist",
+      "start": "ENV=DEV nodemon ./bin/wwws",
+      "serve": "ENV=PROD node ./bin/wwws"
+  },
+  "nodemonConfig": {
+    "ignore": ["app/bunq/*", "*.sqlite"],
+    "delay": "2500"
   },
   "dependencies": {
     "@bunq-community/bunq-js-client": "^0.39.1",
     "@okta/jwt-verifier": "0.0.14",
-    "await-to-js": "^2.1.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
     "dotenv": "^6.2.0",
     "epilogue": "^0.7.1",
     "express": "~4.16.0",
-    "express-session": "^1.15.6",
     "http-errors": "~1.6.2",
     "http-proxy": "^1.17.0",
     "json-store": "^1.0.0",
@@ -25,9 +29,11 @@
     "node-fetch": "^2.3.0",
     "node-forge": "^0.8.2",
     "pug": "^2.0.3",
-    "request": "^2.88.0",
     "sequelize": "^4.42.0",
     "simple-oauth2": "^2.2.1",
     "sqlite": "^3.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.19.0"
   }
 }

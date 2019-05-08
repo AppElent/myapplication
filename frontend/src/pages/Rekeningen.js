@@ -19,7 +19,8 @@ const Rekeningen = ({auth}) => {
         for(var i = 1; i < 13; i++){
             newEntryData['month_'+i] = newEntryData.bedrag
         }
-        newEntryData['user'] = user.sub
+        
+        //newEntryData['user'] = user.sub
         await request.post(newEntryData);
         setData([...data, newEntryData]);
     };
@@ -28,7 +29,7 @@ const Rekeningen = ({auth}) => {
     const [ newEntry, handleChange, handleSubmit, submitting, changing ] = useForm(submitForm, {naam: "", dag: 1, type: "", rekening: "", bedrag: 0});
 
 
-    const [authenticated, user, sub] = useAuth(auth);
+    //const [authenticated, user, sub] = useAuth(auth);
     const [data, setData, loading, error, request] = useFetch('/api/rekeningen', {onMount: true}, auth)
 
     const handleDelete = async (row) => {

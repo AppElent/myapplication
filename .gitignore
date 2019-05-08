@@ -1,6 +1,6 @@
 # Don't track content of these folders
 backend/node_modules/
-backend_test/node_modules/
+backend/dist/
 temp/
 dynudns/
 

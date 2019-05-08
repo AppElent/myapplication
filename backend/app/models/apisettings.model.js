@@ -2,7 +2,7 @@
 
 module.exports = (sequelize, Sequelize) => {
 
-	const Usersettings = sequelize.define('usersettings', {
+	const Apisettings = sequelize.define('apisettings', {
 	  id: {
 		type: Sequelize.STRING,
 		unique: true,
@@ -12,7 +12,7 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.STRING,
 		allowNull: false
 	  },
-	  setting: {
+	  name: {
 		type: Sequelize.STRING,
 		allowNull: false
 	  },
@@ -22,6 +22,9 @@ module.exports = (sequelize, Sequelize) => {
 	  refresh_token: {
 		type: Sequelize.STRING
 	  },
+	  expires_at: {
+		type: Sequelize.STRING
+	  },	  
 	  success: {
 		type: Sequelize.BOOLEAN
 	  },
@@ -56,8 +59,8 @@ module.exports = (sequelize, Sequelize) => {
 		type: Sequelize.STRING
 	  }
 	},{
-	  tableName: 'usersettings',
+	  tableName: 'apisettings',
 	  allowNull: false,
 	});
-	return Usersettings;
+	return Apisettings;
 }

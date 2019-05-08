@@ -9,7 +9,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require("body-parser");
 var epilogue = require("epilogue");
-const session = require('express-session');
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 var fs = require('fs');
@@ -26,14 +25,6 @@ db.sequelize.sync({force: false}).then(() => {
 var app = express();
 
 
-
-
-// session support is required to use ExpressOIDC
-app.use(session({
-    secret: process.env.RANDOM_SECRET_WORD,
-    resave: true,
-    saveUninitialized: false
-}));
 
 
 

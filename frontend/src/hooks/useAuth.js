@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import {makeAPICall} from '../utils/fetching';
 
 export const useAuth = auth => {
   const [object, setObject] = useState({authenticated: null, user: null, sub: null});
@@ -9,17 +10,25 @@ export const useAuth = auth => {
     let authenticated = await auth.isAuthenticated();
     let user = null;
     let sub = null;
+    let found = null;
     if(authenticated){
         user = await auth.getUser();
+        const groups = await makeAPICall('/api/okta/groups', 'GET', null, await auth.getAccessToken())
+        found = groups.find((element) => {
+          return element.profile.name === 'Admins'; 
+        }); 
+        console.log(groups, found);
     }
-    setObject({...object, authenticated: authenticated, user: user, sub: (user !== null ? user.sub : '')});
+
+    setObject({...object, authenticated: authenticated, user: user, sub: (user !== null ? user.sub : ''), admin: (found !== null)});
   }
   
   useEffect(() => {
     loadAuthentication();
   }, []);
-
-  return [object.authenticated, object.user, object.sub];
+  
+  console.log(object);
+  return [object.authenticated, object.user, object.sub, object.admin];
 };
 
 export default useAuth;

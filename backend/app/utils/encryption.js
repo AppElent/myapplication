@@ -20,7 +20,16 @@ const forge = require("node-forge");
 	start();
  * */
 
-
+/**
+ * Example on how to hash a string
+ * @param string
+ * @returns {hashedString}
+ */
+exports.hashString = (string) => {
+    var md = forge.md.sha512.create();
+    md.update(string);
+    return (md.digest().toHex());
+}
 
 /**
  * Example on how to generate a random AES key and re-use it afterwards

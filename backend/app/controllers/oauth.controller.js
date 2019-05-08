@@ -55,15 +55,15 @@ const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 
 exports.format = (req, res) => {
 		
-		const oauthobject = oauth_credentials[req.params.application].object;
-		// Authorization oauth2 URI
-		const authorizationUri = oauthobject.authorizationCode.authorizeURL({
-		  redirect_uri: oauth_credentials[req.params.application].redirect_uri,
-		  scope: oauth_credentials[req.params.application].scope 
-		});
+	const oauthobject = oauth_credentials[req.params.application].object;
+	// Authorization oauth2 URI
+	const authorizationUri = oauthobject.authorizationCode.authorizeURL({
+	  redirect_uri: oauth_credentials[req.params.application].redirect_uri,
+	  scope: oauth_credentials[req.params.application].scope 
+	});
 
-		// Redirect example using Express (see http://expressjs.com/api.html#res.redirect)
-		res.send(authorizationUri);
+	// Redirect example using Express (see http://expressjs.com/api.html#res.redirect)
+	res.send(authorizationUri);
 }
 
 exports.exchange = async (req, res) => {
@@ -78,11 +78,13 @@ exports.exchange = async (req, res) => {
 	console.log(tokenConfig)
 	// Save the access token
 	try {
-		const result = await oauthobject.authorizationCode.getToken(tokenConfig)
-		console.log(result);
-		return res.send(oauthobject.accessToken.create(result));
+	    const result = await oauthobject.authorizationCode.getToken(tokenConfig)
+	    console.log(result);
+	    const accessToken = oauthobject.accessToken.create(result);
+	    console.log(accessToken)
+	    return res.send(accessToken);
 	}catch (error) {
-		return res.status(500).send('Creation failed: ' + error)
+	    return res.status(500).send('Creation failed: ' + error)
 	}
 }
 

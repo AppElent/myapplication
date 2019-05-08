@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+
+console.log('Starting env ' + process.env.ENV)
+const env_http_port = (process.env.ENV === 'DEV' ? 3005 : 3001)
+const env_https_port = (process.env.ENV === 'DEV' ? 3006 : 3002)
+
 /**
  * Module dependencies.
  */
@@ -12,14 +17,7 @@ var https = require('https');
 
 /**
  * Get port from environment and store in Express.
- */
-
-//var port = normalizePort(process.env.PORT || '3001');
-//app.set('port', port);
-
-// Add HTTPS Section
-//Certficaten
-//manual: https://medium.com/@yash.kulshrestha/using-lets-encrypt-with-express-e069c7abe625
+ */  
 
 var http_port = normalizePort(process.env.PORT || '3001');
 var https_port    =   process.env.PORT_HTTPS || 3002; 

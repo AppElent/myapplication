@@ -3,10 +3,11 @@ import React, {useState, useEffect} from 'react'
 import { Navbar, Nav, NavDropdown} from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { withAuth } from '@okta/okta-react';
+import useAuth from '../hooks/useAuth'; 
 
 //const NavBar = () => (
 const NavBar = ({auth}) => {
-
+  const [authenticated, user, sub, admin] = useAuth(auth);
   const navbar = () => {
 
     return <Navbar bg="light" expand="lg" collapseOnSelect>
