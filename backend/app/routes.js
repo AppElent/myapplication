@@ -59,6 +59,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/rekeningen/:column/:value', basicAuthentication, controllers.basic.findOne(db.rekeningen));
 	app.post('/api/rekeningen', basicAuthentication, controllers.basic.create(db.rekeningen))
 	app.put('/api/rekeningen/:id', basicAuthentication, controllers.basic.update(db.rekeningen))
+	app.delete('/api/rekeningen/:id', basicAuthentication, controllers.basic.delete(db.rekeningen))
 	
 	//Meterstanden
 	app.get('/api/meterstanden/:id', basicAuthentication, controllers.basic.get(db.meterstanden));

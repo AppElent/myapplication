@@ -69,7 +69,7 @@ module.exports = class Encryption {
      * @param encryptionKey
      * @returns {Promise.<{iv: string, encryptedString: string}>}
      */
-    async encryptString (string, encryptionKey) {
+    encryptString (string, encryptionKey) {
         // create a random initialization vector
         const iv = forge.random.getBytesSync(32);
         // turn hex-encoded key into bytes
@@ -97,7 +97,7 @@ module.exports = class Encryption {
      * @param iv
      * @returns {Promise.<String>}
      */
-    async decryptString (encryptedString, key, iv) {
+    decryptString (encryptedString, key, iv) {
         // get byte data from hex encoded strings
         const encrypedBytes = forge.util.hexToBytes(encryptedString);
         // create a new forge buffer using the bytes

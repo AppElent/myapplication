@@ -82,8 +82,28 @@ exports.exchange = async (req, res) => {
 	    console.log(result);
 	    const accessToken = oauthobject.accessToken.create(result);
 	    console.log(accessToken)
+	    console.log(req.body.name)
+	    if(req.params.application !== undefined){
+		const conditions = {user: req.uid, name: req.body.name};
+		const body = {
+		  user: req.uid, 
+		  name: req.params.application, 
+		  access_token: accessToken.token.access_token, 
+		  refresh_token: accessToken.token.refresh_token,
+		  expires_at: accessToken.token.expires_at,
+		};
+		console.log(conditions, body)
+		let entry = await model.findOne(conditions)
+		if(entry){
+		    entry = await entry.update(body)
+		}else{
+		    entry = await model.create(body);
+		}
+		return res.send(entry);
+	    }
 	    return res.send(accessToken);
 	}catch (error) {
+	    console.log(error);
 	    return res.status(500).send('Creation failed: ' + error)
 	}
 }

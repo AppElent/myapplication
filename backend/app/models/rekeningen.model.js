@@ -1,4 +1,5 @@
 
+
 module.exports = (sequelize, Sequelize) => {
 	const Rekening = sequelize.define('rekening', {
 	  naam: {

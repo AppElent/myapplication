@@ -101,7 +101,7 @@ module.exports.delete = (model, options) => async (req, res) => {
     if(req.uid === undefined) return res.status(401).send('No token given')
     
     options = getOptions(options);
-    const entry = await model.destroy({ where: { [options.idColumnName]: req.params[options.idColumnName]  } })
-    console.log(entry);
-    res.send(entry)
+    model.destroy({ where: { [options.idColumnName]: req.params[options.idColumnName]  } })
+    .then(success => res.status(200).end())
+    .catch(err => res.status(500).send(err))
 }

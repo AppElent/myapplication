@@ -7,7 +7,7 @@ import {setLocalUserStorage} from '../utils/localstorage';
 
 const queryString = require('query-string');
 
-const OAuth = ({auth, url, redirectUrl}) => {
+const OAuth = ({auth, url, redirectUrl, name}) => {
     
     const [success, setSuccess] = useState(false)
     
@@ -17,6 +17,7 @@ const OAuth = ({auth, url, redirectUrl}) => {
         
         if(parsed.code !== undefined){
             const body = {code: parsed.code}
+            console.log(body);
             const accesstoken = await makeAPICall(url, 'POST', body, await auth.getAccessToken()).catch(err => {setSuccess(false)});
             console.log(accesstoken);
             if(accesstoken !== undefined){

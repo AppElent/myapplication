@@ -1,4 +1,6 @@
-
+const Encryption = require('../classes/Encryption');
+const encryption = new Encryption();
+const key =  process.env.SEQUELIZE_ENCRYPTION_KEY;
 
 module.exports = (sequelize, Sequelize) => {
 
@@ -10,17 +12,35 @@ module.exports = (sequelize, Sequelize) => {
 	  },
 	  user: {
 		type: Sequelize.STRING,
-		allowNull: false
+		allowNull: false,
+		unique: 'USERxNAME'
 	  },
 	  name: {
 		type: Sequelize.STRING,
-		allowNull: false
+		allowNull: false,
+		unique: 'USERxNAME'
 	  },
 	  access_token: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+		set(val) {
+			const encrypted = encryption.encryptString(val, key);
+			this.setDataValue('access_token', encrypted.iv + '~' + encrypted.encryptedString);
+		},
+		get() {
+			const val = this.getDataValue('access_token');
+			return encryption.decryptString(val.split('~')[1], key, val.split('~')[0])
+		}
 	  },
 	  refresh_token: {
-		type: Sequelize.STRING
+		type: Sequelize.STRING,
+		set(val) {
+			const encrypted = encryption.encryptString(val, key);
+			this.setDataValue('refresh_token', encrypted.iv + '~' + encrypted.encryptedString);
+		},
+		get() {
+			const val = this.getDataValue('refresh_token');
+			return encryption.decryptString(val.split('~')[1], key, val.split('~')[0])
+		}
 	  },
 	  expires_at: {
 		type: Sequelize.STRING

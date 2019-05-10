@@ -45,8 +45,8 @@ const Routes = () => (
                         <SecureRoute exact path="/settings" component={Settings} />
                         
                         <SecureRoute exact path="/bunq2/oauth" component={BunqOauth} />
-                        <SecureRoute exact path='/enelogic/oauth' render={() => <OAuth url='/api/oauth/exchange/enelogic' lskey='enelogic' />} />
-                        <SecureRoute exact path='/bunq/oauth' render={() => <OAuth url='/api/bunq/oauth/exchange' lskey='bunq' />} />
+                        <SecureRoute exact path='/enelogic/oauth' render={() => <OAuth url='/api/oauth/exchange/enelogic' name='enelogic' redirectUrl='test' />} />
+                        <SecureRoute exact path='/bunq/oauth' render={() => <OAuth url='/api/bunq/oauth/exchange' name='bunq' />} />
                         <Route path='/implicit/callback' component={ImplicitCallback} />
                         <Route path='/login' render={() => <Login baseUrl='https://dev-810647.okta.com' />} />
                   </App>
