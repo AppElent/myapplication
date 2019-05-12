@@ -146,20 +146,22 @@ exports.getMonetaryAccounts = async (req, res) => {
 
 exports.getMonetaryAccountByName = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
-	const account = await bunqClient.getAccountByName(req.params.name);
-	if(account === null) return res.status(404).send({})
-	res.send(account)
+	const accounts = await bunqClient.getAccounts();
+	const result = accounts.find(account => account.description === req.params.name)
+	if(result === null) return res.status(404).send({})
+	res.send(result)
 }
 
 exports.postPaymentInternal = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const payment = await bunqClient.makePaymentInternal(req.body.from, req.body.to, req.body.description, req.body.amount);
 	res.send(payment);
-	
-	//console.log("body:" + req.body.body);
-	//return res.send(req.body);
-	//console.log(req.body);
+}
 
+exports.postDraftPayment = async (req, res) => {
+	const bunqClient = bunq.getClient(req.uid);
+	const payment = await bunqClient.makeDraftPayment(req.body.from, req.body.to, req.body.description, req.body.amount);
+	res.send(payment);
 }
 
 exports.createSandboxAPIKey = async (req, res) => {

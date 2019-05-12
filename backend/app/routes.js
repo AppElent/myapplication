@@ -117,6 +117,7 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/bunq/accounts/:name', basicAuthentication, controllers.bunq.getMonetaryAccountByName);
 	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	app.post('/api/bunq/payment', basicAuthentication, controllers.bunq.postPaymentInternal);
+	app.post('/api/bunq/draftpayment', basicAuthentication, controllers.bunq.postDraftPayment);
 	app.get('/api/bunq/sandbox', basicAuthentication, controllers.bunq.createSandboxAPIKey);
 
 

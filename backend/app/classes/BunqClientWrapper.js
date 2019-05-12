@@ -89,34 +89,23 @@ module.exports = class BunqClientWrapper {
       return results;
   }
   
-  async getAccountByName(name){
-      const accounts = await this.getAccounts();
-      for(var account of accounts){
-          if(account.description === name) return account;
-      }
-      return null;
-  }
-  
-  getAliasByType(account, type){
-    const aliasses = account.alias;
-    return aliasses.find(alias => {return alias.type === type})
-  }
-
   async makePaymentInternal(from, to, description, amount) {
-      const from_account = await this.getAccountByName(from).catch(this.defaultErrorLogger);
-      const to_account = await this.getAccountByName(to).catch(this.defaultErrorLogger);
+      const accounts = await this.getAccounts();
+      
+      const from_account = accounts.find(account => account[from.type] === from.value)
+      const to_account = accounts.find(account => account[from.type] === to.value)
       if (from_account == null) {
-          console.log ("Van account bestaat niet: " + from);
-          return;
+          console.log ("Van account bestaat niet: ", from);
+          return false;
       }
       if (to_account == null) {
-          console.log ("To account bestaat niet: " + to);
-          return;
+          console.log ("To account bestaat niet: ", to);
+          return false;
       }
       
-      const counterpartyAlias = this.getAliasByType(to_account, "IBAN");
+      const counterpartyAlias = to_account.alias.find(alias => alias.type === 'IBAN');//this.getAliasByType(to_account, "IBAN");
       const paymentResponse = await this.bunqJSClient.api.payment.post(
-          userInfo.id,
+          this.user.id,
           from_account.id,
           description,
           { value: amount, currency: "EUR" },
@@ -126,6 +115,25 @@ module.exports = class BunqClientWrapper {
       // iets met paymentResponse doen hier
 
       return paymentResponse;
+  }
+  
+  async makeDraftPayment(from, to, description, amount) {
+      const accounts = await this.getAccounts();
+      
+      const from_account = accounts.find(account => account[from.type] === from.value)
+      if (from_account == null) {
+          console.log ("Van account bestaat niet: ", from);
+          return false;
+      }
+      console.log(from, to, description, amount)
+      const paymentResponse = await this.bunqJSClient.api.draftPayment.post(
+          this.user.id,
+          from_account.id,
+          description,
+          { value: amount, currency: "EUR" },
+          to
+      ).catch(this.defaultErrorLogger);
+      return paymentResponse
   }
 
   

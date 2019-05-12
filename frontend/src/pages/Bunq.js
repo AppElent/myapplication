@@ -11,6 +11,7 @@ import { withAuth } from '@okta/okta-react';
 import DefaultTable from '../components/DefaultTable';
 import DefaultFormRow from '../components/DefaultFormRow';
 import useFetch from '../hooks/useFetch'
+import BunqPaymentModal from '../components/BunqPaymentModal'
 
 const Bunq = ({auth}) => {
 //class Bunq extends Component {
@@ -240,7 +241,7 @@ const Bunq = ({auth}) => {
                 {preconditions.incomeSufficient === false ? <ListGroup.Item variant="danger">Niet voldoende inkomen om alle rekeningen te betalen</ListGroup.Item> : ""}
                 {preconditions.sparen !== null ? <ListGroup.Item variant="success">Er wordt {preconditions.sparen} gespaard</ListGroup.Item> : ""}
             </ListGroup>
-            
+            <BunqPaymentModal accounts={accounts} />
         </div>
     );
 
