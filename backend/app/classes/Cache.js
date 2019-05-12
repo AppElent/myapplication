@@ -9,6 +9,7 @@ module.exports = class Cache {
   get(key, storeFunction) {
     const value = this.cache.get(key);
     if (value) {
+      console.log('Getting value from cache with key ' + key);
       return Promise.resolve(value);
     }
 
@@ -16,6 +17,19 @@ module.exports = class Cache {
       this.cache.set(key, result);
       return result;
     });
+  }
+  
+  simpleGet(key) {
+    const value = this.cache.get(key);
+    if (value) {
+      console.log('Getting value from cache with key ' + key);
+      return Promise.resolve(value);
+    }
+    return null;
+  }
+  
+  save(key, data) {
+    this.cache.set(key, data);
   }
 
   del(keys) {

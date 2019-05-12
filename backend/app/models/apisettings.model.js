@@ -2,14 +2,10 @@ const Encryption = require('../classes/Encryption');
 const encryption = new Encryption();
 const key =  process.env.SEQUELIZE_ENCRYPTION_KEY;
 
+
 module.exports = (sequelize, Sequelize) => {
 
 	const Apisettings = sequelize.define('apisettings', {
-	  id: {
-		type: Sequelize.STRING,
-		unique: true,
-		primaryKey: true,
-	  },
 	  user: {
 		type: Sequelize.STRING,
 		allowNull: false,
@@ -28,7 +24,7 @@ module.exports = (sequelize, Sequelize) => {
 		},
 		get() {
 			const val = this.getDataValue('access_token');
-			return encryption.decryptString(val.split('~')[1], key, val.split('~')[0])
+			return (val === undefined || val === null) ? null : encryption.decryptString(val.split('~')[1], key, val.split('~')[0])
 		}
 	  },
 	  refresh_token: {
@@ -39,10 +35,16 @@ module.exports = (sequelize, Sequelize) => {
 		},
 		get() {
 			const val = this.getDataValue('refresh_token');
-			return encryption.decryptString(val.split('~')[1], key, val.split('~')[0])
+			return (val === undefined || val === null) ? null : encryption.decryptString(val.split('~')[1], key, val.split('~')[0])
 		}
 	  },
 	  expires_at: {
+		type: Sequelize.DATE
+	  },
+	  token_type: {
+		type: Sequelize.STRING
+	  },
+	  scope: {
 		type: Sequelize.STRING
 	  },	  
 	  success: {

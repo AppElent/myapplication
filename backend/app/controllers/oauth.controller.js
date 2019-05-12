@@ -84,20 +84,22 @@ exports.exchange = async (req, res) => {
 	    console.log(accessToken)
 	    console.log(req.body.name)
 	    if(req.params.application !== undefined){
-		const conditions = {user: req.uid, name: req.body.name};
+		const conditions = {where: {user: req.uid, name: req.params.application}};
 		const body = {
 		  user: req.uid, 
 		  name: req.params.application, 
 		  access_token: accessToken.token.access_token, 
 		  refresh_token: accessToken.token.refresh_token,
 		  expires_at: accessToken.token.expires_at,
+		  token_type: accessToken.token.token_type,
+		  scope: accessToken.token.scope, 
 		};
 		console.log(conditions, body)
-		let entry = await model.findOne(conditions)
+		let entry = await db.apisettings.findOne(conditions)
 		if(entry){
 		    entry = await entry.update(body)
 		}else{
-		    entry = await model.create(body);
+		    entry = await db.apisettings.create(body);
 		}
 		return res.send(entry);
 	    }

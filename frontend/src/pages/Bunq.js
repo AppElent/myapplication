@@ -4,7 +4,7 @@ import { ListGroup} from 'react-bootstrap';
 
 //import BunqJSClient from '@bunq-community/bunq-js-client';
 //const BunqJSClient = require("../../dist/BunqJSClient").default;
-import {makeAPICall} from '../utils/fetching'
+import {makeAPICall, fetchBackend} from '../utils/fetching'
 //import {groupBy, createArrayFromObject} from '../utils/arrays'
 import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import { withAuth } from '@okta/okta-react';
@@ -56,6 +56,7 @@ const Bunq = ({auth}) => {
       return result
     };
     
+    
     /*
     const loadRekeningen = async () => {
         const data = await makeAPICall('/api/rekeningen?user=' + (await auth.getUser()).sub, 'GET', null, await auth.getAccessToken());
@@ -87,10 +88,8 @@ const Bunq = ({auth}) => {
     
     const getAccountByName = (name) => {
         for(var account of accounts){
-            const objectKeys = Object.keys(account);
-            const objectKey = objectKeys[0];
-            if(account[objectKey].description === name){
-                return account[objectKey];
+            if(account.description === name){
+                return account;
             }
         }
         return null;

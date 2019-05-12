@@ -38,3 +38,7 @@ export const makeAPICallFromNodeJS = async (url, method, headers, body, token) =
   return (data);
   
 }
+
+export const fetchBackend = async (url, method, body, auth) => {
+  return (await makeAPICall(url, method, body, await auth.getAccessToken()));
+}

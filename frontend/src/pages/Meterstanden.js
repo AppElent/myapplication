@@ -66,20 +66,25 @@ const MeterstandElektra = ({auth}) => {
 
         //const solarEdgeUrl = await (timeframe === 'day' ? '/api/solaredge/data/day/' + datefrom + '/' + moment(dateto).clone().add(1, 'days').format('YYYY-MM-DD') : '/api/solaredge/data/quarter_of_an_hour/' + datefrom + '/' + moment(dateto).clone().add(1, 'days').format('YYYY-MM-DD'));
         console.log(solarEdgeUrl);
-        let solaredgedata = await makeAPICall(solarEdgeUrl, 'GET', null, await auth.getAccessToken());
-        solaredgedata = solaredgedata.energy.values;
-        for(let item of data){
-            //let item = data[i];
-            let i = data.findIndex((e) => e.datetime === item.datetime);
-            data[i]['opwekking'] = null;
-            //console.log(item.datetime);
-            //let correctdate = timeframe === 'day' ? moment(item.datetime).subtract(1, 'days') : moment(item.datetime);
-            let solaredgeitem = solaredgedata.find(entry => moment(entry.date).isSame(moment(item.datetime)));
-            if(solaredgeitem !== undefined && solaredgeitem.value !== null){
-                data[i]['opwekking'] = (Math.round(parseFloat(solaredgeitem.value)));
-                //console.log(data[i]);
-            }
-        };
+        try{
+            let solaredgedata = await makeAPICall(solarEdgeUrl, 'GET', null, await auth.getAccessToken());
+            solaredgedata = solaredgedata.energy.values;
+            console.log(solaredgedata)
+            for(let item of data){
+                //let item = data[i];
+                let i = data.findIndex((e) => e.datetime === item.datetime);
+                data[i]['opwekking'] = null;
+                //console.log(item.datetime);
+                //let correctdate = timeframe === 'day' ? moment(item.datetime).subtract(1, 'days') : moment(item.datetime);
+                let solaredgeitem = solaredgedata.find(entry => moment(entry.date).isSame(moment(item.datetime)));
+                if(solaredgeitem !== undefined && solaredgeitem.value !== null){
+                    data[i]['opwekking'] = (Math.round(parseFloat(solaredgeitem.value)));
+                    //console.log(data[i]);
+                }
+            };
+        }catch(err){
+            return data;
+        }
 
         //setSolaredgedata(solaredgedata);
         return data;
@@ -88,7 +93,7 @@ const MeterstandElektra = ({auth}) => {
     const addBrutoNetto = async (data) => {
         data.forEach((item, i) => {
             data[i]['bruto'] = item['180_diff'];
-            if(item.opwekking !== null){
+            if(item.opwekking !== undefined){
                 data[i]['bruto'] = item['180_diff'] + item.opwekking - item['280_diff'];
             }
             data[i]['netto'] = item['180_diff'] - item['280_diff'];

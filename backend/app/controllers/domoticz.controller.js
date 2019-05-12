@@ -25,7 +25,7 @@ exports.updateMeterstanden = async (req, res) => {
 	})
 	let lastdate = moment().add(-1, 'days')
 	if(lastentry !== null){
-		console.log('Meterstanden moeten vanaf ' + lastentry.datetime + ' worden bijgewerkt');
+		console.log('Meterstanden moeten vanaf ' + moment(lastentry.datetime).format('YYYY-MM-DD HH:mm') + ' worden bijgewerkt');
 		lastdate = lastentry.datetime;
 	}
 	

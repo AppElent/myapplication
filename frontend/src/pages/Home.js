@@ -32,6 +32,7 @@ export default withAuth(class Home extends Component {
 
     async logout() {
         this.props.auth.logout('/');
+        
     }
     
     render(){

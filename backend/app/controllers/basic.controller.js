@@ -45,8 +45,14 @@ module.exports.list = (model, options) => async (req, res) => {
     
     options = getOptions(options);
     const conditions = { where: {[options.userColumnName]: req.uid} }
-    const entries = await model.findAll(conditions);
-
+    
+    let entries = []
+    if(options.cache !== undefined){
+        entries = await (options.cache.get(req.uid + '_all', async () => {return await model.findAll(conditions)}))
+    }else{
+        entries = await model.findAll(conditions);
+        
+    }
     res.send(entries)
 }
 

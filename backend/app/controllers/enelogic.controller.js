@@ -11,13 +11,16 @@ var JSONStore = require('json-store');
 const oauth = require('../utils/oauth');
 
 const arrays = require('../utils/arrays');
+var host = 'https://enelogic.com';
 
+const Cache = require('../classes/Cache');
+const enelogicCache = new Cache(999999999);
 
 /*
 
 
 //var apikey = "ODE5NzlmMDBmZWNiMjZkMGU0NDcxZDI5MDJjMjRmMTdlMmI1NTE2M2FhYThhZmJlNTYwZDM3YTM1MzRhNTBkYw";
-var host = 'https://enelogic.com';
+
 var measuringpoint = "165704";
 
 
@@ -127,19 +130,39 @@ exports.refresh = async (req, res) => {
 */
 
 
+exports.getEnelogicData = (period) => async (req, res) => {
+//async function getMeterstanden(from, to, period){
+	const cachekey = req.uid + '_' + period.toUpperCase() + '_' + req.params.start + '_' + req.params.end;
+	const cachedata = await enelogicCache.simpleGet(cachekey);
+	if(cachedata !== null) return res.send(cachedata);
+		
 
-async function getMeterstanden(from, to, period){
-	let earliest = '2017-02-10';
-	if(from === '0'){
-		from = earliest;
-	}
+	let from = req.params.start;
+	let to = (period === 'day' ? req.params.end : moment(req.params.start).add(1, 'days').format('YYYY-MM-DD'))
+
 	let results = [];
-	const config = await db.usersettings.findOne({ where: {user: req.uid, setting: 'enelogic'} })
-	if(config === null || config.success === false) return false;
+	const config = await db.apisettings.findOne({ where: {user: req.uid, name: 'enelogic'} })
+	if(config === null || config.success === false) return res.status(404).send(config);
 	//var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
-	let apikey = config.api_key;
-	let measuringpoint = config.measuringpoint;
-	const baseUrl = 'https://enelogic.com/api/measuringpoints/'+measuringpoint;
+	let apikey = config.access_token;
+	
+	//Measuringpoint ophalen en zetten indien nodig
+	if(config.data1 === null){
+		const measuringpointsresponse = await fetch(host + '/api/measuringpoints?access_token=' + apikey)
+		const measuringpoints = await measuringpointsresponse.json();
+		const measuringpoint = measuringpoints[0];
+		config = await config.update({data1: measuringpoint.id, data2: measuringpoint.dayMin});
+	}
+	
+	//Als datum voor de eerste datum ligt dan die datum zetten
+	if(from === '0'){
+		from === moment(config.data2).format('YYYY-MM-DD');
+	}else if(moment(from).isBefore(moment(config.data2))){
+		from = moment(config.data2).format('YYYY-MM-DD')
+	}
+	
+
+	const baseUrl = 'https://enelogic.com/api/measuringpoints/'+config.data1;
 	let datapointUrl = baseUrl+'/datapoints/'+from+'/'+to+'?access_token='+apikey;
 	if(period === "day"){
 		datapointUrl = baseUrl+'/datapoint/days/'+from+'/'+to+'?access_token='+apikey;
@@ -210,8 +233,9 @@ async function getMeterstanden(from, to, period){
 			previous = entry;
 		}
 	}
-	results = arrays.getDifferenceArray(results, 'datetime', ['180', '181', '182', '280', '281', '282']);
-	return (results);
+	//results = arrays.getDifferenceArray(results, 'datetime', ['180', '181', '182', '280', '281', '282']);
+	enelogicCache.save(cachekey, results)
+	return res.send(results);
 }
 
 /*
@@ -284,11 +308,7 @@ exports.updateEnelogicData = async (req, res) => {
 	
 }
 * 
-* */
 
-exports.getEnelogicData = (period) => (req, res) => {
-	
-}
 
 
 exports.getEnelogicDagData = async (req, res) => {
@@ -299,3 +319,4 @@ exports.getEnelogicKwartierData = async (req, res) => {
 	var enddate = moment(req.params.datum).add(1, 'days');
 	res.send (await getMeterstanden(req.params.datum, enddate.format('YYYY-MM-DD'), 'quarter'));
 }
+* */

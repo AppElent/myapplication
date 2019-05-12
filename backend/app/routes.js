@@ -41,6 +41,10 @@ module.exports = function(app, db, epilogue) {
 	  if(stats.isFile()) controllers[controllername] = require("./controllers/" + file)
 	  console.log('Controller ' + file + ' wordt geladen');
 	});
+	
+	//Loading the cache
+	const Cache = require('./classes/Cache');
+
 
 	//Custom routes
 	app.post('/api/redirectcall', basicAuthentication, controllers.custom.redirectCall);
@@ -62,8 +66,9 @@ module.exports = function(app, db, epilogue) {
 	app.delete('/api/rekeningen/:id', basicAuthentication, controllers.basic.delete(db.rekeningen))
 	
 	//Meterstanden
+	const meterstandCache = new Cache(300);
 	app.get('/api/meterstanden/:id', basicAuthentication, controllers.basic.get(db.meterstanden));
-	app.get('/api/meterstanden', basicAuthentication, controllers.basic.list(db.meterstanden));
+	app.get('/api/meterstanden', basicAuthentication, controllers.basic.list(db.meterstanden, {cache: meterstandCache}));
 	app.get('/api/meterstanden/:column/:value', basicAuthentication, controllers.basic.findOne(db.meterstanden));
 	app.post('/api/meterstanden', basicAuthentication, controllers.basic.create(db.meterstanden))
 	app.put('/api/meterstanden/:id', basicAuthentication, controllers.basic.update(db.meterstanden))
@@ -101,34 +106,26 @@ module.exports = function(app, db, epilogue) {
 	
 	
 	//Meterstanden bijwerken en Enelogic routes
-	//app.post('/api/meterstanden/elektra/update', auth.authenticationRequired, enelogic.updateElektraMeterstanden);
-	//app.get('/api/enelogic/oauth/formatUrl', enelogic.format);
-	//app.post('/api/enelogic/oauth/exchange', enelogic.exchange);
-	//app.post('/api/enelogic/oauth/refresh', enelogic.refresh);
-	//app.get('/api/enelogic/updatedata/:type/:start/:end', enelogic.updateEnelogicData);
-	app.get('/api/enelogic/data/dag/:start/:end', controllers.enelogic.getEnelogicDagData);
-	app.get('/api/enelogic/data/kwartier/:datum', controllers.enelogic.getEnelogicKwartierData);
-	
-	
+	app.get('/api/enelogic/data/dag/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('day'));
+	app.get('/api/enelogic/data/kwartier/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('quarter'));
 	
 	
 	
 	//Bunq routes
-	app.get('/api/bunq/oauth/exchange', controllers.bunq.exchangeOAuthTokens);
+	app.post('/api/bunq/oauth/exchange', basicAuthentication, controllers.bunq.exchangeOAuthTokens);
 	app.get('/api/bunq/oauth/formatUrl', basicAuthentication, controllers.bunq.formatOAuthUrl);
 	app.get('/api/bunq/accounts/:name', basicAuthentication, controllers.bunq.getMonetaryAccountByName);
 	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	app.post('/api/bunq/payment', basicAuthentication, controllers.bunq.postPaymentInternal);
-	app.get('/api/bunq/test', basicAuthentication, controllers.bunq.test);
-
+	app.get('/api/bunq/sandbox', basicAuthentication, controllers.bunq.createSandboxAPIKey);
 
 
 	//SolarEdge
 	//app.get('/api/solaredge/data/formatted/:start/:end', solaredge.getFormattedData);
-	app.get('/api/solaredge/inverterdata/:start/:end', controllers.solaredge.getInverterData);
-	app.get('/api/solaredge/data/:timeUnit/:start/:end', controllers.solaredge.getData);
-	app.get('/api/solaredge/sites', controllers.solaredge.getSiteData);
-	app.get('/api/solaredge/equipment', controllers.solaredge.getEquipmentData);
+	//app.get('/api/solaredge/inverterdata/:start/:end', basicAuthentication, controllers.solaredge.getInverterData);
+	app.get('/api/solaredge/data/:timeUnit/:start/:end', basicAuthentication, controllers.solaredge.getData);
+	app.get('/api/solaredge/sites', basicAuthentication, controllers.solaredge.getSiteData);
+	app.get('/api/solaredge/equipment', basicAuthentication, controllers.solaredge.getEquipmentData);
 	//app.get('/api/solaredge/updatedata/:start/:end', solaredge.updateSolarEdgeData);
 	
 	
