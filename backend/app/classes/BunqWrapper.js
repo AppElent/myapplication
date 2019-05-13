@@ -20,15 +20,16 @@ module.exports = class BunqWrapper {
       //alle clients laden
       const allclients = await db.apisettings.findAll({where: {name: 'bunq'}});
       const result = await Promise.all(allclients.map(async (clientsetting) => {
-          this.bunqClients[clientsetting.user] = new BunqClientWrapper(clientsetting);
+          this.bunqClients[clientsetting.user] = new BunqClientWrapper(clientsetting, this.genericBunqClient.ApiAdapter.RequestLimitFactory);
           console.log('loading client ' + clientsetting.user)
-          this.bunqClients[clientsetting.user].initialize();
+          await this.bunqClients[clientsetting.user].initialize();
+          console.log('client loaded ' + clientsetting.user)
       }))
       console.log(2, 'alles klaar')
   }
   
   async installNewClient(clientsetting){
-    this.bunqClients[clientsetting.user] = new BunqClientWrapper(clientsetting);
+    this.bunqClients[clientsetting.user] = new BunqClientWrapper(clientsetting, this.genericBunqClient.ApiAdapter.RequestLimitFactory);
     await this.bunqClients[clientsetting.user].initialize();
     return this.bunqClients[clientsetting.user];
   }

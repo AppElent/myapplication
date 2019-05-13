@@ -5,14 +5,18 @@ import {fetchBackend} from '../utils/fetching';
 
 const BunqPaymentModal = ({auth, accounts}) => {
   const [show, setShow] = useState(false);
-  const [data, setData] = useState({description: '', amount: '', from: {}, to: {}})
+  const [data, setData] = useState({description: '', amount: '', from: 'Algemeen', to: 'Spaar', type: 'internal', name: '', iban: ''})
+  const [internal, setInternal] = useState(true)
   
   const makePayment = async () => {
-    const body = {from: {type: 'description', value: 'Algemeen'}, to: {type: 'description', value: 'Spaar'}, description: data.description, amount: data.amount}
-    const payment = await fetchBackend('/api/bunq/payment', 'POST', body, auth)
-    //const body2 = {from: {type: 'description', value: 'Algemeen'}, to: {type: 'IBAN', name: 'E. Jansen', value: 'NL70ABNA0577271423'}, description: 'testtest', amount: '0.01'}
-    //const payment2 = await fetchBackend('/api/bunq/draftpayment', 'POST', body2, auth)
-    //console.log(payment, payment2)
+    let body;
+    if(internal){
+      body = {from: {type: 'description', value: data.from}, to: {type: 'description', value: data.to}, description: data.description, amount: data.amount}
+      const payment = await fetchBackend('/api/bunq/payment', 'POST', body, auth)
+    }else{
+      body = {from: {type: 'description', value: data.from}, to: {type: 'IBAN', name: data.name, value: data.iban}, description: data.description, amount: data.amount}
+      const payment = await fetchBackend('/api/bunq/draftpayment', 'POST', body, auth)
+    }
     setShow(false);
   }
   
@@ -20,25 +24,38 @@ const BunqPaymentModal = ({auth, accounts}) => {
   
       return (
         <Form>
-          <Form.Group controlId="exampleForm.ControlInput1">
+          <Form.Group>
             <Form.Label>Van rekening:</Form.Label>
-            <Form.Control as="select">
-              {accounts.map(account => <option key={account.id}>{account.description}</option>)}
+            <Form.Control as="select" value={data.from} onChange={(e) => {setData({...data, from: e.target.value})}}>
+              {accounts.filter((account) => account.status === 'ACTIVE').map(account => <option key={account.id}>{account.description}</option>)}
             </Form.Control>
           </Form.Group>
-          <Form.Group controlId="exampleForm.ControlInput1">
-            <Form.Label>Naar rekening:</Form.Label>
-            <Form.Control as="select">
-              {accounts.map(account => <option key={account.id}>{account.description}</option>)}
-            </Form.Control>
-          </Form.Group>  
-          <Form.Group controlId="formGridAddress1">
+          <Button variant={internal ? 'primary' : 'outline-primary'} onClick={() => setInternal(true)}>Intern</Button>
+          <Button variant={!internal ? 'primary' : 'outline-primary'} onClick={() => setInternal(false)}>Extern</Button>
+          {internal &&
+            <Form.Group>
+              <Form.Label>Naar rekening:</Form.Label>
+              <Form.Control as="select" value={data.to} onChange={(e) => {setData({...data, to: e.target.value})}}>
+                {accounts.filter((account) => account.status === 'ACTIVE').map(account => <option key={account.id}>{account.description}</option>)}
+              </Form.Control>
+            </Form.Group>  }
+          {!internal &&
+            <><Form.Group>
+              <Form.Label>Naar</Form.Label>
+              <Form.Control value={data.name} onChange={(e) => {setData({...data, name: e.target.value})}}/>
+            </Form.Group> 
+            <Form.Group>
+              <Form.Label>IBAN</Form.Label>
+              <Form.Control value={data.iban} onChange={(e) => {setData({...data, iban: e.target.value})}}/>
+            </Form.Group>
+            <p>Extern kunnen alleen betaalverzoeken worden gedaan. Je moet deze goedkeuren in de app</p></> }
+          <Form.Group>
             <Form.Label>Omschrijving</Form.Label>
-            <Form.Control value={data.description} onChange={(input) => {setData({...data, description: input.target.value})}}/>
+            <Form.Control value={data.description} onChange={(e) => {setData({...data, description: e.target.value})}}/>
           </Form.Group> 
-          <Form.Group controlId="formGridAddress1">
+          <Form.Group>
             <Form.Label>Bedrag</Form.Label>
-            <Form.Control placeholder="0.01" value={data.amount} onChange={(input) => {setData({...data, amount: input.target.value})}}/>
+            <Form.Control placeholder="0.01" value={data.amount} onChange={(e) => {setData({...data, amount: e.target.value})}}/>
           </Form.Group>
         </Form>
       )
@@ -59,7 +76,7 @@ const BunqPaymentModal = ({auth, accounts}) => {
         <Button variant="secondary" onClick={() => {setShow(false)}}>
           Close
         </Button>
-        <Button variant="primary" onClick={makePayment}>
+        <Button variant="primary" onClick={makePayment} disabled={!data.amount || !data.description || (!internal && (!data.iban || !data.name))}>
           Save Changes
         </Button>
       </Modal.Footer>

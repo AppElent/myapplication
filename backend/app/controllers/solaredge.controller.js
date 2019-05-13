@@ -48,10 +48,11 @@ exports.getData = async (req, res) => {
 	
 	const data = await solarEdgeCache.get(datakey, async () => {
 		const config = await getSolarEdgeConfig(req.uid);
-		if(config === null || config === false) return res.status(404).send('No api key');
+		if(config === null || config === false) return false;//return res.status(404).send('No api key');
 		const response = await fetch(solaredge_host + '/site/' + config.data1 + '/energy?timeUnit=' + req.params.timeUnit.toUpperCase() + '&endDate=' + req.params.end + '&startDate=' + req.params.start + '&api_key=' + config.access_token);
 		return (await response.json());
 	})
+	if(!data) return res.status(404).send('No api key');
 	return res.send(data)
 	//res.send(await getSolarEdgeData('/site/' + siteID + '/energy?timeUnit=' + req.params.timeUnit.toUpperCase() + '&endDate=' + req.params.end + '&startDate=' + req.params.start));
 }

@@ -107,30 +107,35 @@ const Bunq = ({auth}) => {
         currentstate.balanceSufficient = true;
         
         currentstate.balance = algemeen_account.balance.value;
-        
+        console.log(currentstate);
         rekeningen.map(rekening => {
-            currentstate.maandtotaal += rekening["totaal_" + maandnummer];
+            currentstate.maandtotaal += rekening["month_" + maandnummer];
+            console.log(rekening)
             let foundaccount = getAccountByName(rekening.rekening);
-            if(foundaccount == null && rekening["totaal_" + maandnummer] > 0){
+            if(foundaccount == null && rekening["month_" + maandnummer] > 0){
                 currentstate.succeeded = false;
                 currentstate.accountsExist.push(rekening.rekening)
                 console.log("Rekening bestaat niet: " + rekening.rekening);
             }
         });
+        console.log(currentstate);
         if((parseFloat(algemeen_account.balance.value)) < salaris){
             currentstate.balanceSufficient = false;
             currentstate.succeeded = false;
         }
+        console.log(currentstate);
         if((currentstate.maandtotaal + eigen_geld) > salaris){
             currentstate.incomeSufficient = false;
             currentstate.sparen = 0;
             currentstate.succeeded = false;
         }else{
+            
             currentstate.sparen = (salaris - currentstate.maandtotaal - eigen_geld);
+            console.log(currentstate);
             if(currentstate.balanceSufficient){
                 currentstate.sparen = (currentstate.sparen + (Math.round(algemeen_account.balance.value) - salaris));
             }
-            //console.log(currentstate);
+            console.log(currentstate);
             if(currentstate.sparen < 0){
                 currentstate.sparen = 0;
                 currentstate.incomeSufficient = false;   
@@ -140,7 +145,7 @@ const Bunq = ({auth}) => {
             }
             
         }
-
+        console.log(currentstate);
         setPreconditions(currentstate);
     }
     

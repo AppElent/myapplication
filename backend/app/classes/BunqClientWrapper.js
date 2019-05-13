@@ -4,15 +4,17 @@ const BunqJSClient = require("@bunq-community/bunq-js-client").default;
 const customStore = require( "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore").default;
 const Encryption = require('../classes/Encryption')
 const path = require("path");
+const _ = require('lodash');
 
 module.exports = class BunqClientWrapper {
 
-  constructor(entry) {
+  constructor(entry, requestLimiter) {
       this.settings = entry;
       this.encryption = new Encryption();
       this.longCache = new Cache(9999999);
       this.shortCache = new Cache(300);
       this.bunqJSClient;
+      this.requestLimiter = requestLimiter;
       this.user;
   }
   
@@ -41,6 +43,7 @@ module.exports = class BunqClientWrapper {
       //bunqclient zetten
       const filestore = customStore(path.resolve(__dirname, "../bunq/" +this.settings.data1 + '.json' ));
       this.bunqJSClient = new BunqJSClient(filestore);
+      this.bunqJSClient.ApiAdapter.RequestLimitFactory = this.requestLimiter;
       
       // load and refresh bunq client
       let bunqEnv = 'PRODUCTION';
@@ -82,7 +85,7 @@ module.exports = class BunqClientWrapper {
           entry['monetary_bank_account_type'] = Object.keys(account)[0]
           resultList.push(entry)
         }
-        return resultList
+        return (_.orderBy(resultList, ['description'],['asc']))
       })
 
       
