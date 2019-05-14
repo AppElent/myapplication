@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 //import { Link } from 'react-router-dom';
 import { ListGroup} from 'react-bootstrap';
 
@@ -10,25 +10,27 @@ import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import { withAuth } from '@okta/okta-react';
 import DefaultTable from '../components/DefaultTable';
 import DefaultFormRow from '../components/DefaultFormRow';
-import useFetch from '../hooks/useFetch'
+import useFetch from '../hooks/useFetch';
+import useLocalStorage from '../hooks/useLocalStorage';
 import BunqPaymentModal from '../components/BunqPaymentModal'
+import { AuthContext } from '../context/AuthContext';
 
 const Bunq = ({auth}) => {
 //class Bunq extends Component {
 
     //const [accounts, setAccounts] = useState([]);
-    const [accounts, setAccounts, accountsLoading, accountsError, accountsRequest] = useFetch('/api/bunq/accounts', {onMount: true}, auth)
+    const { sub } = useContext(AuthContext);
+    const [bunqSettings, setBunqSettings] = useLocalStorage(sub, 'bunq_settings', {income: 0, keep: 0})
+    const [accounts, setAccounts, accountsLoading, accountsError, accountsRequest] = useFetch('/api/bunq/accounts', {onMount: true, auth})
     const [preconditions, setPreconditions] = useState({run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null});
     //const [rekeningen, setRekeningen] = useState([]);
-    const [rekeningen, setRekeningen, rekeningenLoading, rekeningenError, rekeningenRequest] = useFetch('/api/rekeningen', {onMount: true}, auth)
+    const [rekeningen, setRekeningen, rekeningenLoading, rekeningenError, rekeningenRequest] = useFetch('/api/rekeningen', {onMount: true, auth})
     const [groupedData, setGroupedData] = useState([]);
-    const [salaris, setSalaris] = useState(getLocalStorage('bunq_salaris') || '');
-    const [eigen_geld, setEigenGeld] = useState(getLocalStorage('bunq_eigen_geld') || '');
-    //const [sparen, setSparen] = useState(0);
-    //const [page_loaded, setPageLoaded] = useState(false);
-    //const [loading, setLoading] = useState(true);
+    //const [salaris, setSalaris] = useState(getLocalStorage('bunq_salaris') || '');
+    //const [eigen_geld, setEigenGeld] = useState(getLocalStorage('bunq_eigen_geld') || '');
     const [script_running, setScriptRunning] = useState(false);
     
+    /*
     useEffect(() => {
         setLocalStorage('bunq_salaris', salaris);
     }, [salaris]);
@@ -36,6 +38,7 @@ const Bunq = ({auth}) => {
     useEffect(() => {
         setLocalStorage('bunq_eigen_geld', eigen_geld);
     }, [eigen_geld]);
+    * */
     
     const groupBy = async (xs, key) => {
       const object = xs.reduce(function(rv, x) {
@@ -119,21 +122,21 @@ const Bunq = ({auth}) => {
             }
         });
         console.log(currentstate);
-        if((parseFloat(algemeen_account.balance.value)) < salaris){
+        if((parseFloat(algemeen_account.balance.value)) < bunqSettings.income){
             currentstate.balanceSufficient = false;
             currentstate.succeeded = false;
         }
         console.log(currentstate);
-        if((currentstate.maandtotaal + eigen_geld) > salaris){
+        if((currentstate.maandtotaal + bunqSettings.keep) > bunqSettings.income){
             currentstate.incomeSufficient = false;
             currentstate.sparen = 0;
             currentstate.succeeded = false;
         }else{
             
-            currentstate.sparen = (salaris - currentstate.maandtotaal - eigen_geld);
+            currentstate.sparen = (bunqSettings.income - currentstate.maandtotaal - bunqSettings.keep);
             console.log(currentstate);
             if(currentstate.balanceSufficient){
-                currentstate.sparen = (currentstate.sparen + (Math.round(algemeen_account.balance.value) - salaris));
+                currentstate.sparen = (currentstate.sparen + (Math.round(algemeen_account.balance.value) - bunqSettings.income));
             }
             console.log(currentstate);
             if(currentstate.sparen < 0){
@@ -190,7 +193,7 @@ const Bunq = ({auth}) => {
             for (let rekening of groupedData) {
               total += rekening[cellInfo.column.id]
             }
-            let sparen = (salaris - eigen_geld - total);
+            let sparen = (bunqSettings.income - bunqSettings.keep - total);
             return (<div>{total}<br />{sparen}</div>);
         }
     }
@@ -215,8 +218,8 @@ const Bunq = ({auth}) => {
     }
     
     const formItems = [
-        {name: 'salaris', type: 'input', label: 'Netto salaris:', value: salaris, changehandler: (e) => {setSalaris(e.target.value)}},
-        {name: 'eigen_geld', type: 'input', label: 'Eigen geld:', value: eigen_geld, changehandler: (e) => {setEigenGeld(e.target.value)}}
+        {name: 'salaris', type: 'input', label: 'Netto salaris:', value: bunqSettings.income, changehandler: (e) => {setBunqSettings({...bunqSettings, income: e.target.value})}},
+        {name: 'eigen_geld', type: 'input', label: 'Eigen geld:', value: bunqSettings.keep, changehandler: (e) => {setBunqSettings({...bunqSettings, keep: e.target.value})}}
     ]
     
     const formButtons = [

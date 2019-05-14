@@ -13,6 +13,7 @@ const Login = ({auth}) => {
   
   const checkAuthenticated = async () => {
     const authenticatedResponse = await auth.isAuthenticated();
+    console.log(123)
     if (authenticatedResponse !== authenticated) {
       setAuthenticated( authenticatedResponse );
     }

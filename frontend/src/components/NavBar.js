@@ -1,13 +1,12 @@
 // navBar.jsx
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import { Navbar, Nav, NavDropdown} from 'react-bootstrap';
 import { LinkContainer } from 'react-router-bootstrap';
 import { withAuth } from '@okta/okta-react';
-import useAuth from '../hooks/useAuth'; 
+import { AuthContext } from '../context/AuthContext';
 
-//const NavBar = () => (
 const NavBar = ({auth}) => {
-  const [authenticated, user, sub, admin] = useAuth(auth);
+  const { authenticated, admin } = useContext(AuthContext);
   const navbar = () => {
 
     return <Navbar bg="light" expand="lg" collapseOnSelect>
@@ -20,7 +19,8 @@ const NavBar = ({auth}) => {
             <LinkContainer to="/">
               <Nav.Link>Home</Nav.Link>
             </LinkContainer>
-            <LinkContainer to="/events">
+            {authenticated &&
+            <><LinkContainer to="/events">
               <Nav.Link>Events</Nav.Link>
             </LinkContainer>
             <NavDropdown title="Rekeningen" id="basic-nav-dropdown">
@@ -40,25 +40,12 @@ const NavBar = ({auth}) => {
                 <NavDropdown.Item>Elektra</NavDropdown.Item>
               </LinkContainer>
             </NavDropdown>
-            <NavDropdown title="Externe connecties" id="basic-nav-dropdown">
-              <LinkContainer to="/solaredge">
-                <NavDropdown.Item>SolarEdge</NavDropdown.Item>
-              </LinkContainer>
-              <LinkContainer to="/darksky">
-                <NavDropdown.Item>DarkSky</NavDropdown.Item>
-              </LinkContainer>
-              <LinkContainer to="/tado">
-                <NavDropdown.Item>Tado</NavDropdown.Item>
-              </LinkContainer>
-              <NavDropdown.Divider />
-              <NavDropdown.Item href="https://ericjansen.dynu.net/api/enelogic/oauth/formaturl">Enelogic OAuth</NavDropdown.Item>
-            </NavDropdown>
-            <><LinkContainer to="/settings">
+            <LinkContainer to="/settings">
               <Nav.Link>Settings</Nav.Link>
             </LinkContainer>
             <LinkContainer to="/logout">
               <Nav.Link>Logout</Nav.Link>
-            </LinkContainer></>
+            </LinkContainer></>}
           </Nav>
         </Navbar.Collapse>
       </Navbar>

@@ -12,6 +12,7 @@ module.exports = class BunqWrapper {
     
     this.storage = customStore(path.resolve(__dirname, "../bunq/genericClient.json" ));
     this.genericBunqClient = new BunqJSClient(this.storage);
+    this.requestLimiter;
     this.bunqClients = {}
     
   }
@@ -19,13 +20,20 @@ module.exports = class BunqWrapper {
   async startup(){
       //alle clients laden
       const allclients = await db.apisettings.findAll({where: {name: 'bunq'}});
+      //eerste client laden
+      const client1 = allclients.shift();
+      console.log('Eerste client laden', client1.user);
+      this.bunqClients[client1.user] = new BunqClientWrapper(client1);
+      await this.bunqClients[client1.user].initialize();
+      this.requestLimiter = this.bunqClients[client1.user].getBunqJSClient().ApiAdapter.RequestLimitFactory
+      
+      //rest laden
       const result = await Promise.all(allclients.map(async (clientsetting) => {
-          this.bunqClients[clientsetting.user] = new BunqClientWrapper(clientsetting, this.genericBunqClient.ApiAdapter.RequestLimitFactory);
+          this.bunqClients[clientsetting.user] = new BunqClientWrapper(clientsetting, this.requestLimiter);
           console.log('loading client ' + clientsetting.user)
           await this.bunqClients[clientsetting.user].initialize();
           console.log('client loaded ' + clientsetting.user)
       }))
-      console.log(2, 'alles klaar')
   }
   
   async installNewClient(clientsetting){

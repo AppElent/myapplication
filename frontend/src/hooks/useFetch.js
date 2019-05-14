@@ -3,12 +3,14 @@ import { useEffect, useState, useCallback } from 'react'
 
 const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]'
 
-export function useFetch(arg1, arg2, auth, defaultData = []) {
+export function useFetch(arg1, arg2) {
   let url = null
   let options = {}
   let onMount = false
   let baseUrl = ''
   let method = 'GET'
+  
+  if (arg2.defaultData === undefined) arg2.defaultData = []
   
   console.log('useFetch is called with args ', arg1, arg2);
   const handleOptions = opts => {
@@ -31,7 +33,7 @@ export function useFetch(arg1, arg2, auth, defaultData = []) {
     handleOptions(arg1)
   }
 
-  const [data, setData] = useState(defaultData)
+  const [data, setData] = useState(arg2.defaultData)
   const [loading, setLoading] = useState(onMount)
   const [error, setError] = useState(null)
 
@@ -52,7 +54,7 @@ export function useFetch(arg1, arg2, auth, defaultData = []) {
       
       try {
         setLoading(true)
-        let token = await auth.getAccessToken();
+        let token = await arg2.auth.getAccessToken();
         console.log('Making ' + method + ' request to ' + url + query);
         const response = await fetch(url + query, {
           method,

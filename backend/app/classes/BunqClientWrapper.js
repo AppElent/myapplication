@@ -8,7 +8,7 @@ const _ = require('lodash');
 
 module.exports = class BunqClientWrapper {
 
-  constructor(entry, requestLimiter) {
+  constructor(entry, requestLimiter = null) {
       this.settings = entry;
       this.encryption = new Encryption();
       this.longCache = new Cache(9999999);
@@ -16,6 +16,7 @@ module.exports = class BunqClientWrapper {
       this.bunqJSClient;
       this.requestLimiter = requestLimiter;
       this.user;
+      this.status = 'UNINITIALIZED';
   }
   
   getObject(object){
@@ -34,6 +35,9 @@ module.exports = class BunqClientWrapper {
 
   
   async initialize(){
+      //Status zetten
+      this.status = 'STARTING';
+      
       //Als data1 leeg is dan moeten we hier een verwijzing naar storage zetten
       if(this.settings.data1 === null) this.settings = await this.settings.update({data1: this.encryption.generateRandomKey(16)})
       
@@ -43,7 +47,6 @@ module.exports = class BunqClientWrapper {
       //bunqclient zetten
       const filestore = customStore(path.resolve(__dirname, "../bunq/" +this.settings.data1 + '.json' ));
       this.bunqJSClient = new BunqJSClient(filestore);
-      this.bunqJSClient.ApiAdapter.RequestLimitFactory = this.requestLimiter;
       
       // load and refresh bunq client
       let bunqEnv = 'PRODUCTION';
@@ -62,9 +65,14 @@ module.exports = class BunqClientWrapper {
       // create/re-use a bunq session installation
       await this.bunqJSClient.registerSession().catch(this.defaultErrorLogger);
       
+      //Requestlimiter zetten
+      if(this.requestLimiter !== null) this.bunqJSClient.ApiAdapter.RequestLimitFactory = this.requestLimiter; 
+      
       // get user info connected to this account
       const users = await this.bunqJSClient.getUsers(true).catch(this.defaultErrorLogger);
       this.user = users[Object.keys(users)[0]];
+      
+      this.status = 'READY';
   }
   
   getBunqJSClient(){

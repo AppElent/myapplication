@@ -4,12 +4,14 @@ import { Button } from 'react-bootstrap';
 import {makeAPICall} from '../utils/fetching'
 import { withAuth } from '@okta/okta-react';
 import {setLocalUserStorage} from '../utils/localstorage';
+import {useFetch} from '../hooks/useFetch';
 
 const queryString = require('query-string');
 
 const OAuth = ({auth, url, redirectUrl, name}) => {
     
-    const [success, setSuccess] = useState(false)
+    const [success, setSuccess] = useState(null);
+    const {data, loading, error, request} = useFetch(url, {auth})
     
     const exchangeToken = async () => {
         const parsed = queryString.parse(window.location.search);
@@ -31,7 +33,7 @@ const OAuth = ({auth, url, redirectUrl, name}) => {
     }, [])
 
     return (<div><h1>OAuth 2.0</h1>
-        <p>Succesvol: {success ? 'Ja' : 'Nee'}</p><Button href={redirectUrl}>Ga terug</Button>
+        <p>Succesvol: {success === null ? 'Loading. Deze pagina niet afsluiten' : (success ? 'Ja' : 'Nee' )}</p><Button href={redirectUrl}>Ga terug</Button>
     </div>
     );
 } 

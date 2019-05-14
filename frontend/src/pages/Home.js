@@ -1,48 +1,26 @@
-import React, { Component } from 'react';
+import React, { useContext } from 'react';
 import { withAuth } from '@okta/okta-react';
-//import { Link } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 
-export default withAuth(class Home extends Component {
-    constructor(props) {
-        super(props);
-        this.state = { authenticated: null };
-        this.checkAuthentication = this.checkAuthentication.bind(this);
-        this.login = this.login.bind(this);
-        this.logout = this.logout.bind(this);
+const Home = ({auth}) => {
+    const { authenticated, setAuthenticated, admin, setAdmin } = useContext(AuthContext);
+    
+    const login = async () => {
+        auth.login('/');
+        setAuthenticated(true);
     }
 
-    async checkAuthentication() {
-        const authenticated = await this.props.auth.isAuthenticated();
-        if (authenticated !== this.state.authenticated) {
-          this.setState({ authenticated });
-        }
-    }
-
-    async componentDidMount() {
-        this.checkAuthentication();
-    }
-
-    async componentDidUpdate() {
-        this.checkAuthentication();
-    }
-
-    async login() {
-        this.props.auth.login('/');
-    }
-
-    async logout() {
-        this.props.auth.logout('/');
-        
+    const logout = async () => {
+        auth.logout('/');
+        setAuthenticated(false);
     }
     
-    render(){
-        if (this.state.authenticated === null) return null;
-        const button = this.state.authenticated ?
-          <button onClick={this.logout}>Logout</button> :
-          <button onClick={this.login}>Login</button>;        
-        
-        return (<div><h1>Home Page</h1>{button}</div>);
-    }
-});
+    if (authenticated === null) return null;
+    const button = authenticated ?
+      <button onClick={logout}>Logout</button> :
+      <button onClick={login}>Login</button>;        
+    
+    return (<div><h1>Home Page</h1>{button}</div>);
+};
 
-//export default Home
+export default withAuth(Home)

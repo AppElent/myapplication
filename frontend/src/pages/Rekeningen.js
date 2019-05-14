@@ -30,7 +30,7 @@ const Rekeningen = ({auth}) => {
 
 
     //const [authenticated, user, sub] = useAuth(auth);
-    const [data, setData, loading, error, request] = useFetch('/api/rekeningen', {onMount: true}, auth)
+    const [data, setData, loading, error, request] = useFetch('/api/rekeningen', {onMount: true, auth})
 
     const handleDelete = async (row) => {
         await request.delete('/api/rekeningen/' + row.id)

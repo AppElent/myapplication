@@ -61,14 +61,17 @@ const APIManagement = ({auth}) => {
     }
     
     return <div>
-        <SolarEdge />
+        {/*<SolarEdge />
         <Tado />
         <DarkSky />
         <Enelogic />
         <EnelogicSetting auth={auth}/>
+        * */}
         <OAuthSetting title='Enelogic' formatUrl='/api/oauth/formaturl/enelogic' name='enelogic' redirectUri='/settings?tab=apimanagement'/> 
         <OAuthSetting title='Bunq' formatUrl='/api/bunq/oauth/formatUrl' name='bunq' redirectUri='/settings?tab=apimanagement'/> 
+        {/*
         <APISetting title='Tado connection' lskey='tado' fields={[{name: 'username', label: 'Username'},{name: 'password', label: 'Password', visible:false}]} saveFunction={saveTado}/>
+        * */}
     </div>
         
 }
