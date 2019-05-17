@@ -4,11 +4,9 @@ import { Button } from 'react-bootstrap';
 import ReactTable from "react-table";
 import 'react-table/react-table.css';
 import { withAuth } from '@okta/okta-react';
-import { makeAPICall} from '../utils/fetching'
 import DefaultFormRow from '../components/DefaultFormRow';
 
 import useFetch from '../hooks/useFetch'
-import useAuth from '../hooks/useAuth'
 import useForm from '../hooks/useForm'
 import editableCell from '../utils/editableCell'
 

@@ -53,20 +53,17 @@ const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 //oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic').then(token => {accessToken = token});
 * */
 
-exports.format = (req, res) => {
-		
-	const oauthobject = oauth_credentials[req.params.application].object;
+exports.format = (oauthproviders) => (req, res) => {
+	console.log(oauthproviders, req.params.application);	
+	const oauthobject = oauthproviders[req.params.application];
 	// Authorization oauth2 URI
-	const authorizationUri = oauthobject.authorizationCode.authorizeURL({
-	  redirect_uri: oauth_credentials[req.params.application].redirect_uri,
-	  scope: oauth_credentials[req.params.application].scope 
-	});
+	const authorizationUri = oauthobject.formatUrl();
 
 	// Redirect example using Express (see http://expressjs.com/api.html#res.redirect)
 	res.send(authorizationUri);
 }
 
-exports.exchange = async (req, res) => {
+exports.exchange = (oauthproviders) => async (req, res) => {
 	const oauthobject = oauth_credentials[req.params.application].object;
 	
 	// Get the access token object (the authorization code is given from the previous step).
@@ -112,10 +109,8 @@ exports.exchange = async (req, res) => {
 
 
 
-exports.refresh = async (req, res) => {
-	// Check if the token is expired. If expired it is refreshed.
-	//await refreshEnelogicOauthToken();
-	res.send(req);
+exports.refresh = (oauthproviders) => async (req, res) => {
+
 }
 
 

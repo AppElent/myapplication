@@ -39,6 +39,7 @@ export const makeAPICallFromNodeJS = async (url, method, headers, body, token) =
   
 }
 
-export const fetchBackend = async (url, method, body, auth) => {
-  return (await makeAPICall(url, method, body, await auth.getAccessToken()));
+export const fetchBackend = async (url, options) => {
+  if(options.method === undefined) options.method = 'GET';
+  return (await makeAPICall(url, options.method, options.body, await options.auth.getAccessToken()));
 }

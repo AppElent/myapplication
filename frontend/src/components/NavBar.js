@@ -30,10 +30,6 @@ const NavBar = ({auth}) => {
               <LinkContainer to="/bunq">
                 <NavDropdown.Item>Bunq</NavDropdown.Item>
               </LinkContainer>
-              <NavDropdown.Divider />
-              <LinkContainer to="/bunq/oauth">
-                <NavDropdown.Item>Bunq OAuth</NavDropdown.Item>
-              </LinkContainer>
             </NavDropdown>
             <NavDropdown title="Meterstanden" id="basic-nav-dropdown">
               <LinkContainer to="/meterstanden">

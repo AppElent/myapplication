@@ -1,16 +1,14 @@
-// ./src/car/car.component.jsx
+
 import React, { useState, useEffect } from 'react';
-import { Button } from 'react-bootstrap';
+import Button from '@material-ui/core/Button';
 import { withAuth } from '@okta/okta-react';
-import {makeAPICall} from '../utils/fetching';
 import DefaultTable from '../components/DefaultTable';
 import Moment from 'react-moment';
-import 'moment-timezone';
 import useFetch from '../hooks/useFetch'
 
 const Events = ({auth}) => {
     
-    const [data, setData, loading, error, request] = useFetch('/api/events', {}, auth)
+    const {data, loading, error, request} = useFetch('/api/events', {auth})
     const [all, setAll] = useState(false)
     
     useEffect(() => {
@@ -23,14 +21,16 @@ const Events = ({auth}) => {
         accessor: 'datetime',
         Cell: props => <Moment date={props.value} tz="Europe/Amsterdam" format="YYYY-MM-DD HH:mm"/>
     }, {
-        Header: 'User',
-        accessor: 'user',
-    }, {
         Header: 'Event',
         accessor: 'value',
     }]        
     
-    return <div><h1>Events</h1><Button onClick={() => {setAll(all => !all)}}>{all ? 'Last week' : 'All'}</Button> <DefaultTable data={data} columns={columns} loading={loading} /></div>
+    return <div>
+        <h1>Events</h1> 
+        <Button variant="contained" color="primary" onClick={() => {setAll(all => !all)}}> {all ? 'Last week' : 'All'}</Button>
+        {!error && <DefaultTable data={data} columns={columns} loading={loading} /> }
+        {error && <p>Fout met laden</p>}
+    </div>
 
 }
 

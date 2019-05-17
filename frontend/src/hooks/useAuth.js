@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import {makeAPICall} from '../utils/fetching';
+
 
 export const useAuth = auth => {
+  /*
   const [object, setObject] = useState({authenticated: null, user: null, sub: null});
   
   console.log("useAuth hook loopt");
@@ -28,7 +28,8 @@ export const useAuth = auth => {
   }, []);
   
   console.log(object);
-  return [object.authenticated, object.user, object.sub, object.admin];
+  * */
+  return [null, null, null, null];//object.authenticated, object.user, object.sub, object.admin];
 };
 
 export default useAuth;

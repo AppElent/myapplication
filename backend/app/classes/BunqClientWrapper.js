@@ -32,6 +32,13 @@ module.exports = class BunqClientWrapper {
     }
     throw error;
   };
+  
+  returnErrorLogger(error){
+    if (error.response) {
+      return {success: false, message: error.response.data}
+    }
+    return {success: false, message: error}
+  }
 
   
   async initialize(){
@@ -121,10 +128,9 @@ module.exports = class BunqClientWrapper {
           description,
           { value: amount, currency: "EUR" },
           counterpartyAlias
-      ).catch(this.defaultErrorLogger);
+      ).catch(this.returnErrorLogger);
       
       // iets met paymentResponse doen hier
-
       return paymentResponse;
   }
   
@@ -143,7 +149,7 @@ module.exports = class BunqClientWrapper {
           description,
           { value: amount, currency: "EUR" },
           to
-      ).catch(this.defaultErrorLogger);
+      ).catch(this.returnErrorLogger);
       return paymentResponse
   }
 

@@ -148,7 +148,7 @@ const MeterstandElektra = ({auth}) => {
             //let fromdate = (timeframe === 'day' ? datefrom.clone())
             let dataUrl = '';
             if(dayQuery){
-                dataUrl = '/api/enelogic/data/kwartier/' + datefrom.format('YYYY-MM-DD')
+                dataUrl = '/api/enelogic/data/kwartier/' + datefrom.format('YYYY-MM-DD') + '/' + datefrom.clone().add(1, 'days').format('YYYY-MM-DD')
             }else if(localtimeframe === 'day'){
                 dataUrl = '/api/enelogic/data/dag/' + from + '/' + dateto.clone().add(1, 'days').format('YYYY-MM-DD')
             }else{

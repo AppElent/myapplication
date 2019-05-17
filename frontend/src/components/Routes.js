@@ -7,6 +7,7 @@ import { AuthProvider } from '../context/AuthContext';
 
 import Home from '../pages/Home';
 import Car from '../pages/Car';
+import Paperbase from '../components/Paperbase/Paperbase';
 import Test from '../pages/Test';
 import Events from '../pages/Events';
 import Rekeningen from '../pages/Rekeningen';
@@ -14,7 +15,7 @@ import MeterstandenWarmte from '../pages/Home';
 import Meterstanden from '../pages/Meterstanden';
 import MeterstandenKostenOverzicht from '../pages/Home';
 import Bunq from '../pages/Bunq';
-import BunqOauth from '../pages/BunqOauth';
+//import BunqOauth from '../pages/BunqOauth';
 //import EnelogicOauth from '../pages/EnelogicOauth';
 import Login from '../pages/Login';
 import Protected from '../pages/Protected';
@@ -54,7 +55,7 @@ const EmptyContainer = () => (
                     <SecureRoute exact path="/bunq" component={Bunq} />
                     <SecureRoute exact path="/settings" component={Settings} />
                     
-                    <SecureRoute exact path="/bunq2/oauth" component={BunqOauth} />
+
                     <SecureRoute exact path='/enelogic/oauth' render={() => <OAuth url='/api/oauth/exchange/enelogic' name='enelogic' redirectUrl='test' />} />
                     <SecureRoute exact path='/bunq/oauth' render={() => <OAuth url='/api/bunq/oauth/exchange' name='bunq' />} />
                     <Route path='/implicit/callback' component={ImplicitCallback} />
@@ -70,6 +71,7 @@ const Routes = () => (
         <Switch>
             <Route exact path="/test1" component={Car}/>
             <Route exact path="/test2" component={Test}/>
+            <Route exact path="/paperbase" component={Paperbase}/>
             <Route component={DefaultContainer}/>
             {/*
             <Security issuer='https://dev-810647.okta.com/oauth2/default'

@@ -130,7 +130,7 @@ exports.refresh = async (req, res) => {
 */
 
 
-exports.getEnelogicData = (period) => async (req, res) => {
+exports.getEnelogicData = (period, oauthobject) => async (req, res) => {
 //async function getMeterstanden(from, to, period){
 	const cachekey = req.uid + '_' + period.toUpperCase() + '_' + req.params.start + '_' + req.params.end;
 	const cachedata = await enelogicCache.simpleGet(cachekey);
@@ -141,17 +141,25 @@ exports.getEnelogicData = (period) => async (req, res) => {
 	let to = (period === 'day' ? req.params.end : moment(req.params.start).add(1, 'days').format('YYYY-MM-DD'))
 
 	let results = [];
-	const config = await db.apisettings.findOne({ where: {user: req.uid, name: 'enelogic'} })
+	let config = await db.apisettings.findOne({ where: {user: req.uid, name: 'enelogic'} })
 	if(config === null || config.success === false) return res.status(404).send(config);
 	//var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
+	console.log(oauthobject['enelogic'].getSettings());
+	await oauthobject['enelogic'].refresh({access_token: config.access_token, refresh_token: config.refresh_token, expires_at: config.expires_at}, config);
 	let apikey = config.access_token;
 	
 	//Measuringpoint ophalen en zetten indien nodig
 	if(config.data1 === null){
 		const measuringpointsresponse = await fetch(host + '/api/measuringpoints?access_token=' + apikey)
 		const measuringpoints = await measuringpointsresponse.json();
-		const measuringpoint = measuringpoints[0];
-		config = await config.update({data1: measuringpoint.id, data2: measuringpoint.dayMin});
+		if (measuringpoints.length === 1) {
+			config = await config.update({data1: measuringpoints[0].id, data2: measuringpoints[0].dayMin});
+		}else{
+			const electricity = measuringpoints.find(entry => entry.unitType === 0)
+			const gas = measuringpoints.find(entry => entry.unitType === 1)
+			const values = {data1: electricity.id, data2: electricity.dayMin, data5: gas.id, data6: gas.dayMin}
+			config = await config.update(values);
+		}
 	}
 	
 	//Als datum voor de eerste datum ligt dan die datum zetten
@@ -208,6 +216,7 @@ exports.getEnelogicData = (period) => async (req, res) => {
 			results[index][280] = entry[281] + entry[282];
 		}else{
 			let difference1 = entry[180]-previous[180];
+			if(entry[280] === undefined) {entry[280] = 0;previous[280] = 0;}
 			let difference2 = entry[280]-previous[280];
 			//console.log(index, difference1, difference2);
 			let date = new Date(entry.datetime);
@@ -225,7 +234,8 @@ exports.getEnelogicData = (period) => async (req, res) => {
 				entry[182] += difference1;
 				entry[282] += difference2;
 			}
-			
+			if (entry[281] === undefined) entry[281] = 0;
+			if (entry[282] === undefined) entry[282] = 0;
 			results[index] = entry;
 			
 			//previous1 = entry[180];

@@ -1,11 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
-//import { Link } from 'react-router-dom';
-import { ListGroup} from 'react-bootstrap';
 
-//import BunqJSClient from '@bunq-community/bunq-js-client';
-//const BunqJSClient = require("../../dist/BunqJSClient").default;
-import {makeAPICall, fetchBackend} from '../utils/fetching'
-//import {groupBy, createArrayFromObject} from '../utils/arrays'
+import { ListGroup} from 'react-bootstrap';
 import {getLocalStorage, setLocalStorage} from '../utils/localstorage';
 import { withAuth } from '@okta/okta-react';
 import DefaultTable from '../components/DefaultTable';
@@ -14,31 +9,16 @@ import useFetch from '../hooks/useFetch';
 import useLocalStorage from '../hooks/useLocalStorage';
 import BunqPaymentModal from '../components/BunqPaymentModal'
 import { AuthContext } from '../context/AuthContext';
+import { fetchBackend } from '../utils/fetching';
+import _ from 'lodash';
 
 const Bunq = ({auth}) => {
 //class Bunq extends Component {
-
-    //const [accounts, setAccounts] = useState([]);
-    const { sub } = useContext(AuthContext);
-    const [bunqSettings, setBunqSettings] = useLocalStorage(sub, 'bunq_settings', {income: 0, keep: 0})
-    const [accounts, setAccounts, accountsLoading, accountsError, accountsRequest] = useFetch('/api/bunq/accounts', {onMount: true, auth})
-    const [preconditions, setPreconditions] = useState({run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null});
-    //const [rekeningen, setRekeningen] = useState([]);
-    const [rekeningen, setRekeningen, rekeningenLoading, rekeningenError, rekeningenRequest] = useFetch('/api/rekeningen', {onMount: true, auth})
-    const [groupedData, setGroupedData] = useState([]);
-    //const [salaris, setSalaris] = useState(getLocalStorage('bunq_salaris') || '');
-    //const [eigen_geld, setEigenGeld] = useState(getLocalStorage('bunq_eigen_geld') || '');
-    const [script_running, setScriptRunning] = useState(false);
     
-    /*
-    useEffect(() => {
-        setLocalStorage('bunq_salaris', salaris);
-    }, [salaris]);
-    
-    useEffect(() => {
-        setLocalStorage('bunq_eigen_geld', eigen_geld);
-    }, [eigen_geld]);
-    * */
+    const groupData = (test) => (data) => {
+        console.log(12, test, data);
+        console.log(_.groupBy(data, 'rekening'))
+    }
     
     const groupBy = async (xs, key) => {
       const object = xs.reduce(function(rv, x) {
@@ -60,48 +40,25 @@ const Bunq = ({auth}) => {
       return result
     };
     
-    
-    /*
-    const loadRekeningen = async () => {
-        const data = await makeAPICall('/api/rekeningen?user=' + (await auth.getUser()).sub, 'GET', null, await auth.getAccessToken());
-        const grouped = await groupBy(data, 'rekening');
-        setRekeningen(grouped);
-    }
-    * */
-    /*
-    const loadPage = async () => {
-        /*
-        //setLoading(true);
-        let call1 = makeAPICall('/api/bunq/accounts', 'GET', null, await auth.getAccessToken()).then((accounts) => { setAccounts(accounts)  })
-        let call2 = loadRekeningen()
-
-        await Promise.all([call1, call2]);
-        //setPageLoaded(true);
-        * *
-        if(rekeningen.length > 0){
-            console.log('jepjep');
-            setRekeningen(await groupBy(rekeningen, 'rekening'))
-        }
-    }
-    * */
+    //const [accounts, setAccounts] = useState([]);
+    const { sub } = useContext(AuthContext);
+    const [bunqSettings, setBunqSettings] = useLocalStorage(sub, 'bunq_settings', {income: 0, keep: 0})
+    const [accounts, setAccounts, accountsLoading, accountsError, accountsRequest] = useFetch('/api/bunq/accounts', {onMount: true, auth})
+    const [preconditions, setPreconditions] = useState({run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null});
+    //const [rekeningen, setRekeningen] = useState([]);
+    const [rekeningen, setRekeningen, rekeningenLoading, rekeningenError, rekeningenRequest] = useFetch('/api/rekeningen', {onMount: true, auth, postProcess: groupData('blabla')})
+    const [groupedData, setGroupedData] = useState([]);
+    const [script_running, setScriptRunning] = useState(false);
     
     useEffect(() => {
         groupBy(rekeningen, 'rekening').then(groupedrek => {setGroupedData(groupedrek)})
     }, [rekeningen])
 
     
-    const getAccountByName = (name) => {
-        for(var account of accounts){
-            if(account.description === name){
-                return account;
-            }
-        }
-        return null;
-    }
     
     const checkPreconditions = () => {
         //check
-        const algemeen_account = getAccountByName("Algemeen");
+        const algemeen_account = accounts.find(account => account.description === 'Algemeen');
         let maandnummer = (new Date()).getMonth()+1;
         let currentstate = {...preconditions};
         currentstate.succeeded = true;
@@ -114,7 +71,7 @@ const Bunq = ({auth}) => {
         rekeningen.map(rekening => {
             currentstate.maandtotaal += rekening["month_" + maandnummer];
             console.log(rekening)
-            let foundaccount = getAccountByName(rekening.rekening);
+            let foundaccount = accounts.find(account => account.description === rekening.rekening);
             if(foundaccount == null && rekening["month_" + maandnummer] > 0){
                 currentstate.succeeded = false;
                 currentstate.accountsExist.push(rekening.rekening)
@@ -160,7 +117,7 @@ const Bunq = ({auth}) => {
         await Promise.all(rekeningen.map(async rekening => {
             console.log("Naar rekening " + rekening.rekening + " moet " + rekening["totaal_" + maandnummer] + " euro worden overgemaakt.");
             if(rekening["totaal_" + maandnummer] > 0){
-                let overboeking = await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: rekening.rekening, description: "Geld apart zetten", amount: rekening["totaal_" + maandnummer].toString() + '.00'}, await auth.getAccessToken());
+                let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: "Algemeen", to: rekening.rekening, description: "Geld apart zetten", amount: rekening["totaal_" + maandnummer].toString() + '.00'}, auth});
                 console.log(overboeking);
             }
         }))
@@ -174,17 +131,15 @@ const Bunq = ({auth}) => {
         }
         * */
         console.log("Erna");
-        let overboeking = await makeAPICall('/api/bunq/payment', 'POST', {from: "Algemeen", to: "Spaar", description: "Geld sparen", amount: preconditions.sparen.toString() + '.00'}, await auth.getAccessToken());
+        let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: "Algemeen", to: "Spaar", description: "Geld sparen", amount: preconditions.sparen.toString() + '.00'}, auth});
         console.log(overboeking);
-        let accounts = await makeAPICall('/api/bunq/accounts', 'GET', null, await auth.getAccessToken())
+        let accounts = await fetchBackend('/api/bunq/accounts', {auth})
         setAccounts(accounts);
         setScriptRunning(false);
         //this.setState({accounts: accounts, script_running: false});
     }
     
-    const sum = (array, key) => {
-        return array.reduce((a, b) => a + (b[key] || 0), 0);
-    }
+    const sum = (array, key) => array.reduce((a, b) => a + (b[key] || 0), 0);
     
  
     const getTotal = (cellInfo) => {
@@ -207,7 +162,7 @@ const Bunq = ({auth}) => {
     },{
         Header: 'Huidig saldo',
         accessor: 'rekening', // String-based value accessors!
-        Cell: props => <span>{getAccountByName(props.value) !== null ? '€'+getAccountByName(props.value).balance.value : '€-'}</span> // Custom cell components!
+        Cell: props => <span>{accounts.find(account => account.description === props.value) !== undefined ? '€'+accounts.find(account => account.description === props.value).balance.value : '€-'}</span> // Custom cell components!
     }]
     for(var i = 1; i < 13; i++){
         rekeningColumns.push({
@@ -227,21 +182,9 @@ const Bunq = ({auth}) => {
         {id: 'runscript', click: runScript, disabled: script_running || preconditions.succeeded === false, text: 'Boeken'}
     ]
     
-    
-    
     return (<div><h1>Bunq</h1>
             <DefaultTable data={groupedData} columns={rekeningColumns} loading={rekeningenLoading} pageSize={15}/>
             <DefaultFormRow data={formItems} buttons={formButtons}/>
-            {/*
-            <Form>
-                <Row>
-                <Col><Form.Label>Netto salaris</Form.Label><Form.Control type="text" name="salaris" value={salaris} onChange={(event) => setSalaris(event.target.value)} /></Col>
-                <Col><Form.Label>Eigen geld</Form.Label><Form.Control type="text" name="eigen_geld" value={eigen_geld} onChange={(event) => setEigenGeld(event.target.value)} /></Col>
-                <Button variant="primary" onClick={() => {checkPreconditions();console.log(preconditions);}} disabled={!page_loaded || script_running}>Controleer</Button>
-                {preconditions.succeeded === true && <Button variant="primary" onClick={runScript} disabled={script_running}>Boeken</Button>}
-                </Row>
-            </Form>
-            */}
             <ListGroup>
                 {preconditions.balance !== null ?<ListGroup.Item variant="success">Huidig saldo Algemene rekening: {preconditions.balance}</ListGroup.Item> : ""}
                 {preconditions.accountsExist.map((rek, i) => {return <ListGroup.Item  key={i} variant="danger">Rekening {rek} bestaat niet</ListGroup.Item>})}

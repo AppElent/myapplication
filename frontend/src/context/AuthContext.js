@@ -26,7 +26,7 @@ const AuthController = ({auth, children}) => {
 	const userObj = await auth.getUser();
         setUser(userObj);
         setSub(userObj.sub);
-        const groups = await fetchBackend('/api/okta/groups', 'GET', null, auth)
+        const groups = await fetchBackend('/api/okta/groups', {auth})
         found = groups.find((element) => {
           return element.profile.name === 'Admins'; 
         }); 

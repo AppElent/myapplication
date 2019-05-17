@@ -44,6 +44,40 @@ module.exports = function(app, db, epilogue) {
 	
 	//Loading the cache
 	const Cache = require('./classes/Cache');
+	
+	//Loading OAUTH providers
+	const OAuth = require('./classes/Oauth')
+	
+	const createOauthProviders = async () => {
+		const enelogic = await db.oauthproviders.findOne({where: {id: 'enelogic'}});
+		if (enelogic === null){
+			db.oauthproviders.create({
+				id: 'enelogic', 
+				client_id: process.env.ENELOGIC_CLIENT_ID, 
+				client_secret: process.env.ENELOGIC_CLIENT_SECRET,
+				tokenHost: 'https://enelogic.com',
+				tokenPath: '/oauth/v2/token',
+				authorizePath: '/oauth/v2/auth',
+				flow: 'authorization',
+				redirect_url: process.env.APP_ROOT + '/enelogic/oauth',
+				default_scope: 'account'
+			})
+		}
+	}
+	
+	
+	const loadOauthProviders = async () => {
+		const allproviders = await db.oauthproviders.findAll();
+		const results = {}
+		allproviders.forEach(provider => {
+			const oauthprovider = new OAuth(provider);
+			oauthproviders[provider.id] = oauthprovider;
+		})
+	}
+	const oauthproviders = {}
+	loadOauthProviders();
+	
+	//loadOauthProviders().then(providers => {oauthproviders = providers; console.log(oauthproviders['enelogic'].formatUrl())});
 
 
 	//Custom routes
@@ -99,15 +133,15 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/okta/groups', basicAuthentication, controllers.okta.getGroups);
 	
 	//OAuth routes
-	app.get('/api/oauth/formatUrl/:application', basicAuthentication, controllers.oauth.format);
-	app.post('/api/oauth/exchange/:application', basicAuthentication, controllers.oauth.exchange);
-	app.post('/api/oauth/refresh/:application', basicAuthentication, controllers.oauth.refresh);
+	app.get('/api/oauth/formatUrl/:application', basicAuthentication, controllers.oauth.format(oauthproviders));
+	app.post('/api/oauth/exchange/:application', basicAuthentication, controllers.oauth.exchange(oauthproviders));
+	app.post('/api/oauth/refresh/:application', basicAuthentication, controllers.oauth.refresh(oauthproviders));
 
 	
 	
 	//Meterstanden bijwerken en Enelogic routes
-	app.get('/api/enelogic/data/dag/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('day'));
-	app.get('/api/enelogic/data/kwartier/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('quarter'));
+	app.get('/api/enelogic/data/dag/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('day', oauthproviders));
+	app.get('/api/enelogic/data/kwartier/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('quarter', oauthproviders));
 	
 	
 	

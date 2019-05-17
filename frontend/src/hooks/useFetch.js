@@ -11,7 +11,7 @@ export function useFetch(arg1, arg2) {
   let method = 'GET'
   
   if (arg2.defaultData === undefined) arg2.defaultData = []
-  
+
   console.log('useFetch is called with args ', arg1, arg2);
   const handleOptions = opts => {
     if (true) {
@@ -78,6 +78,7 @@ export function useFetch(arg1, arg2) {
             data = await response.text()
           }
           if(method.toLowerCase() === 'get'){
+            if (arg2.postProcess !== undefined) {await arg2.postProcess(data);}else{console.log(12345)}
             setData(data)
           }
         }
