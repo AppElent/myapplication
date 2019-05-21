@@ -42,7 +42,7 @@ const Bunq = ({auth}) => {
     
     //const [accounts, setAccounts] = useState([]);
     const { sub } = useContext(AuthContext);
-    const [bunqSettings, setBunqSettings] = useLocalStorage(sub, 'bunq_settings', {income: 0, keep: 0})
+    const [bunqSettings, setBunqSettings] = useLocalStorage(sub, 'bunq_settings', {from: '', spaar: '', income: 0, keep: 0})
     const [accounts, setAccounts, accountsLoading, accountsError, accountsRequest] = useFetch('/api/bunq/accounts', {onMount: true, auth})
     const [preconditions, setPreconditions] = useState({run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null});
     //const [rekeningen, setRekeningen] = useState([]);
@@ -58,7 +58,7 @@ const Bunq = ({auth}) => {
     
     const checkPreconditions = () => {
         //check
-        const algemeen_account = accounts.find(account => account.description === 'Algemeen');
+        const algemeen_account = accounts.find(account => account.description === bunqSettings.from);
         let maandnummer = (new Date()).getMonth()+1;
         let currentstate = {...preconditions};
         currentstate.succeeded = true;
@@ -68,11 +68,11 @@ const Bunq = ({auth}) => {
         
         currentstate.balance = algemeen_account.balance.value;
         console.log(currentstate);
-        rekeningen.map(rekening => {
-            currentstate.maandtotaal += rekening["month_" + maandnummer];
+        groupedData.map(rekening => {
+            currentstate.maandtotaal += rekening["totaal_" + maandnummer];
             console.log(rekening)
             let foundaccount = accounts.find(account => account.description === rekening.rekening);
-            if(foundaccount == null && rekening["month_" + maandnummer] > 0){
+            if(foundaccount == null && rekening["totaal_" + maandnummer] > 0){
                 currentstate.succeeded = false;
                 currentstate.accountsExist.push(rekening.rekening)
                 console.log("Rekening bestaat niet: " + rekening.rekening);
@@ -114,10 +114,10 @@ const Bunq = ({auth}) => {
         setScriptRunning(true);
         //this.setState({script_running: true});
         let maandnummer = (new Date()).getMonth()+1;
-        await Promise.all(rekeningen.map(async rekening => {
+        await Promise.all(groupedData.map(async rekening => {
             console.log("Naar rekening " + rekening.rekening + " moet " + rekening["totaal_" + maandnummer] + " euro worden overgemaakt.");
             if(rekening["totaal_" + maandnummer] > 0){
-                let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: "Algemeen", to: rekening.rekening, description: "Geld apart zetten", amount: rekening["totaal_" + maandnummer].toString() + '.00'}, auth});
+                let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: rekening.rekening}, description: "Geld apart zetten", amount: rekening["totaal_" + maandnummer].toString() + '.00'}, auth});
                 console.log(overboeking);
             }
         }))
@@ -131,10 +131,14 @@ const Bunq = ({auth}) => {
         }
         * */
         console.log("Erna");
-        let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: "Algemeen", to: "Spaar", description: "Geld sparen", amount: preconditions.sparen.toString() + '.00'}, auth});
-        console.log(overboeking);
-        let accounts = await fetchBackend('/api/bunq/accounts', {auth})
-        setAccounts(accounts);
+        if(bunqSettings.spaar !== ''){
+            let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: bunqSettings.spaar}, description: "Geld sparen", amount: preconditions.sparen.toString() + '.00'}, auth});
+            console.log(overboeking); 
+        }
+
+        await accountsRequest.get('/api/bunq/accounts', '?forceUpdate=true')
+        //let accounts = await fetchBackend('/api/bunq/accounts', {auth})
+        //setAccounts(accounts);
         setScriptRunning(false);
         //this.setState({accounts: accounts, script_running: false});
     }
@@ -173,6 +177,8 @@ const Bunq = ({auth}) => {
     }
     
     const formItems = [
+        {name: 'from', type: 'input', label: 'Van rekening:', value: bunqSettings.from, changehandler: (e) => {setBunqSettings({...bunqSettings, from: e.target.value})}},
+        {name: 'spaar', type: 'input', label: 'Spaarrekening:', value: bunqSettings.spaar, changehandler: (e) => {setBunqSettings({...bunqSettings, spaar: e.target.value})}},
         {name: 'salaris', type: 'input', label: 'Netto salaris:', value: bunqSettings.income, changehandler: (e) => {setBunqSettings({...bunqSettings, income: e.target.value})}},
         {name: 'eigen_geld', type: 'input', label: 'Eigen geld:', value: bunqSettings.keep, changehandler: (e) => {setBunqSettings({...bunqSettings, keep: e.target.value})}}
     ]

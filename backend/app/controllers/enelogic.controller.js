@@ -145,7 +145,7 @@ exports.getEnelogicData = (period, oauthobject) => async (req, res) => {
 	if(config === null || config.success === false) return res.status(404).send(config);
 	//var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
 	console.log(oauthobject['enelogic'].getSettings());
-	await oauthobject['enelogic'].refresh({access_token: config.access_token, refresh_token: config.refresh_token, expires_at: config.expires_at}, config);
+	await oauthobject['enelogic'].refresh(config);
 	let apikey = config.access_token;
 	
 	//Measuringpoint ophalen en zetten indien nodig

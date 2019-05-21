@@ -8,7 +8,6 @@ const useForm = (submitFunction, initialValue = {}) => {
 
   const handleSubmit = async (event) => {
     setSubmitting(true)
-    console.log('huh')
     if (event) event.preventDefault();
     await submitFunction()
     setSubmitting(false)
@@ -30,16 +29,7 @@ const useForm = (submitFunction, initialValue = {}) => {
     setChanging(false)
   };
   
-
-  return [
-    values,
-    handleChange,
-    handleSubmit,
-    submitting,
-    changing,
-    setInitial,
-    setValues
-  ]
+  return Object.assign([values, handleChange, handleSubmit, submitting, changing, setInitial, setValues], { values, handleChange, handleSubmit, submitting, changing, setInitial, setValues })
 };
 
 export default useForm;

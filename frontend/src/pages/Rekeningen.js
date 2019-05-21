@@ -1,14 +1,13 @@
 // ./src/car/car.component.jsx
 import React, { useState, useEffect, Suspense } from 'react';
 import { Button } from 'react-bootstrap';
-import ReactTable from "react-table";
-import 'react-table/react-table.css';
 import { withAuth } from '@okta/okta-react';
 import DefaultFormRow from '../components/DefaultFormRow';
 
 import useFetch from '../hooks/useFetch'
 import useForm from '../hooks/useForm'
-import editableCell from '../utils/editableCell'
+import editableCell from '../utils/editableCell';
+import DefaultTable from '../components/DefaultTable';
 
 const Rekeningen = ({auth}) => {
     
@@ -23,11 +22,7 @@ const Rekeningen = ({auth}) => {
         setData([...data, newEntryData]);
     };
     
-    
     const [ newEntry, handleChange, handleSubmit, submitting, changing ] = useForm(submitForm, {naam: "", dag: 1, type: "", rekening: "", bedrag: 0});
-
-
-    //const [authenticated, user, sub] = useAuth(auth);
     const [data, setData, loading, error, request] = useFetch('/api/rekeningen', {onMount: true, auth})
 
     const handleDelete = async (row) => {
@@ -119,16 +114,7 @@ const Rekeningen = ({auth}) => {
     return (
     <div>
     <h1>Rekeningen</h1>
-        <ReactTable
-            data={data}
-            columns={columns}
-            className='-highlight -striped'
-            pageSize={11}
-            //showPagination={false}
-            //pageSize={this.state.data.length}
-            filterable={true}
-            loading={loading}
-        />  
+        <DefaultTable data={data} columns={columns} loading={loading} pageSize={11}/>
     <h3>Nieuwe rekening toevoegen</h3>
     <DefaultFormRow data={formItems} buttons={buttonItems}/>
     </div>

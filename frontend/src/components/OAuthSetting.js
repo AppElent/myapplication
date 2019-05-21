@@ -5,12 +5,12 @@ import {fetchBackend} from '../utils/fetching';
 import { Button } from 'react-bootstrap';
 
 
-const OAuthSetting = ({auth, title, formatUrl, name}) => {
+const OAuthSetting = ({auth, title, formatUrl}) => {
     
     const [url, setUrl] = useState('');
     
     useEffect(() => {
-        fetchBackend(formatUrl, 'GET', undefined, auth).then(url => setUrl(url))
+        fetchBackend(formatUrl, {auth}).then(url => setUrl(url))
     }, [])
     
     return <Button href={url} disabled={url === ''}>{title}</Button> 

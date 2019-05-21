@@ -38,7 +38,7 @@ const AuthController = ({auth, children}) => {
   
   useEffect(() => {
     loadAuthentication();
-  }, [authenticated]);
+  }, []);
   
   const defaultContext = {
     authenticated,

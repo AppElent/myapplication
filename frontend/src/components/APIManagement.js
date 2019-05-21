@@ -17,39 +17,8 @@ import APISetting from '../components/APISetting';
 import OAuthSetting from '../components/OAuthSetting';
 import useFetch from '../hooks/useFetch';
 import useForm from '../hooks/useForm';
-import useFetchedForm from '../hooks/useFetchedForm';
+//import useFetchedForm from '../hooks/useFetchedForm';
 
-const getFormItems = (fields, config, handleChange) => {
-    const formItems = fields.map((item) => {
-        return {
-            name: item.name,
-            type: (item.visible === false ? 'password' : 'input'),
-            label: item.label,
-            value: config[item.name],
-            changehandler: handleChange,
-        }
-    })
-    return formItems
-}
-
-const EnelogicSetting = ({auth}) => {
-    
-    const saveEnelogic = async () => {
-        //user: await (auth.getUser()).sub, 
-        if(config.id !== undefined){
-            request.put('/api/apisettings/' + config.id, {setting: 'enelogic', data: JSON.stringify(config)})
-        }else{
-            request.post('/api/apisettings', {setting: 'enelogic', data: JSON.stringify(config)})
-        }
-    }
-    
-    const [config, handleChange, handleSubmit, setConfig, request ] = useFetchedForm(auth, '/api/apisettings/name/enelogic', saveEnelogic, {api_key: '', success: false});
-    const fields = [{name: 'api_key', label: 'API Key'}]
-
-    return <div><h2>Enelogic</h2>
-        <DefaultFormRow data={getFormItems(fields, config, handleChange)} buttons={[{id: 'savecredentials', click: handleSubmit, disabled: false, text: 'Save'}]} />
-    </div>  
-}
 
 
 const APIManagement = ({auth}) => {
@@ -67,8 +36,8 @@ const APIManagement = ({auth}) => {
         <Enelogic />
         <EnelogicSetting auth={auth}/>
         * */}
-        <OAuthSetting title='Enelogic' formatUrl='/api/oauth/formaturl/enelogic' name='enelogic' redirectUri='/settings?tab=apimanagement'/> 
-        <OAuthSetting title='Bunq' formatUrl='/api/bunq/oauth/formatUrl' name='bunq' redirectUri='/settings?tab=apimanagement'/> 
+        <OAuthSetting title='Enelogic' formatUrl='/api/oauth/formaturl/enelogic' redirectUri='/settings?tab=apimanagement'/> 
+        <OAuthSetting title='Bunq' formatUrl='/api/bunq/oauth/formatUrl' redirectUri='/settings?tab=apimanagement'/> 
         {/*
         <APISetting title='Tado connection' lskey='tado' fields={[{name: 'username', label: 'Username'},{name: 'password', label: 'Password', visible:false}]} saveFunction={saveTado}/>
         * */}

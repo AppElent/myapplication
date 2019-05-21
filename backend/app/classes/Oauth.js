@@ -72,7 +72,8 @@ module.exports = class Oauth {
     }
   }
   
-  async refresh(tokenObject, entry){
+  async refresh(entry){
+    const tokenObject = {access_token: entry.access_token, refresh_token: entry.refresh_token, expires_at: entry.expires_at}
     let accessTokenObject = this.oauth.accessToken.create(tokenObject)
     
     // Check if the token is expired. If expired it is refreshed.

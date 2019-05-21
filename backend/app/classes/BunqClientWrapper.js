@@ -90,8 +90,9 @@ module.exports = class BunqClientWrapper {
       return this.user;
   }
   
-  async getAccounts(){
+  async getAccounts(forceUpdate = false){
       const cachekey = 'allaccounts';
+      if(forceUpdate) this.longCache.del(cachekey);
       const results = this.longCache.get(cachekey, async () => {
         const accounts = await this.bunqJSClient.api.monetaryAccount.list(this.user.id).catch(this.defaultErrorLogger);
         const resultList = []

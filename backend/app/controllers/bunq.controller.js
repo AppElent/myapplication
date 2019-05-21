@@ -141,7 +141,9 @@ exports.exchangeOAuthTokens = async (req, res) => {
 
 exports.getMonetaryAccounts = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
-	return res.send(await bunqClient.getAccounts());
+	const forceUpdate = (req.query.forceUpdate !== undefined ? true : false) 
+	console.log('forceUpdate', forceUpdate)
+	return res.send(await bunqClient.getAccounts(forceUpdate));
 }
 
 exports.getMonetaryAccountByName = async (req, res) => {

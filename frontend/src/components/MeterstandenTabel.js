@@ -89,6 +89,7 @@ const MeterstandenTabel = ({data, loading}) => {
     
     //console.log(this.extractColumn(this.props.graphdata, "kwh_180"));
     //console.log(data, data.length);
+
     
     return <DefaultTable data={data} columns={columns} loading={loading}/>
     {/*
