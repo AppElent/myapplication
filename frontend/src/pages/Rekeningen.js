@@ -8,6 +8,7 @@ import useFetch from '../hooks/useFetch'
 import useForm from '../hooks/useForm'
 import editableCell from '../utils/editableCell';
 import DefaultTable from '../components/DefaultTable';
+import {fetchBackend} from '../utils/fetching';
 
 const Rekeningen = ({auth}) => {
     
@@ -26,7 +27,7 @@ const Rekeningen = ({auth}) => {
     const [data, setData, loading, error, request] = useFetch('/api/rekeningen', {onMount: true, auth})
 
     const handleDelete = async (row) => {
-        await request.delete('/api/rekeningen/' + row.id)
+        await fetchBackend('/api/rekeningen/' + row.id, {method: 'delete', auth})
         const newdata = data.filter(function(item) { 
             return item.id !== row.id
         })
@@ -37,26 +38,26 @@ const Rekeningen = ({auth}) => {
     var columns = [{
         Header: 'Naam',
         accessor: 'naam', // String-based value accessors!
-        Cell: editableCell(data, (cell, item) => {request.put('/api/rekeningen/' + data[cell.index].id, item);})
+        Cell: editableCell(data, (cell, item) => {fetchBackend('/api/rekeningen/' + data[cell.index].id, {method: 'put', auth, body: item});})
     },{
         Header: 'Dag vd maand',
         accessor: 'dag', // String-based value accessors!
-        Cell: editableCell(data, (cell, item) => {request.put('/api/rekeningen/' + data[cell.index].id, item);})
+        Cell: editableCell(data, (cell, item) => {fetchBackend('/api/rekeningen/' + data[cell.index].id, {method: 'put', auth, body: item});})
     }, {
         Header: 'Type',
         accessor: 'type',
-        Cell: editableCell(data, (cell, item) => {request.put('/api/rekeningen/' + data[cell.index].id, item);})
+        Cell: editableCell(data, (cell, item) => {fetchBackend('/api/rekeningen/' + data[cell.index].id, {method: 'put', auth, body: item});})
     }, {
         Header: 'Rekening',
         accessor: 'rekening',
-        Cell: editableCell(data, (cell, item) => {request.put('/api/rekeningen/' + data[cell.index].id, item);})
+        Cell: editableCell(data, (cell, item) => {fetchBackend('/api/rekeningen/' + data[cell.index].id, {method: 'put', auth, body: item});})
     }]
     const months = [ 'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December' ];
     for(var i = 1; i < 13; i++){
         columns.push({
             Header: months[i-1],
             accessor: 'month_'+i,
-            Cell: editableCell(data, (cell, item) => {request.put('/api/rekeningen/' + data[cell.index].id, item);})
+            Cell: editableCell(data, (cell, item) => {fetchBackend('/api/rekeningen/' + data[cell.index].id, {method: 'put', auth, body: item});})
         });
     }
     columns.push({

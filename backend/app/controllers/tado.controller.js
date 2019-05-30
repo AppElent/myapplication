@@ -53,7 +53,7 @@ async function refreshAccessToken(){
 }
 
 var accessToken = "";
-getAccessToken(tado_oauth, tokenConfig).then(data => {accessToken = data;});
+//getAccessToken(tado_oauth, tokenConfig).then(data => {accessToken = data;});
 
 exports.test = async (req, res) => {
 	const url = 'https://my.tado.com/api/v1/me';

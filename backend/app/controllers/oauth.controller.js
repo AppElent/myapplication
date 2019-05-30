@@ -22,6 +22,7 @@ const oauth_credentials = {}
  */
 
 // Set the configuration settings
+/*
 const enelogic_credentials = {
   client: {
     id: process.env.ENELOGIC_CLIENT_ID,
@@ -40,6 +41,7 @@ oauth_credentials['enelogic'] = {
 	scope: 'account',
 	type: 'authorization_code_flow'
 };
+* */
 
 /*
 // Initialize the OAuth2 Library

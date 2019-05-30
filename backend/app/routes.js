@@ -2,7 +2,7 @@ const path = require('path');
 const fetch = require("node-fetch");
 
 
-module.exports = function(app, db, epilogue) {
+module.exports = async function(app, db, epilogue) {
 	
 	const auth = require("./middleware/authentication")
 	const basicAuthentication = auth.authenticationRequired();
@@ -151,8 +151,11 @@ module.exports = function(app, db, epilogue) {
 	app.get('/api/bunq/accounts/:name', basicAuthentication, controllers.bunq.getMonetaryAccountByName);
 	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	app.post('/api/bunq/payment', basicAuthentication, controllers.bunq.postPaymentInternal);
+	app.get('/api/bunq/events', basicAuthentication, controllers.bunq.getEvents);
 	app.post('/api/bunq/draftpayment', basicAuthentication, controllers.bunq.postDraftPayment);
+	app.get('/api/bunq/cards', basicAuthentication, controllers.bunq.getCards)
 	app.get('/api/bunq/sandbox', basicAuthentication, controllers.bunq.createSandboxAPIKey);
+	app.get('/api/bunq/test', basicAuthentication, controllers.bunq.test);
 
 
 	//SolarEdge

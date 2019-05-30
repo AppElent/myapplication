@@ -12,7 +12,7 @@ export function useFetch(arg1, arg2) {
   
   if (arg2.defaultData === undefined) arg2.defaultData = []
 
-  console.log('useFetch is called with args ', arg1, arg2);
+  //console.log('useFetch is called with args ', arg1, arg2);
   const handleOptions = opts => {
     if (true) {
       // take out all the things that are not normal `fetch` options
@@ -56,7 +56,7 @@ export function useFetch(arg1, arg2) {
         setLoading(true)
         let token = await arg2.auth.getAccessToken();
         console.log('Making ' + method + ' request to ' + url + query);
-        const response = await fetch(url + query, {
+        var response = await fetch(url + query, {
           method,
           ...options,
           ...fetchOptions,
@@ -71,15 +71,15 @@ export function useFetch(arg1, arg2) {
           console.log("error request");
           throw (response.status + ' - ' + response.statusText);
         }else{
-          let data = null;
+          let responsedata = null;
           try {
-            data = await response.json()
+            responsedata = await response.json()
           } catch (err) {
-            data = await response.text()
+            responsedata = await response.text()
           }
           if(method.toLowerCase() === 'get'){
-            if (arg2.postProcess !== undefined) {await arg2.postProcess(data);}else{console.log(12345)}
-            setData(data)
+            if (arg2.postProcess !== undefined) {responsedata = await arg2.postProcess(responsedata);}else{console.log(12345)}
+            setData(responsedata)
           }
         }
 

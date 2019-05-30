@@ -51,6 +51,14 @@ app.use(bodyParser.json());
 
 
 //Routes
+//First make all query params lowercase
+app.use(function(req, res, next) {
+  for (var key in req.query)
+  { 
+    req.query[key.toLowerCase()] = req.query[key];
+  }
+  next();
+});
 app.get('/health-check', (req, res) => res.sendStatus(200));
 require('./app/routes.js')(app, db, epilogue);
 

@@ -46,17 +46,13 @@ module.exports = class BunqWrapper {
     //get generic client (to generate keys etc)
     return this.genericBunqClient;
   }
+
   
   getClient(identifier){
     //get client by identifier
     return this.bunqClients[identifier];
   }
   
-  async createSandboxAPIKey(){
-      const apiKey = await this.genericBunqClient.api.sandboxUser.post();
-      return apiKey;
-  }
-
   
 }
 

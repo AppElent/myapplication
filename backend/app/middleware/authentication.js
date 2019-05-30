@@ -4,7 +4,7 @@ const fetch = require("node-fetch");
 
 const oktaJwtVerifier = new OktaJwtVerifier({
   issuer: 'https://dev-810647.okta.com/oauth2/default',
-  clientId: process.env.OKTA_CLIENT_ID,
+  clientId: '0oabepfc2Yo0a3Q0H356',
   assertClaims: {
 	aud: 'api://default',
   },

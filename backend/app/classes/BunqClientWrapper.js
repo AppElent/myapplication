@@ -27,6 +27,7 @@ module.exports = class BunqClientWrapper {
   };
 
   defaultErrorLogger(error){
+    console.log('bunq error', error)
     if (error.response) {
       throw error.response.data;
     }
@@ -58,7 +59,7 @@ module.exports = class BunqClientWrapper {
       // load and refresh bunq client
       let bunqEnv = 'PRODUCTION';
       if(this.settings.data2 !== null) bunqEnv = this.settings.data2;
-      await this.bunqJSClient.run(this.settings.access_token, [], bunqEnv, this.settings.refresh_token).catch( exception => { throw exception; } );
+      await this.bunqJSClient.run(this.settings.access_token, [], bunqEnv, this.settings.refresh_token).catch(this.defaultErrorLogger);
 
       // disable keep-alive since the server will stay online without the need for a constant active session
       this.bunqJSClient.setKeepAlive(false);
@@ -86,7 +87,11 @@ module.exports = class BunqClientWrapper {
     return this.bunqJSClient;
   }
   
-  async getUsers(){
+  getUsers(){
+      return this.user;
+  }
+  
+  getUser(){
       return this.user;
   }
   
@@ -106,6 +111,35 @@ module.exports = class BunqClientWrapper {
 
       
       return results;
+  }
+  
+  async createRequestInquiry(from, description, amount, counterparty, options = {}){
+      const accounts = await this.getAccounts();
+      const from_account = accounts.find(account => account[from.type] === from.value)
+      if (from_account === null) {
+          console.log ("Van account bestaat niet: ", from);
+          return false;
+      }
+      const inquiry = await this.bunqJSClient.api.requestInquiry.post(this.user.id, from_account.id, description, amount, counterparty, options).catch(this.defaultErrorLogger);
+      return inquiry;
+  }
+  
+  async createBunqMeTab(from, description, amount, options = {}){
+      const accounts = await this.getAccounts();
+      const from_account = accounts.find(account => account[from.type] === from.value)
+      if (from_account === null) {
+          console.log ("Van account bestaat niet: ", from);
+          return false;
+      }
+      const bunqmetab = await this.bunqJSClient.api.bunqMeTabs.post(this.user.id, from_account.id, description, amount, options).catch(this.defaultErrorLogger);
+      return bunqmetab;
+  }
+  
+  async getEvents(options = {}, forceUpdate = false){
+      const cachekey = 'allevents';
+      if(forceUpdate) this.shortCache.del(cachekey);
+      const events = this.shortCache.get(cachekey, async () => {return (await this.bunqJSClient.api.event.list(this.user.id).catch(this.defaultErrorLogger))});
+      return events;
   }
   
   async makePaymentInternal(from, to, description, amount) {

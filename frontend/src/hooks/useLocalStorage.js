@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
+import { AuthContext } from '../context/AuthContext';
 
 
-function useLocalStorage(user, key, initialValue) {
-  const [userSub, setUserSub] = useState(user);
+function useLocalStorage(key, initialValue) {
+  //const [userSub, setUserSub] = useState(user);
+  const { sub } = useContext(AuthContext);
   
-  if (user !== userSub) setUserSub(user);
-  
-  const userkey = userSub + '_' + key;
+  const userkey = sub + '_' + key;
   
   const saveStoredValue = (key) => {
     try {
@@ -21,22 +21,16 @@ function useLocalStorage(user, key, initialValue) {
     }
   }
   
-  // State to store our value
-  // Pass initial state function to useState so logic is only executed once
-  
   const [storedValue, setStoredValue] = useState(saveStoredValue(userkey));
-  
-  console.log(userSub, storedValue)
   
   useEffect(() => {
       setStoredValue(saveStoredValue(userkey));
-  }, [userSub])
+  }, [sub])
   
   
   // Return a wrapped version of useState's setter function that ...
   // ... persists the new value to localStorage.
   const setValue = value => {
-    console.log('setting value ' + value)
     try {
       // Allow value to be a function so we have same API as useState
       const valueToStore =

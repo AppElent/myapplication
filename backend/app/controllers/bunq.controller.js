@@ -1,109 +1,32 @@
-const customStore = require( "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore").default;
-
 const db = require('../config/db.config.js');
-const BunqJSClient = require("@bunq-community/bunq-js-client").default;
-const path = require("path");
-require('dotenv').config();
 
-//console.log('pad', path.resolve(__dirname, "../bunq/storage.json"))
-//const customStoreInstance = customStore(`${__dirname}${path.sep}storage.json`);
-const customStoreInstance = customStore(path.resolve(__dirname, "../bunq/storage.json"));
-
-const BunqClient = new BunqJSClient(customStoreInstance);
+const bunqstate = 'skjdhfkasjhbvckahsdjfhagdbjfhgmnfadnfbsmdafbe'
 
 const BunqWrapper = require('../classes/BunqWrapper')
 const bunq = new BunqWrapper();
 bunq.startup();
 
-/*
-const test = async () => {
-	let test = await db.apisettings.findOne({where: {name: 'bunq', user: '00uh1btgtpVNlyc4k356'}})
-	const bunqClientWrapper = await bunq.installNewClient(test);
-	const users = await bunqClientWrapper.getBunqJSClient().getUsers(true).catch(defaultErrorLogger);
-}
-test()
-
-
-const getObject = object => {
-    const objectKeys = Object.keys(object);
-    const objectKey = objectKeys[0];
-
-    return object[objectKey];
-};
-
-const defaultErrorLogger = error => {
-	if (error.response) {
-		throw error.response.data;
+const saveBunqSettings = async (user, authorizationCode, environment = 'PRODUCTION') => {
+	const conditions = {where: {user: user, name: 'bunq'}};
+	const body = {
+	  user: user, 
+	  name: 'bunq', 
+	  access_token: authorizationCode, 
+	};
+	let entry = await db.apisettings.findOne(conditions)
+	if(entry){
+		entry = await entry.update(body)
+	}else{
+		entry = await db.apisettings.create(body);
 	}
-	throw error;
-};
-
-const setup = async () => {
-	// load and refresh bunq client
-	await BunqClient.run(process.env.BUNQ_OAUTH_API_KEY, [], 'PRODUCTION', process.env.BUNQ_ENCRYPTION_KEY).catch(
-		exception => {
-			throw exception;
-		}
-	);
-
-	// disable keep-alive since the server will stay online without the need for a constant active session
-	BunqClient.setKeepAlive(false);
-
-	// create/re-use a system installation
-	await BunqClient.install().catch(defaultErrorLogger);
-
-	// create/re-use a device installation
-	await BunqClient.registerDevice(process.env.BUNQ_DEVICE_NAME).catch(defaultErrorLogger);
-
-	// create/re-use a bunq session installation
-	await BunqClient.registerSession().catch(defaultErrorLogger);
-	
-	
-	return BunqClient;
+	return entry;
 }
-
-let userInfo = null;
-let accounts = null;
-let activeAccounts = null;
-
-async function setAccounts(){
-	accounts = await BunqClient.api.monetaryAccount.list(userInfo.id).catch(defaultErrorLogger);
-	activeAccounts = accounts.filter(account => {
-		if (account.MonetaryAccountBank) {
-			return account.MonetaryAccountBank.status === "ACTIVE";
-		}
-		if (account.MonetaryAccountJoint) {
-			return account.MonetaryAccountJoint.status === "ACTIVE";
-		}
-		if (account.MonetaryAccountSavings) {
-			return account.MonetaryAccountSavings.status === "ACTIVE";
-		}
-		return false;
-	});	
-}
-
-setup().then(async BunqClient => {
-	// get user info connected to this account
-	const users = await BunqClient.getUsers(true).catch(defaultErrorLogger);
-	userInfo = users[Object.keys(users)[0]];	
-
-	//await setAccounts();
-	//console.log("\nAccounts: ", accounts.length);
-}).catch(error => {
-	if (error.response) {
-		console.log(error.response.data);
-	} else {
-		console.log(error);
-	}
-});
-
-*/
 
 exports.formatOAuthUrl = async (req, res) => {	
-	let url = await BunqClient.formatOAuthAuthorizationRequestUrl(
+	let url = await bunq.getGenericClient().formatOAuthAuthorizationRequestUrl(
 		process.env.BUNQ_CLIENT_ID, 
-		process.env.BUNQ_REDIRECT_URI, 
-		process.env.BUNQ_STATE
+		'https://ericjansen.dynu.net/bunq/oauth', 
+		bunqstate
 	);   
 	res.status(200).send(url);
 };
@@ -112,14 +35,16 @@ exports.exchangeOAuthTokens = async (req, res) => {
 	if(req.body.code === null){
 		res.send("Geen auth code meegegeven");
 	}else{
-		const authorizationCode = await BunqClient.exchangeOAuthToken(
+		const authorizationCode = await bunq.getGenericClient().exchangeOAuthToken(
 			process.env.BUNQ_CLIENT_ID, 
 			process.env.BUNQ_CLIENT_SECRET, 
-			process.env.BUNQ_REDIRECT_URI,
+			'https://ericjansen.dynu.net/bunq/oauth',
 			req.body.code,
-			process.env.BUNQ_STATE
+			bunqstate
 		) 
 		console.log("Key: " + authorizationCode);
+		const entry = await saveBunqSettings(req.uid, authorizationCode, 'PRODUCTION');
+		/*
 		const conditions = {where: {user: req.uid, name: 'bunq'}};
 		const body = {
 		  user: req.uid, 
@@ -132,6 +57,7 @@ exports.exchangeOAuthTokens = async (req, res) => {
 		}else{
 		    entry = await db.apisettings.create(body);
 		}
+		* */
 		await bunq.installNewClient(entry);
 		return res.send(entry);
 	}
@@ -141,7 +67,7 @@ exports.exchangeOAuthTokens = async (req, res) => {
 
 exports.getMonetaryAccounts = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
-	const forceUpdate = (req.query.forceUpdate !== undefined ? true : false) 
+	const forceUpdate = (req.query.forceupdate !== undefined ? true : false) 
 	console.log('forceUpdate', forceUpdate)
 	return res.send(await bunqClient.getAccounts(forceUpdate));
 }
@@ -152,6 +78,13 @@ exports.getMonetaryAccountByName = async (req, res) => {
 	const result = accounts.find(account => account.description === req.params.name)
 	if(result === null) return res.status(404).send({})
 	res.send(result)
+}
+
+exports.getEvents = async (req, res) => {
+	const bunqClient = bunq.getClient(req.uid);
+	const forceUpdate = (req.query.forceupdate !== undefined ? true : false) 
+	const events = await bunqClient.getEvents(forceUpdate);
+	return res.send(events);
 }
 
 exports.postPaymentInternal = async (req, res) => {
@@ -167,49 +100,41 @@ exports.postDraftPayment = async (req, res) => {
 }
 
 exports.createSandboxAPIKey = async (req, res) => {
-	return res.send(await bunq.createSandboxAPIKey());
-}
-
-/*
-async function getActiveMonetaryAccountByName(name){
-	for (var activeAccount of activeAccounts){
-		if(getObject(activeAccount)["description"] == name){
-			//console.log("gevonden", activeAccount);
-			return (getObject(activeAccount));
-		}
+	const key = await bunq.getGenericClient().api.sandboxUser.post();
+	if(req.query.install !== undefined && req.query.install.toUpperCase() === 'TRUE') {
+		const userentry = await saveBunqSettings(req.uid, key, 'SANDBOX');
+		const client = await bunq.installNewClient(userentry);
+		const users = await client.getUser();
+		const accounts = await client.getAccounts();
+		const request1 = await client.createRequestInquiry({type: 'id', value: accounts[0].id}, 'Gimme money', {value: '500', currency: 'EUR'}, {
+				"type": "EMAIL",
+				"value": "sugardaddy@bunq.com",
+				"name": "Sugar Daddy"
+			})
+		const request2 = await client.createRequestInquiry({type: 'id', value: accounts[0].id}, 'Gimme money', {value: '500', currency: 'EUR'}, {
+				"type": "EMAIL",
+				"value": "sugardaddy@bunq.com",
+				"name": "Sugar Daddy"
+			})
+		const request3 = await client.createRequestInquiry({type: 'id', value: accounts[0].id}, 'Gimme money', {value: '500', currency: 'EUR'}, {
+				"type": "EMAIL",
+				"value": "sugardaddy@bunq.com",
+				"name": "Sugar Daddy"
+			})
+		const accounts2 = await client.getAccounts(true);
+		return res.send({users: users, request: request1, accounts: accounts2});
 	}
-	return null;
+	return res.send(key);
 }
 
-
-function getAliasByType(account, type){
-	const aliasses = account.alias;
-	return aliasses.find(alias => {return alias.type === type})
+exports.getCards = async (req, res) => {
+	const bunqClient = bunq.getClient(req.uid);
+	return res.send(await bunqClient.getBunqJSClient().api.card.list(bunqClient.getUser().id));
 }
 
-async function makePaymentInternal(from, to, description, amount) {
-    const from_account = await getActiveMonetaryAccountByName(from).catch(defaultErrorLogger);
-    const to_account = await getActiveMonetaryAccountByName(to).catch(defaultErrorLogger);
-    if (from_account == null) {
-        console.log ("Van account bestaat niet: " + from);
-        return;
-    }
-    if (to_account == null) {
-        console.log ("To account bestaat niet: " + to);
-        return;
-    }
-    
-    const counterpartyAlias = getAliasByType(to_account, "IBAN");
-    const paymentResponse = await BunqClient.api.payment.post(
-        userInfo.id,
-        from_account.id,
-        description,
-        { value: amount, currency: "EUR" },
-        counterpartyAlias
-    ).catch(defaultErrorLogger);
-    
-    // iets met paymentResponse doen hier
-
-    return paymentResponse;
+exports.test = async (req, res) => {
+	const bunqClient = bunq.getClient(req.uid);
+	const accounts = await bunqClient.getAccounts();
+	const request = await bunqClient.createBunqMeTab({type: 'id', value: accounts[0].id}, 'Gimme money', {value: '500', currency: 'EUR'}).catch(err => {console.log(err)});
+	return res.send(request);
 }
-* */
