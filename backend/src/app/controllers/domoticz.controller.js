@@ -49,7 +49,7 @@ exports.updateMeterstanden = async (req, res) => {
 		var rounded = new Date(Math.round(date.getTime() / coeff) * coeff);
 		console.log(datum, stand.Date, rounded);
 
-		values = {
+		let values = {
 			datetime: rounded,
 			180: ((stand['181'] + stand['182'])),
 			181: stand['181'], 
