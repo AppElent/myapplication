@@ -4,17 +4,21 @@
   "private": true,
   "scripts": {
     "build": "babel src -d dist",
-    "start": "ENV=DEV nodemon ./bin/wwws",
-    "serve": "ENV=PROD node ./bin/wwws"
+    "start": "ENV=DEV nodemon --exec babel-node ./src/bin/wwws",
+    "serve": "ENV=PROD node ./dist/bin/wwws"
   },
   "nodemonConfig": {
     "ignore": [
-      "app/bunq/*",
+      "src/app/bunq/*",
       "*.sqlite"
+    ],
+    "watch": [
+      "src"
     ],
     "delay": "2500"
   },
   "dependencies": {
+    "@babel/polyfill": "^7.4.4",
     "@bunq-community/bunq-js-client": "^0.41.4",
     "@okta/jwt-verifier": "0.0.15",
     "cookie-parser": "^1.4.4",
@@ -38,6 +42,10 @@
     "sqlite3": "^4.0.8"
   },
   "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.5",
+    "@babel/node": "^7.4.5",
+    "@babel/preset-env": "^7.4.5",
     "nodemon": "^1.19.1"
   }
 }
