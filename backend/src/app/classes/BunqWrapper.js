@@ -9,9 +9,12 @@ module.exports = class BunqWrapper {
   constructor() {
   
     this.status = 'STARTING';
+    try{
+      this.storage = customStore(path.resolve(__dirname, "../../../bunq/genericClient.json" ));
+      this.genericBunqClient = new BunqJSClient(this.storage);
+    }catch(e){}
     
-    this.storage = customStore(path.resolve(__dirname, "../../../bunq/genericClient.json" ));
-    this.genericBunqClient = new BunqJSClient(this.storage);
+    
     this.requestLimiter;
     this.bunqClients = {}
     
