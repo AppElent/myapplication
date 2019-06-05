@@ -2,6 +2,7 @@
 backend/node_modules/
 backend/bunq/
 backend/dist/
+backend/sslcert/
 temp/
 dynudns/
 
