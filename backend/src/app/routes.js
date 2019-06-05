@@ -8,7 +8,7 @@ module.exports = async function(app, db, epilogue) {
 	const basicAuthentication = auth.authenticationRequired();
 	const adminAuthentication = auth.authenticationRequired({group: 'Admins'});
 	
-
+	console.log('test123')
 	//PROXY routes
 	var httpProxy = require('http-proxy');
 	var apiProxy = httpProxy.createProxyServer();
