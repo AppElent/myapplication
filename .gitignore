@@ -8,3 +8,4 @@ dynudns/
 #files
 frontend/.env
 backend/.env
+backend/database.sqlite
