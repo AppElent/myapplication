@@ -5,6 +5,7 @@
   "scripts": {
     "build": "babel src -d dist --extensions '.ts, .js'",
     "start": "ENV=DEV nodemon --exec babel-node ./src/bin/wwws",
+    "start_windows": "set ENV=DEV && nodemon --exec babel-node ./src/bin/wwws",
     "serve": "ENV=PROD node ./dist/bin/wwws",
     "check-types": "tsc"
   },
