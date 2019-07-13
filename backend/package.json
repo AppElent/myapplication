@@ -14,6 +14,7 @@
     "start": "ENV=DEV nodemon --exec babel-node ./src/bin/wwws",
     "start_windows": "set ENV=DEV && nodemon --exec babel-node ./src/bin/wwws",
     "serve": "ENV=PROD node ./dist/bin/wwws",
+>>>>>>> 0d3030f41156ee592f188cde47b69f849726206d
     "check-types": "tsc"
   },
   "nodemonConfig": {
