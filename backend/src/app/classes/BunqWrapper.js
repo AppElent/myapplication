@@ -23,6 +23,7 @@ module.exports = class BunqWrapper {
   async startup(){
       //alle clients laden
       const allclients = await db.apisettings.findAll({where: {name: 'bunq'}});
+      if(allclients.length === 0) return;
       //eerste client laden
       const client1 = allclients.shift();
       console.log('Eerste client laden', client1.user);

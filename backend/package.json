@@ -3,9 +3,11 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "build": "babel src -d dist --extensions '.ts, .js'",
-    "start": "ENV=DEV nodemon --exec babel-node ./src/bin/wwws",
-    "serve": "ENV=PROD node ./dist/bin/wwws",
+    "build": "babel src -d dist --extensions .ts,.js",
+    "start": "ENV=DEV DB=DEV nodemon --exec babel-node ./src/server",
+    "start:prod": "ENV=DEV DB=PROD nodemon --exec babel-node ./src/server",
+    "serve:dev": "ENV=PROD DB=DEV node ./dist/server",
+    "serve:prod": "ENV=PROD DB=PROD node ./dist/server",
     "check-types": "tsc"
   },
   "nodemonConfig": {
@@ -36,6 +38,7 @@
     "node-cache": "^4.2.0",
     "node-fetch": "^2.6.0",
     "node-forge": "^0.8.4",
+    "pg": "^7.11.0",
     "pug": "^2.0.3",
     "sequelize": "^5.8.7",
     "simple-oauth2": "^2.2.1",

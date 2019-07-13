@@ -20,6 +20,7 @@ var fs = require('fs');
 const db = require('./app/config/db.config.js');
 
 // force: true will drop the table if it already exists
+const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
 db.sequelize.sync({force: false}).then(() => {
   console.log('Drop and Resync with { force: false }');
 });
@@ -50,7 +51,6 @@ app.use(express.static(path.join(__dirname, '../../frontend/build')));
 /* Express configuration */
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
-
 
 //Routes
 //First make all query params lowercase

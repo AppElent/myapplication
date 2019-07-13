@@ -11,10 +11,20 @@ const env_http_port = (process.env.ENV === 'DEV' ? 3001 : 3001)
 const env_https_port = (process.env.ENV === 'DEV' ? 3002 : 3002)
 
 /**
+ * Settings
+ */
+const settings = {
+  http_redirect: true,
+  load_certs: true,
+  cert_key_path: './sslcert/privkey.pem',
+  cert_cert_path: './sslcert/fullchain.pem'
+}
+
+/**
  * Module dependencies.
  */
 
-var app = require('../app');
+var app = require('./app');
 var debug = require('debug')('backend:server');
 var http = require('http');
 var fs = require('fs');
@@ -26,10 +36,13 @@ var https = require('https');
 
 //var http_port = normalizePort(process.env.PORT || '3001');
 //var https_port    =   process.env.PORT_HTTPS || 3002; 
-var options = {
- key  : fs.readFileSync('./sslcert/privkey.pem'),
- cert : fs.readFileSync('./sslcert/fullchain.pem')
-};
+if(settings.load_certs){
+  var options = {
+    key  : fs.readFileSync(settings.cert_key_path),
+    cert : fs.readFileSync(settings.cert_cert_path)
+  };
+}
+
 
 app.set("port",env_https_port);
 
@@ -108,9 +121,12 @@ function onListening() {
 }
 
 // Redirect from http port to https
-http.createServer(function (req, res) {
+if(settings.http_redirect){
+  http.createServer(function (req, res) {
     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
     res.end();
-}).listen(env_http_port);
+  }).listen(env_http_port);
+}
+
 
 

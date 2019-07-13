@@ -3,10 +3,32 @@ var fs = require('fs');
 const path = require('path');
  
 const Sequelize = require('sequelize');
-var sequelize = new Sequelize('mainDB', null, null, {
-    dialect: "sqlite",
-    storage: './database.sqlite'
-});
+
+const databases = {
+    "DEV": {
+        name: 'mainDB', 
+        username: null, 
+        password: null, 
+        options: {
+            dialect: "sqlite",
+            storage: './database.sqlite'
+        }
+    }, "PROD": {
+        name: 'proddb', 
+        username: 'pi', 
+        password: 'jansen22', 
+        options: {
+            dialect: "postgres"
+        }
+    }
+}
+
+const database = databases[process.env.DB];
+
+if(database === undefined) throw "No database config found";
+
+const sequelize = new Sequelize(database.name, database.username, database.password, database.options);
+
 
 var sequelizeDomoticz = new Sequelize('domoticzDB', null, null, {
     dialect: "sqlite",

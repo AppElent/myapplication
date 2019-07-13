@@ -5,6 +5,8 @@ const path = require("path");
 
 const fetch = require("node-fetch");
 
+const Sequelize = require('sequelize')
+const Op = Sequelize.Op;
 
 exports.updateMeterstanden = async (req, res) => {
 
@@ -71,13 +73,13 @@ exports.updateMeterstanden = async (req, res) => {
 
 	}
 	
-	const allm = await db.meterstanden.findAll({
+	await db.meterstanden.destroy({
 		where: {
 			datetime: {
-			$gte: moment().subtract(7, 'days').startOf('day').toDate()
+				[Op.lt]: moment().subtract(7, 'days').startOf('day').toDate()
 			}
 		}
 	})
 	
-	res.send(allm);
+	res.end();
 }
