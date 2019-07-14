@@ -222,7 +222,7 @@ module.exports = async function(app, db, epilogue) {
 	
 	//rest van de routes zijn van react
 	app.get('*', function (request, response){
-	  response.sendFile(path.resolve(__dirname, '../../../frontend/build', 'index.html'))
+	  response.sendFile(path.resolve(__dirname, '../../client/build', 'index.html'))
 	})	
 
 

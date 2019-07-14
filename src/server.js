@@ -16,8 +16,8 @@ const env_https_port = (process.env.ENV === 'DEV' ? 3002 : 3002)
 const settings = {
   http_redirect: true,
   load_certs: true,
-  cert_key_path: './sslcert/privkey.pem',
-  cert_cert_path: './sslcert/fullchain.pem'
+  cert_key_path: './config/sslcert/privkey.pem',
+  cert_cert_path: './config/sslcert/fullchain.pem'
 }
 
 /**

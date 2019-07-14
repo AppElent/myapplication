@@ -53,7 +53,7 @@ module.exports = class BunqClientWrapper {
       if(this.settings.refresh_token === null) this.settings = await this.settings.update({refresh_token: this.encryption.generateRandomKey(16)})
       
       //bunqclient zetten
-      const filestore = customStore(path.resolve(__dirname, "../../../bunq/" +this.settings.data1 + '.json' ));
+      const filestore = customStore(path.resolve(__dirname, "../../../config/bunq/" +this.settings.data1 + '.json' ));
       this.bunqJSClient = new BunqJSClient(filestore);
       
       // load and refresh bunq client

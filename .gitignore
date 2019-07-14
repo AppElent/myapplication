@@ -1,12 +1,13 @@
 # Don't track content of these folders
-backend/node_modules/
-backend/bunq/
-backend/dist/
-backend/sslcert/
+node_modules/
+config/bunq/
+dist/
+config/sslcert/
 temp/
-dynudns/
+config/dynudns/
+config/scripts
 
 #files
-frontend/.env
-backend/.env
-backend/database.sqlite
+client/.env
+.env
+*.sqlite
