@@ -20,14 +20,21 @@ const databases = {
         options: {
             dialect: "postgres"
         }
-    }
+    }, "HEROKU": process.env.DATABASE_URL
+    
 }
 
 const database = databases[process.env.DB];
 
 if(database === undefined) throw "No database config found";
 
-const sequelize = new Sequelize(database.name, database.username, database.password, database.options);
+let sequelize;
+if(process.env.DB === 'HEROKU'){
+    sequelize = new Sequelize(database);
+}else{
+    sequelize = new Sequelize(database.name, database.username, database.password, database.options);
+}
+
 
 
 var sequelizeDomoticz = new Sequelize('domoticzDB', null, null, {

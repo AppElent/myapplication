@@ -19,6 +19,10 @@ const settings = {
   cert_key_path: './config/sslcert/privkey.pem',
   cert_cert_path: './config/sslcert/fullchain.pem'
 }
+if(process.env.LOAD_CERTS !== undefined && process.env.LOAD_CERTS === 'FALSE'){
+  settings.http_redirect = false
+  settings.load_certs = false
+}
 
 /**
  * Module dependencies.
