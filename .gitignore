@@ -6,6 +6,7 @@ config/sslcert/
 temp/
 config/dynudns/
 config/scripts
+client/node_modules
 
 #files
 client/.env
