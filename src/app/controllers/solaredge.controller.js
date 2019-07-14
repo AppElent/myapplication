@@ -8,7 +8,7 @@ const arrays = require('../utils/arrays');
 const fetch = require("node-fetch");
 
 const Cache = require('../classes/Cache');
-const solarEdgeCache = new Cache(999999999);
+const solarEdgeCache = new Cache(9999999);
 
 const solaredge_host = 'https://monitoringapi.solaredge.com';
 const timeUnits = ['HOUR', 'DAY', 'MONTH', 'QUARTER_OF_AN_HOUR', 'YEAR']

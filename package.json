@@ -7,6 +7,7 @@
     "build:server": "babel src -d dist --extensions .ts,.js",
     "build:client": "cd client && react-scripts build",
     "start": "ENV=DEV DB=DEV nodemon --exec babel-node ./src/server",
+    "start:trace": "ENV=DEV DB=DEV nodemon --trace-warnings --exec babel-node ./src/server",
     "start:prod": "ENV=DEV DB=PROD nodemon --exec babel-node ./src/server",
     "start:client": "cd client && react-scripts start",
     "serve:dev": "ENV=PROD DB=DEV node ./dist/server",

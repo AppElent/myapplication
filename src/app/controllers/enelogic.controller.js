@@ -14,7 +14,7 @@ const arrays = require('../utils/arrays');
 var host = 'https://enelogic.com';
 
 const Cache = require('../classes/Cache');
-const enelogicCache = new Cache(999999999);
+const enelogicCache = new Cache(9999999);
 
 /*
 

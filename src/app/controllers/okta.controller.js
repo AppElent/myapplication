@@ -8,7 +8,7 @@ const okta_api_key = process.env.OKTA_API_KEY;
 
 const OKTA_ORG_URL = 'https://dev-810647.okta.com';
 const Cache = require('../classes/Cache');
-const oktaCache = new Cache(999999999);
+const oktaCache = new Cache(9999999);
 
 exports.createUser = async (req, res) => {
 	
