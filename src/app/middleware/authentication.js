@@ -54,7 +54,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
 	
 	const accessToken = bearermatch[1];
 	try{
-		const jwt = await oktaJwtVerifier.verifyAccessToken(accessToken);
+		const jwt = await oktaJwtVerifier.verifyAccessToken(accessToken, 'api://default');
 		try{
 		    if(options.group !== undefined){
 			const groupMember = await isMemberOfGroup(req, options.group);
