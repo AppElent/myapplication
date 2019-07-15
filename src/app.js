@@ -1,9 +1,3 @@
-//Inport .env file
-require('dotenv').config();
-
-//import 'babel-polyfill';
-
-
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');

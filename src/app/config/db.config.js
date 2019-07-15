@@ -1,7 +1,6 @@
 const env = require('./env.js');
-var fs = require('fs');
+const fs = require('fs');
 const path = require('path');
- 
 const Sequelize = require('sequelize');
 
 const databases = {
@@ -26,13 +25,15 @@ const databases = {
 
 const database = databases[process.env.DB];
 
-if(database === undefined) throw "No database config found";
-
 let sequelize;
-if(process.env.DB === 'HEROKU'){
-    sequelize = new Sequelize(database);
-}else{
+if(process.env.DATABASE_URL !== undefined){
+    var pg = require('pg');
+    pg.defaults.ssl = true;
+    sequelize = new Sequelize(process.env.DATABASE_URL);
+}else if(database !== undefined){
     sequelize = new Sequelize(database.name, database.username, database.password, database.options);
+}else{
+    throw "No database config found";
 }
 
 

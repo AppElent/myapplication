@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-
+require('dotenv').config();
 import '@babel/polyfill'
 
 
@@ -7,8 +7,9 @@ console.log('Starting env ' + process.env.ENV)
 if(['DEV', 'PROD', 'TEST'].includes(process.env.ENV.toUpperCase()) === false){
   throw "ENV mussed be filled with either PROD or DEV or TEST";
 }
-const env_http_port = (process.env.ENV === 'DEV' ? 3001 : 3001)
-const env_https_port = (process.env.ENV === 'DEV' ? 3002 : 3002)
+const https_port = process.env.PORT || 3002;
+const http_port = 3001
+//const env_https_port = (process.env.ENV === 'DEV' ? 3002 : 3002)
 
 /**
  * Settings
@@ -48,7 +49,7 @@ if(settings.load_certs){
 }
 
 
-app.set("port",env_https_port);
+app.set("port",https_port);
 
 /**
  * Create HTTP server.
@@ -60,7 +61,7 @@ var server = https.createServer(options, app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(env_https_port);
+server.listen(https_port);
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -129,7 +130,7 @@ if(settings.http_redirect){
   http.createServer(function (req, res) {
     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
     res.end();
-  }).listen(env_http_port);
+  }).listen(http_port);
 }
 
 
