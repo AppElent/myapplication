@@ -1,1 +1,1 @@
-web: ENV=PROD DB=PROD node ./dist/server
+web: node ./dist/server

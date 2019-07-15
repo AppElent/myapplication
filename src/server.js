@@ -3,9 +3,9 @@ require('dotenv').config();
 import '@babel/polyfill'
 
 
-console.log('Starting env ' + process.env.ENV)
-if(['DEV', 'PROD', 'TEST'].includes(process.env.ENV.toUpperCase()) === false){
-  throw "ENV mussed be filled with either PROD or DEV or TEST";
+console.log('Starting env ' + process.env.NODE_ENV)
+if(['DEV', 'PROD', 'TEST'].includes(process.env.NODE_ENV.toUpperCase()) === false){
+  throw "NODE_ENV mussed be filled with either PROD or DEV or TEST";
 }
 const https_port = process.env.PORT || 3002;
 const http_port = 3001

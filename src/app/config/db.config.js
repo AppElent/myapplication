@@ -19,8 +19,7 @@ const databases = {
         options: {
             dialect: "postgres"
         }
-    }, "HEROKU": process.env.DATABASE_URL
-    
+    }
 }
 
 const database = databases[process.env.DB];
