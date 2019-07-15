@@ -12,6 +12,7 @@
     "start:client": "cd client && react-scripts start",
     "serve:dev": "ENV=PROD DB=DEV node ./dist/server",
     "serve:prod": "ENV=PROD DB=PROD node ./dist/server",
+    "postinstall": "npm install --prefix ./client",
     "check-types": "tsc"
   },
   "nodemonConfig": {
