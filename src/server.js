@@ -4,7 +4,7 @@ import '@babel/polyfill'
 
 
 console.log('Starting env ' + process.env.NODE_ENV)
-if(['DEV', 'PROD', 'TEST'].includes(process.env.NODE_ENV.toUpperCase()) === false){
+if(['DEV', 'PROD', 'TEST', 'PRODUCTION'].includes(process.env.NODE_ENV.toUpperCase()) === false){
   throw "NODE_ENV mussed be filled with either PROD or DEV or TEST";
 }
 const https_port = process.env.PORT || 3002;
@@ -14,16 +14,26 @@ const http_port = 3001
 /**
  * Settings
  */
-const settings = {
-  http_redirect: true,
-  load_certs: true,
-  cert_key_path: './config/sslcert/privkey.pem',
-  cert_cert_path: './config/sslcert/fullchain.pem'
+const all_settings = {
+  "HEROKU": {
+    http_redirect: true,
+    load_certs: false,
+  },
+  "RASPBERRY":{
+    http_redirect: true,
+    load_certs: true,
+    cert_key_path: './config/sslcert/privkey.pem',
+    cert_cert_path: './config/sslcert/fullchain.pem'
+  },
+  "WINDOWS": {
+    http_redirect: true,
+    load_certs: false,
+  }
 }
-if(process.env.LOAD_CERTS !== undefined && process.env.LOAD_CERTS === 'FALSE'){
-  settings.http_redirect = false
-  settings.load_certs = false
-}
+const settings = all_settings[process.env.SETTING];
+
+if(settings === undefined) throw "You have to provide a config."
+
 
 /**
  * Module dependencies.
