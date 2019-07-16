@@ -16,11 +16,11 @@ const http_port = 3001
  */
 const all_settings = {
   "HEROKU": {
-    http_redirect: true,
+    http_redirect: false,
     load_certs: false,
   },
   "RASPBERRY":{
-    http_redirect: true,
+    http_redirect: false,
     load_certs: true,
     cert_key_path: './config/sslcert/privkey.pem',
     cert_cert_path: './config/sslcert/fullchain.pem'
@@ -51,8 +51,9 @@ var https = require('https');
 
 //var http_port = normalizePort(process.env.PORT || '3001');
 //var https_port    =   process.env.PORT_HTTPS || 3002; 
+var options = {}
 if(settings.load_certs){
-  var options = {
+  options = {
     key  : fs.readFileSync(settings.cert_key_path),
     cert : fs.readFileSync(settings.cert_cert_path)
   };
@@ -141,7 +142,11 @@ if(settings.http_redirect){
     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
     res.end();
   }).listen(http_port);
+}else{
+  app.listen(http_port);
 }
+
+
 
 
 
