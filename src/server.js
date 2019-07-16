@@ -7,8 +7,8 @@ console.log('Starting env ' + process.env.NODE_ENV)
 if(['DEV', 'PROD', 'TEST', 'PRODUCTION'].includes(process.env.NODE_ENV.toUpperCase()) === false){
   throw "NODE_ENV mussed be filled with either PROD or DEV or TEST";
 }
-const https_port = process.env.PORT || 3002;
-const http_port = 3001
+//const https_port = process.env.PORT || 3002;
+//const http_port = process.env.PORT || 3001;
 //const env_https_port = (process.env.ENV === 'DEV' ? 3002 : 3002)
 
 /**
@@ -18,16 +18,22 @@ const all_settings = {
   "HEROKU": {
     http_redirect: false,
     load_certs: false,
+    http_port: process.env.PORT,
+    https_port: 3002
   },
   "RASPBERRY":{
     http_redirect: false,
     load_certs: true,
     cert_key_path: './config/sslcert/privkey.pem',
-    cert_cert_path: './config/sslcert/fullchain.pem'
+    cert_cert_path: './config/sslcert/fullchain.pem',
+    http_port: 3001,
+    https_port: 3002
   },
   "WINDOWS": {
     http_redirect: true,
     load_certs: false,
+    http_port: 3001,
+    https_port: 3002
   }
 }
 const settings = all_settings[process.env.SETTING];
@@ -60,7 +66,7 @@ if(settings.load_certs){
 }
 
 
-app.set("port",https_port);
+app.set("port",settings.https_port);
 
 /**
  * Create HTTP server.
@@ -72,7 +78,7 @@ var server = https.createServer(options, app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(https_port);
+server.listen(settings.https_port);
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -106,8 +112,8 @@ function onError(error) {
   }
 
   var bind = typeof http_port === 'string'
-    ? 'Pipe ' + http_port
-    : 'Port ' + http_port;
+    ? 'Pipe ' + settings.http_port
+    : 'Port ' + settings.http_port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -141,9 +147,9 @@ if(settings.http_redirect){
   http.createServer(function (req, res) {
     res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
     res.end();
-  }).listen(http_port);
+  }).listen(settings.http_port);
 }else{
-  app.listen(http_port);
+  app.listen(settings.http_port);
 }
 
 
