@@ -16,7 +16,7 @@ require('dotenv').config();
 
 ReactDOM.render(
     
-	<BrowserRouter>
+    <BrowserRouter>
         <Routes />
     </BrowserRouter>, document.getElementById('root')
 );
