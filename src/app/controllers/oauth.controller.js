@@ -1,5 +1,5 @@
 //
-const db = require('../config/db.config.js');
+const db = require('../models/index.js');
 const MeterstandElektra = db.meterstanden;
 var moment = require('moment');
 const path = require("path");
@@ -11,6 +11,9 @@ var JSONStore = require('json-store');
 const oauth = require('../utils/oauth');
 
 const arrays = require('../utils/arrays');
+
+import AppData from '../modules/application_cache';
+const oauthproviders = AppData.oauthproviders;
 
 
 
@@ -55,7 +58,7 @@ const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 //oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic').then(token => {accessToken = token});
 * */
 
-exports.format = (oauthproviders) => (req, res) => {
+exports.format = () => (req, res) => {
 	console.log(oauthproviders, req.params.application);	
 	const oauthobject = oauthproviders[req.params.application];
 	// Authorization oauth2 URI
@@ -65,7 +68,7 @@ exports.format = (oauthproviders) => (req, res) => {
 	res.send(authorizationUri);
 }
 
-exports.exchange = (oauthproviders) => async (req, res) => {
+exports.exchange = () => async (req, res) => {
 	const oauthobject = oauth_credentials[req.params.application].object;
 	
 	// Get the access token object (the authorization code is given from the previous step).
@@ -111,7 +114,7 @@ exports.exchange = (oauthproviders) => async (req, res) => {
 
 
 
-exports.refresh = (oauthproviders) => async (req, res) => {
+exports.refresh = () => async (req, res) => {
 
 }
 

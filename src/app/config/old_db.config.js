@@ -1,8 +1,9 @@
-const env = require('./env.js');
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
+const databases = require('./env');
 
+/*
 const databases = {
     "DEV": {
         name: 'mainDB', 
@@ -12,7 +13,14 @@ const databases = {
             dialect: "sqlite",
             storage: './database.sqlite'
         }
-    }, "PROD": {
+    }, "ACCEPTANCE": {
+        name: 'proddb', 
+        username: 'pi', 
+        password: 'jansen22', 
+        options: {
+            dialect: "postgres"
+        }
+    }, "PRODUCTION": {
         name: 'proddb', 
         username: 'pi', 
         password: 'jansen22', 
@@ -21,39 +29,43 @@ const databases = {
         }
     }
 }
+* */
 
 const database = databases[process.env.DB];
 
 let sequelize;
-if(process.env.DATABASE_URL !== undefined){
-    var pg = require('pg');
-    pg.defaults.ssl = true;
-    sequelize = new Sequelize(process.env.DATABASE_URL);
-}else if(database !== undefined){
+if(database.type === 'URL'){
+    if(database.ssl){
+        var pg = require('pg');
+        pg.defaults.ssl = true;
+    }
+    sequelize = new Sequelize(database.url);
+}else if(database.type === 'settings'){
     sequelize = new Sequelize(database.name, database.username, database.password, database.options);
 }else{
     throw "No database config found";
 }
 
 
-
+/*
 var sequelizeDomoticz = new Sequelize('domoticzDB', null, null, {
     dialect: "sqlite",
     storage: '/home/pi/domoticz/domoticz.db'
 });
+* */
 
  
 const db = {};
  
 db.sequelize = sequelize;
-db.sequelizeDomoticz = sequelizeDomoticz;
+//db.sequelizeDomoticz = sequelizeDomoticz;
 
 var normalizedPath = path.join(__dirname, "../models");
 
 fs.readdirSync(normalizedPath).forEach(function(file) {
   const modelname = file.replace('.model.js', '').replace('domoticz.', '')
   if(file.startsWith('domoticz')){
-      db[modelname] = require("../models/" + file)(sequelizeDomoticz, Sequelize);
+      //db[modelname] = require("../models/" + file)(sequelizeDomoticz, Sequelize);
   }else{
       db[modelname] = require("../models/" + file)(sequelize, Sequelize);
   }

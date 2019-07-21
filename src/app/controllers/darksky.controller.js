@@ -1,8 +1,3 @@
-//
-require('dotenv').config();
-
-const db = require('../config/db.config.js');
-var moment = require('moment');
 const path = require("path");
 
 const fetch = require("node-fetch");

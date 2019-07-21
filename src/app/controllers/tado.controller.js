@@ -1,5 +1,3 @@
-//
-const db = require('../config/db.config.js');
 const fetch = require("node-fetch");
 const fetching = require('../utils/fetching');
 

@@ -1,70 +1,49 @@
 const SimpleOauth2 = require('simple-oauth2')
-const db = require('../config/db.config.js');
 
-module.exports = class Oauth {
+export default class Oauth {
 
-  constructor(dbsettings = null) {
-    this.settings = dbsettings;
-    this.oauth;
-    
-    if(dbsettings !== null){
-      this.load(dbsettings);
-    }
-  }
-  
-  load(settings){
+  constructor(client_id, client_secret, options) {
     const credentials = {
       client: {
-        id: settings.client_id,
-        secret: settings.client_secret
+        id: client_id,
+        secret: client_secret
       },
       auth: {
-        tokenHost: settings.tokenHost,
-        tokenPath: settings.tokenPath,
-        authorizePath: settings.authorizePath,
+        tokenHost: options.tokenHost,
+        tokenPath: options.tokenPath,
+        authorizePath: options.authorizePath,
       }
       
     };
     this.oauth = SimpleOauth2.create(credentials);
+    this.client_id = client_id;
+    this.client_secret = client_secret;
+    this.options = options;
   }
   
-  async loadById(key){
-    const setting = await db.oauthproviders.findOne({where: {id: key}});
-    if(setting === null) return false;
-    this.load(setting);
-    return;
-  }
-  
-  getSettings(){
-    return this.oauth;
-  }
- 
-
   formatUrl(){
     // Authorization oauth2 URI
     const authorizationUri = this.oauth.authorizationCode.authorizeURL({
-      redirect_uri: this.settings.redirect_url,
-      scope: this.settings.default_scope
+      redirect_uri: this.options.redirect_url,
+      scope: this.options.default_scope
     });
 
     return (authorizationUri);
   }
   
   async exchange(code){
-    const oauthobject = oauth_credentials[req.params.application].object;
-    
     // Get the access token object (the authorization code is given from the previous step).
     const tokenConfig = {
       code: code,
-      redirect_uri: this.settings.redirect_url,
-      scope: this.settings.default_scope , // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
+      redirect_uri: this.options.redirect_url,
+      scope: this.options.default_scope , // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
     };
     console.log(tokenConfig)
     // Save the access token
     try {
-        const result = await this.object.authorizationCode.getToken(tokenConfig)
+        const result = await this.oauth.authorizationCode.getToken(tokenConfig)
         console.log(result);
-        const accessToken = this.object.accessToken.create(result);
+        const accessToken = this.oauth.accessToken.create(result);
         return accessToken;
     }catch (error) {
         console.log(error);
@@ -72,8 +51,8 @@ module.exports = class Oauth {
     }
   }
   
-  async refresh(entry){
-    const tokenObject = {access_token: entry.access_token, refresh_token: entry.refresh_token, expires_at: entry.expires_at}
+  async refresh(accessToken){
+    const tokenObject = {access_token: accessToken.access_token, refresh_token: accessToken.refresh_token, expires_at: accessToken.expires_at}
     let accessTokenObject = this.oauth.accessToken.create(tokenObject)
     
     // Check if the token is expired. If expired it is refreshed.
@@ -82,13 +61,15 @@ module.exports = class Oauth {
       try {
         accessTokenObject = await accessTokenObject.refresh();
         console.log('refreshed', accessTokenObject);
-        
-        await entry.update({access_token: accessTokenObject.token.access_token, refresh_token: accessTokenObject.token.refresh_token, expires_at: accessTokenObject.token.expires_at})
+        //await entry.update({access_token: accessTokenObject.token.access_token, refresh_token: accessTokenObject.token.refresh_token, expires_at: accessTokenObject.token.expires_at})
       } catch (error) {
         console.log('Error refreshing access token: ', error.message);
       }
     }
+    return accessTokenObject;
   }
   
 }
+
+
 

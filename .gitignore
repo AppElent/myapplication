@@ -12,3 +12,4 @@ client/node_modules
 client/.env
 .env
 *.sqlite
+config/database/seeders/oauthproviders.js

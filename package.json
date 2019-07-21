@@ -6,12 +6,12 @@
     "build": "npm run build:server && npm run build:client",
     "build:server": "babel src -d dist --extensions .ts,.js",
     "build:client": "cd client && react-scripts build",
-    "start": "NODE_ENV=DEV DB=DEV nodemon --exec babel-node ./src/server",
-    "start:trace": "NODE_ENV=DEV DB=DEV nodemon --trace-warnings --exec babel-node ./src/server",
-    "start:prod": "NODE_ENV=DEV DB=PROD nodemon --exec babel-node ./src/server",
+    "start": "nodemon --exec babel-node ./src/server",
+    "start:trace": "nodemon --trace-warnings --exec babel-node ./src/server",
     "start:client": "cd client && react-scripts start",
-    "serve:dev": "NODE_ENV=PROD DB=DEV node ./dist/server",
-    "serve:prod": "NODE_ENV=PROD DB=PROD node ./dist/server",
+    "start:production": "NODE_ENV=PRODUCTION nodemon --exec babel-node ./src/server",
+    "serve:dev": "NODE_ENV=PRODUCTION node ./dist/server",
+    "serve:prod": "NODE_ENV=PRODUCTION node ./dist/server",
     "postinstall": "npm install --prefix ./client",
     "check-types": "tsc"
   },
@@ -26,8 +26,8 @@
     "delay": "2500"
   },
   "dependencies": {
-    "@bunq-community/bunq-js-client": "^0.42.1",
     "@babel/polyfill": "^7.4.4",
+    "@bunq-community/bunq-js-client": "^0.42.1",
     "@okta/jwt-verifier": "^1.0.0",
     "cookie-parser": "^1.4.4",
     "debug": "^4.1.1",
@@ -48,6 +48,7 @@
     "pug": "^2.0.4",
     "react-scripts": "^3.0.1",
     "sequelize": "^5.10.0",
+    "sequelize-cli": "^5.5.0",
     "simple-oauth2": "^2.2.1",
     "sqlite3": "^4.0.9"
   },

@@ -1,16 +1,14 @@
 //
+const router = require('express').Router();
+const auth = require('../middleware/authentication');
 
 const fetch = require("node-fetch");
-
-
 const okta_api_key = process.env.OKTA_API_KEY;
-
-
 const OKTA_ORG_URL = 'https://dev-810647.okta.com';
 const Cache = require('../classes/Cache');
 const oktaCache = new Cache(9999999);
 
-exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
 	
 	const result = await fetch(OKTA_ORG_URL + '/api/v1/users?activate=false', {
 		method: 'POST',
@@ -26,7 +24,7 @@ exports.createUser = async (req, res) => {
 
 }
 
-exports.getGroups = async (req, res) => {
+const getGroups = async (req, res) => {
 	if(req.jwt === undefined) return res.status(401).send('Not authorized');
 	const cachekey = req.uid + '_groups';
 	const response = await oktaCache.get(cachekey, async () => {let result = await fetch(OKTA_ORG_URL + '/api/v1/users/' + req.uid + '/groups', {
@@ -43,3 +41,6 @@ exports.getGroups = async (req, res) => {
 	res.send(response)
 }
 
+router.post('/api/okta/create', auth.adminAuthentication, createUser)
+router.get('/api/okta/groups', auth.basicAuthentication, getGroups);
+module.exports = router;

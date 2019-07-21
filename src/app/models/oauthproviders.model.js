@@ -5,7 +5,7 @@ const key =  process.env.SEQUELIZE_ENCRYPTION_KEY;
 
 module.exports = (sequelize, Sequelize) => {
 
-	const SeqObject = sequelize.define('oauthproviders', {
+	const OauthProviders = sequelize.define('oauthproviders', {
 	  id: {
 		type: Sequelize.STRING,
 		allowNull: false,
@@ -73,11 +73,11 @@ module.exports = (sequelize, Sequelize) => {
 	  },
 	  flow: {
 		type: Sequelize.STRING,
-		allowNull: false,
+		allowNull: true,
 	  },
 	  redirect_url: {
 		type: Sequelize.STRING,
-		allowNull: false,
+		allowNull: true,
 	  },
 	  default_scope: {
 		type: Sequelize.STRING,
@@ -86,5 +86,5 @@ module.exports = (sequelize, Sequelize) => {
 	  tableName: 'oauthproviders',
 	  allowNull: false,
 	});
-	return SeqObject;
+	return OauthProviders;
 }

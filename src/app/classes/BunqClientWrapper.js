@@ -1,4 +1,3 @@
-const db = require('../config/db.config.js');
 const Cache = require('../classes/Cache');
 const BunqJSClient = require("@bunq-community/bunq-js-client").default;
 const customStore = require( "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore").default;

@@ -3,7 +3,7 @@ var Moment = require('moment');
 
 module.exports = (sequelize, Sequelize) => {
 
-	const Meterstanden = sequelize.define('meterstanden', {
+	const meterstanden = sequelize.define('meterstanden', {
 	  datetime: {
 		type: Sequelize.DATE,
 		get: function () {
@@ -31,5 +31,5 @@ module.exports = (sequelize, Sequelize) => {
 	  tableName: 'meterstanden',
 	});
 	
-	return Meterstanden;
+	return meterstanden;
 }

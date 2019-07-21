@@ -46,7 +46,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
 	
 	
 	const bearermatch = authHeader.match(/Bearer (.+)/);
-	if (!bearermatch && process.env.ENV === 'DEV') {
+	if (!bearermatch && process.env.NODE_ENV === 'DEV') {
 	  console.log('Authentication passed, env=DEV');
 	  return {result: true, jwt: {claims: {uid: '00uh1btgtpVNlyc4k356'}}}
 	}
@@ -91,7 +91,7 @@ module.exports.epilogueAuthenticationRequired = async (req, res, context, option
 }
 
 
-module.exports.authenticationRequired = (options) => (req, res, next) => {
+const authenticationRequired = (options) => (req, res, next) => {
     checkAuthenticated(req, res, options)
     .then(authenticated => {
 	    console.log('Authentication result ' + authenticated.result);
@@ -107,5 +107,9 @@ module.exports.authenticationRequired = (options) => (req, res, next) => {
 	    }
     })
 }
-	
+
+module.exports.authenticationRequired = authenticationRequired;
+module.exports.basicAuthentication = authenticationRequired();
+module.exports.adminAuthentication = authenticationRequired({group: 'Admins'});
+
 

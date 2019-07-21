@@ -1,4 +1,5 @@
 //
+/*
 const db = require('../config/db.config.js');
 var moment = require('moment-timezone');
 const path = require("path");
@@ -83,3 +84,4 @@ exports.updateMeterstanden = async (req, res) => {
 	
 	res.end();
 }
+* */

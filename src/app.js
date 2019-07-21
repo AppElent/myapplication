@@ -8,28 +8,39 @@ var epilogue = require("epilogue");
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 var fs = require('fs');
+import AppData, {setData} from './app/modules/application_cache';
+import OAuth from './app/classes/Oauth';
 
 
 /* Database configuratie */
-const db = require('./app/config/db.config.js');
+const db = require('./app/models');
 
 // force: true will drop the table if it already exists
-const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
+//const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
 db.sequelize.sync({force: false}).then(() => {
   console.log('Drop and Resync with { force: false }');
+  
+  //Laden van OAUTH configuratie
+  (async () => {
+    const allproviders = await db.oauthproviders.findAll();
+    allproviders.forEach(provider => {
+      const oauthprovider = new OAuth(provider.client_id, provider.client_secret, provider);
+      setData('oauthproviders', provider.id, oauthprovider);
+    })
+  })()
 });
 
 var app = express();
 
 
 
-
-
 // Initialize epilogue
+/*
 epilogue.initialize({
   app: app,
   sequelize: db.sequelize
 });
+* */
 
 // view engine setup
 app.set('views', path.join(__dirname, '../views'));
@@ -56,7 +67,7 @@ app.use(function(req, res, next) {
   next();
 });
 app.get('/health-check', (req, res) => res.sendStatus(200));
-require('./app/routes.js')(app, db, epilogue);
+require('./app/routes.js')(app);
 
 
 // catch 404 and forward to error handler

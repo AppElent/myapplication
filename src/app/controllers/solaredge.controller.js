@@ -1,7 +1,4 @@
-//
-require('dotenv').config();
-
-const db = require('../config/db.config.js');
+const db = require('../models/index.js');
 var moment = require('moment');
 const path = require("path");
 const arrays = require('../utils/arrays');

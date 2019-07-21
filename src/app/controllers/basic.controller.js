@@ -1,4 +1,3 @@
-const db = require('../config/db.config.js');
 var moment = require('moment');
 const fetch = require("node-fetch");
 

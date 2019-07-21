@@ -1,8 +1,8 @@
 const path = require('path');
 const fetch = require("node-fetch");
+const db = require('./models');
 
-
-module.exports = async function(app, db, epilogue) {
+module.exports = async function(app) {
 	
 	const auth = require("./middleware/authentication")
 	const basicAuthentication = auth.authenticationRequired();
@@ -45,8 +45,10 @@ module.exports = async function(app, db, epilogue) {
 	//Loading the cache
 	const Cache = require('./classes/Cache');
 	
+	/*
 	//Loading OAUTH providers
 	const OAuth = require('./classes/Oauth')
+	
 	
 	const createOauthProviders = async () => {
 		const enelogic = await db.oauthproviders.findOne({where: {id: 'enelogic'}});
@@ -66,6 +68,7 @@ module.exports = async function(app, db, epilogue) {
 	}
 	
 	
+	
 	const loadOauthProviders = async () => {
 		const allproviders = await db.oauthproviders.findAll();
 		const results = {}
@@ -76,6 +79,7 @@ module.exports = async function(app, db, epilogue) {
 	}
 	const oauthproviders = {}
 	loadOauthProviders();
+	* */
 	
 	//loadOauthProviders().then(providers => {oauthproviders = providers; console.log(oauthproviders['enelogic'].formatUrl())});
 
@@ -101,6 +105,7 @@ module.exports = async function(app, db, epilogue) {
 	
 	//Meterstanden
 	const meterstandCache = new Cache(300);
+	console.log(db.meterstanden);
 	app.get('/api/meterstanden/:id', basicAuthentication, controllers.basic.get(db.meterstanden));
 	app.get('/api/meterstanden', basicAuthentication, controllers.basic.list(db.meterstanden, {cache: meterstandCache}));
 	app.get('/api/meterstanden/:column/:value', basicAuthentication, controllers.basic.findOne(db.meterstanden));
@@ -129,19 +134,21 @@ module.exports = async function(app, db, epilogue) {
 	app.put('/api/events/:id', basicAuthentication, controllers.basic.update(db.events))
 	
 	//OKTA routes
-	app.post('/api/okta/create', adminAuthentication, controllers.okta.createUser)
-	app.get('/api/okta/groups', basicAuthentication, controllers.okta.getGroups);
+	app.use('/api/okta/', require('./controllers/okta.controller'));
+	//app.post('/api/okta/create', adminAuthentication, controllers.okta.createUser)
+	//app.get('/api/okta/groups', basicAuthentication, controllers.okta.getGroups);
 	
 	//OAuth routes
-	app.get('/api/oauth/formatUrl/:application', basicAuthentication, controllers.oauth.format(oauthproviders));
-	app.post('/api/oauth/exchange/:application', basicAuthentication, controllers.oauth.exchange(oauthproviders));
-	app.post('/api/oauth/refresh/:application', basicAuthentication, controllers.oauth.refresh(oauthproviders));
+	app.get('/api/oauth/formatUrl/:application', basicAuthentication, controllers.oauth.format());
+	app.post('/api/oauth/exchange/:application', basicAuthentication, controllers.oauth.exchange());
+	app.post('/api/oauth/refresh/:application', basicAuthentication, controllers.oauth.refresh());
 
 	
 	
 	//Meterstanden bijwerken en Enelogic routes
-	app.get('/api/enelogic/data/dag/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('day', oauthproviders));
-	app.get('/api/enelogic/data/kwartier/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('quarter', oauthproviders));
+	app.use('/api/enelogic', require('./controllers/enelogic.controller'));
+	//app.get('/api/enelogic/data/dag/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('day', oauthproviders));
+	//app.get('/api/enelogic/data/kwartier/:start/:end', basicAuthentication, controllers.enelogic.getEnelogicData('quarter', oauthproviders));
 	
 	
 	
@@ -169,8 +176,8 @@ module.exports = async function(app, db, epilogue) {
 	
 	
 	//Domoticz
-	app.get('/api/domoticz/update', controllers.domoticz.updateMeterstanden);
-	app.get('/api/domoticz/update/:force', controllers.domoticz.updateMeterstanden);
+	//app.get('/api/domoticz/update', controllers.domoticz.updateMeterstanden);
+	//app.get('/api/domoticz/update/:force', controllers.domoticz.updateMeterstanden);
 
 
 
@@ -192,6 +199,7 @@ module.exports = async function(app, db, epilogue) {
 
 	
 	// Create REST resource
+	/*
 	epilogue.resource({
 	  model: db.multimeter,
 	  endpoints: ['/api/domoticz/multimeter', '/api/domoticz/multimeter/:DeviceRowID'],
@@ -219,6 +227,7 @@ module.exports = async function(app, db, epilogue) {
 	  sort: {default: 'Date'},
 	  pagination: false
 	});
+	* */
 	
 	//rest van de routes zijn van react
 	app.get('*', function (request, response){

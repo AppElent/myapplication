@@ -1,5 +1,3 @@
-const db = require('../config/db.config.js');
-
 
 exports.redirectCall = async (req, res) => {
 	
