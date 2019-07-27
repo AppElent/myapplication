@@ -12,8 +12,7 @@ const oauth = require('../utils/oauth');
 
 const arrays = require('../utils/arrays');
 
-import AppData from '../modules/application_cache';
-const oauthproviders = AppData.oauthproviders;
+import {oauthproviders} from '../modules/application_cache';
 
 
 
@@ -69,20 +68,18 @@ exports.format = () => (req, res) => {
 }
 
 exports.exchange = () => async (req, res) => {
-	const oauthobject = oauth_credentials[req.params.application].object;
+	const oauthobject = oauthproviders[req.params.application];
 	
 	// Get the access token object (the authorization code is given from the previous step).
 	const tokenConfig = {
 	  code: req.body.code,
-	  redirect_uri: oauth_credentials[req.params.application].redirect_uri,
-	  scope: oauth_credentials[req.params.application].scope , // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
+	  redirect_uri: oauthproviders[req.params.application].options.redirect_url,
+	  scope: oauthproviders[req.params.application].options.default_scope , // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
 	};
 	console.log(tokenConfig)
 	// Save the access token
 	try {
-	    const result = await oauthobject.authorizationCode.getToken(tokenConfig)
-	    console.log(result);
-	    const accessToken = oauthobject.accessToken.create(result);
+	    const accessToken = await oauthobject.getToken(req.body.code);
 	    console.log(accessToken)
 	    console.log(req.body.name)
 	    if(req.params.application !== undefined){

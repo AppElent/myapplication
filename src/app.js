@@ -8,7 +8,7 @@ var epilogue = require("epilogue");
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 var fs = require('fs');
-import AppData, {setData} from './app/modules/application_cache';
+import AppData, {setData, oauthproviders} from './app/modules/application_cache';
 import OAuth from './app/classes/Oauth';
 
 
@@ -20,12 +20,14 @@ const db = require('./app/models');
 db.sequelize.sync({force: false}).then(() => {
   console.log('Drop and Resync with { force: false }');
   
+  AppData['test'] = 'hallohallo';
   //Laden van OAUTH configuratie
   (async () => {
     const allproviders = await db.oauthproviders.findAll();
     allproviders.forEach(provider => {
-      const oauthprovider = new OAuth(provider.client_id, provider.client_secret, provider);
-      setData('oauthproviders', provider.id, oauthprovider);
+      const oauthprovider = new OAuth(provider.client_id, provider.client_secret, provider.tokenHost, provider);
+      oauthproviders[provider.id] = oauthprovider
+      //setData('oauthproviders', provider.id, oauthprovider);
     })
   })()
 });

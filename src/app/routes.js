@@ -83,7 +83,6 @@ module.exports = async function(app) {
 	
 	//loadOauthProviders().then(providers => {oauthproviders = providers; console.log(oauthproviders['enelogic'].formatUrl())});
 
-
 	//Custom routes
 	app.post('/api/redirectcall', basicAuthentication, controllers.custom.redirectCall);
 	

@@ -13,13 +13,15 @@ var host = 'https://enelogic.com';
 const Cache = require('../classes/Cache');
 const enelogicCache = new Cache(9999999);
 
-const getEnelogicData = (period, oauthobject) => async (req, res) => {
+import {oauthproviders} from '../modules/application_cache';
+
+const getEnelogicData = (period) => async (req, res) => {
 //async function getMeterstanden(from, to, period){
+	console.log(1);
 	const cachekey = req.uid + '_' + period.toUpperCase() + '_' + req.params.start + '_' + req.params.end;
 	const cachedata = await enelogicCache.simpleGet(cachekey);
 	if(cachedata !== null) return res.send(cachedata);
 		
-
 	let from = req.params.start;
 	let to = (period === 'day' ? req.params.end : moment(req.params.start).add(1, 'days').format('YYYY-MM-DD'))
 
@@ -27,10 +29,10 @@ const getEnelogicData = (period, oauthobject) => async (req, res) => {
 	let config = await db.apisettings.findOne({ where: {user: req.uid, name: 'enelogic'} })
 	if(config === null || config.success === false) return res.status(404).send(config);
 	//var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
-	console.log(oauthobject['enelogic'].getSettings());
-	await oauthobject['enelogic'].refresh(config);
-	let apikey = config.access_token;
-	
+	const accessTokenObject = await oauthproviders['enelogic'].refresh(config);
+	config.update({access_token: accessTokenObject.access_token, refresh_token: accessTokenObject.refresh_token, expires_at: accessTokenObject.expires_at});
+	let apikey = accessTokenObject.token.access_token;
+	console.log(accessTokenObject);
 	//Measuringpoint ophalen en zetten indien nodig
 	if(config.data1 === null){
 		const measuringpointsresponse = await fetch(host + '/api/measuringpoints?access_token=' + apikey)
@@ -52,7 +54,7 @@ const getEnelogicData = (period, oauthobject) => async (req, res) => {
 		from = moment(config.data2).format('YYYY-MM-DD')
 	}
 	
-
+	console.log(3);
 	const baseUrl = 'https://enelogic.com/api/measuringpoints/'+config.data1;
 	let datapointUrl = baseUrl+'/datapoints/'+from+'/'+to+'?access_token='+apikey;
 	if(period === "day"){
@@ -76,6 +78,7 @@ const getEnelogicData = (period, oauthobject) => async (req, res) => {
 	console.log("Url: " + datapointUrl);
 	const response = await fetch(datapointUrl);
 	const jsondata = await response.json();
+	console.log(response);
 	for(var line of jsondata){
 		let date = (period === 'quarter' ? line.datetime : line.date);
 		//let found = results.find(x => x.datetime === date);
@@ -131,9 +134,18 @@ const getEnelogicData = (period, oauthobject) => async (req, res) => {
 	return res.send(results);
 }
 
+const test = async (req, res) => {
+	let config = await db.apisettings.findOne({ where: {user: req.uid, name: 'enelogic'} })
+	console.log(config);
+	console.log(await oauthproviders['enelogic'].formatUrl())
+	//var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
+	const accessTokenObject = await oauthproviders['enelogic'].refresh(config);
+	res.send(accessTokenObject);
+}
+
 router.get('/data/dag/:start/:end', auth.basicAuthentication, getEnelogicData('day'));
 router.get('/data/kwartier/:start/:end', auth.basicAuthentication, getEnelogicData('quarter'));
-
+router.get('/test', auth.basicAuthentication, test);
 
 
 module.exports = router;

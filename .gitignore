@@ -7,9 +7,9 @@ temp/
 config/dynudns/
 config/scripts
 client/node_modules
+client/build
 
 #files
 client/.env
 .env
-*.sqlite
 config/database/seeders/oauthproviders.js

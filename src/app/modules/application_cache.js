@@ -1,6 +1,10 @@
 const data = {
-	oauthproviders: {}
+	oauthproviders: {},
+	bunqclients: {}
 }
+
+export const oauthproviders = {}
+export const bunqclients = {}
 
 export const setData = (module, key, data) => {
 	data[module] = {};
