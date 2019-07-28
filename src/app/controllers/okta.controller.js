@@ -41,6 +41,6 @@ const getGroups = async (req, res) => {
 	res.send(response)
 }
 
-router.post('/api/okta/create', auth.adminAuthentication, createUser)
-router.get('/api/okta/groups', auth.basicAuthentication, getGroups);
+router.post('/create', auth.adminAuthentication, createUser)
+router.get('/groups', auth.basicAuthentication, getGroups);
 module.exports = router;
