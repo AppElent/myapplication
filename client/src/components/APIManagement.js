@@ -37,7 +37,7 @@ const APIManagement = ({auth}) => {
         <EnelogicSetting auth={auth}/>
         * */}
         <OAuthSetting title='Enelogic' formatUrl='/api/oauth/formaturl/enelogic' redirectUri='/settings?tab=apimanagement'/> 
-        <OAuthSetting title='Bunq' formatUrl='/api/bunq/oauth/formatUrl' redirectUri='/settings?tab=apimanagement'/> 
+        <OAuthSetting title='Bunq' formatUrl='/api/oauth/formaturl/bunq' redirectUri='/settings?tab=apimanagement'/> 
         {/*
         <APISetting title='Tado connection' lskey='tado' fields={[{name: 'username', label: 'Username'},{name: 'password', label: 'Password', visible:false}]} saveFunction={saveTado}/>
         * */}

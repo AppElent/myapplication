@@ -1,6 +1,5 @@
 # Don't track content of these folders
 node_modules/
-config/bunq/
 dist/
 config/sslcert/
 temp/
@@ -12,4 +11,5 @@ client/build
 #files
 client/.env
 .env
-config/database/seeders/oauthproviders.js
+config/database/seeders/*.js
+config/bunq/*.json

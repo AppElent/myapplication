@@ -195,6 +195,18 @@ module.exports = async function(app) {
 	const darksky = require('./controllers/darksky.controller.js');
 	app.get('/api/darksky/current', darksky.getCurrentData);
 	app.get('/api/darksky/:date', darksky.getDateData);
+	
+	//env=developer then make every model accessible
+	if(process.env.NODE_ENV === 'development'){
+		app.get('/api/development/:model', async (req, res) => {
+			let conditions = {}
+			if(req.query.user){
+				conditions = { where: {user: req.query.user} }
+			}
+			const data = await db[req.params.model].findAll(conditions);
+			res.send(data);
+		});
+	}
 
 	
 	// Create REST resource

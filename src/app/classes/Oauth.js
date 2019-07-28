@@ -22,12 +22,11 @@ export default class Oauth {
   }
   
   formatUrl(){
-    // Authorization oauth2 URI
-    const authorizationUri = this.oauth.authorizationCode.authorizeURL({
-      redirect_uri: this.options.redirect_url,
-      scope: this.options.default_scope
-    });
-
+    const formatUrlOptions = {
+      redirect_uri: this.options.redirect_url
+    }
+    if(this.options.default_scope) formatUrlOptions['scope'] = this.options.default_scope;
+    const authorizationUri = this.oauth.authorizationCode.authorizeURL(formatUrlOptions);
     return (authorizationUri);
   }
   
@@ -35,9 +34,9 @@ export default class Oauth {
     // Get the access token object (the authorization code is given from the previous step).
     const tokenConfig = {
       code: code,
-      redirect_uri: this.options.redirect_url,
-      scope: this.options.default_scope , // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
+      redirect_uri: this.options.redirect_url
     };
+    if(this.options.default_scope) formatUrlOptions['scope'] = this.options.default_scope;
     console.log(tokenConfig)
     // Save the access token
     try {
