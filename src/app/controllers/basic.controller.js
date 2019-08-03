@@ -1,7 +1,7 @@
 var moment = require('moment');
 const fetch = require("node-fetch");
 
-const Cache = require('../classes/Cache');
+const Cache = require('../modules/Cache');
 const defaultCache = new Cache(60*60*1);
 
 

@@ -1,4 +1,4 @@
-const Encryption = require('../classes/Encryption');
+const Encryption = require('../modules/Encryption');
 const encryption = new Encryption();
 const key =  process.env.SEQUELIZE_ENCRYPTION_KEY;
 

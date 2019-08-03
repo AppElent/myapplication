@@ -21,22 +21,24 @@ export default class Oauth {
     this.options = options;
   }
   
-  formatUrl(){
+  formatUrl(state = null){
     const formatUrlOptions = {
       redirect_uri: this.options.redirect_url
     }
     if(this.options.default_scope) formatUrlOptions['scope'] = this.options.default_scope;
+    if(state !== null) formatUrlOptions['state'] = state;
     const authorizationUri = this.oauth.authorizationCode.authorizeURL(formatUrlOptions);
     return (authorizationUri);
   }
   
-  async getToken(code){
+  async getToken(code, state = null){
     // Get the access token object (the authorization code is given from the previous step).
     const tokenConfig = {
       code: code,
       redirect_uri: this.options.redirect_url
     };
-    if(this.options.default_scope) formatUrlOptions['scope'] = this.options.default_scope;
+    
+    if(this.options.default_scope) tokenConfig['scope'] = this.options.default_scope;
     console.log(tokenConfig)
     // Save the access token
     try {

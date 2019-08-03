@@ -1,7 +1,7 @@
-const Cache = require('../classes/Cache');
+const Cache = require('./Cache');
 const BunqJSClient = require("@bunq-community/bunq-js-client").default;
 const customStore = require( "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore").default;
-const Encryption = require('../classes/Encryption')
+const Encryption = require('./Encryption')
 const path = require("path");
 const _ = require('lodash');
 

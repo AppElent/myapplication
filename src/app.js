@@ -9,7 +9,7 @@ var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 var fs = require('fs');
 import AppData, {setData, oauthproviders} from './app/modules/application_cache';
-import OAuth from './app/classes/Oauth';
+import OAuth from './app/modules/Oauth';
 
 
 /* Database configuratie */

@@ -4,7 +4,7 @@ const path = require("path");
 const arrays = require('../utils/arrays');
 const fetch = require("node-fetch");
 
-const Cache = require('../classes/Cache');
+const Cache = require('../modules/Cache');
 const solarEdgeCache = new Cache(9999999);
 
 const solaredge_host = 'https://monitoringapi.solaredge.com';

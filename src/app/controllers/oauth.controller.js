@@ -58,7 +58,6 @@ const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 * */
 
 exports.format = () => (req, res) => {
-	console.log(oauthproviders, req.params.application);	
 	const oauthobject = oauthproviders[req.params.application];
 	// Authorization oauth2 URI
 	const authorizationUri = oauthobject.formatUrl();

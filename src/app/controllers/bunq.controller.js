@@ -2,7 +2,7 @@ const db = require('../models/index.js');
 
 const bunqstate = 'skjdhfkasjhbvckahsdjfhagdbjfhgmnfadnfbsmdafbe'
 
-const BunqWrapper = require('../classes/BunqWrapper')
+const BunqWrapper = require('../modules/BunqWrapper')
 const bunq = new BunqWrapper();
 bunq.startup();
 

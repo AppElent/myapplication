@@ -43,7 +43,7 @@ module.exports = async function(app) {
 	});
 	
 	//Loading the cache
-	const Cache = require('./classes/Cache');
+	const Cache = require('./modules/Cache');
 	
 	/*
 	//Loading OAUTH providers

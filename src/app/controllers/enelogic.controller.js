@@ -10,7 +10,7 @@ const fetch = require("node-fetch");
 
 var host = 'https://enelogic.com';
 
-const Cache = require('../classes/Cache');
+const Cache = require('../modules/Cache');
 const enelogicCache = new Cache(9999999);
 
 import {oauthproviders} from '../modules/application_cache';

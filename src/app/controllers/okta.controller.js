@@ -5,7 +5,7 @@ const auth = require('../middleware/authentication');
 const fetch = require("node-fetch");
 const okta_api_key = process.env.OKTA_API_KEY;
 const OKTA_ORG_URL = 'https://dev-810647.okta.com';
-const Cache = require('../classes/Cache');
+const Cache = require('../modules/Cache');
 const oktaCache = new Cache(9999999);
 
 const createUser = async (req, res) => {
