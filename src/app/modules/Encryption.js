@@ -124,6 +124,15 @@ module.exports = class Encryption {
         // return the result as an utf8-encoded string
         return nodeBuffer.toString("utf8");
     };
+
+    setStoredEncryptionValue(val, key){
+        const encrypted = this.encryptString(val, key);
+        return (encrypted.iv + '~' + encrypted.encryptedString);
+    }
+
+    getStoredEncryptionValue(val, key){
+        return (val === undefined || val === null) ? null : this.decryptString(val.split('~')[1], key, val.split('~')[0])
+    }
   
 }
 
