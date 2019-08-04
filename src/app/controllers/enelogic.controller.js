@@ -1,7 +1,6 @@
 //
 const router = require('express').Router();
 const auth = require('../middleware/authentication');
-const oauth = require('../modules/oauth');
 
 const db = require('../models');
 const MeterstandElektra = db.meterstanden;

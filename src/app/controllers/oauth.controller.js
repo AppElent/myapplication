@@ -8,8 +8,6 @@ var request = require('request');
 const fetch = require("node-fetch");
 var JSONStore = require('json-store');
 
-const oauth = require('../utils/oauth');
-
 const arrays = require('../utils/arrays');
 
 import {oauthproviders} from '../modules/application_cache';
