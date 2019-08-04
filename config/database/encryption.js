@@ -1,6 +1,6 @@
 require('dotenv').config();
 const key =  process.env.SEQUELIZE_ENCRYPTION_KEY;
-const Encryption = require('../../src/app/classes/Encryption');
+const Encryption = require('../../src/app/modules/Encryption');
 const encryption = new Encryption();
 
 module.exports.encryptString = (val) => {

@@ -24,7 +24,7 @@ const all_settings = {
     https_port: 3002
   },
   "RASPBERRY":{
-    http_redirect: false,
+    http_redirect: true,
     load_certs: true,
     cert_key_path: './config/sslcert/privkey.pem',
     cert_cert_path: './config/sslcert/fullchain.pem',
@@ -32,7 +32,7 @@ const all_settings = {
     https_port: 3002
   },
   "WINDOWS": {
-    http_redirect: true,
+    http_redirect: false,
     load_certs: false,
     http_port: 3001,
     https_port: 3002

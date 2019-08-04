@@ -7,7 +7,7 @@ export default class Enelogic {
     this.host = 'https://enelogic.com';
   }
   
-  async fetchEnelogic = (url, options) => {
+  fetchEnelogic = async (url, options) => {
       const response = await fetch(url, options);
       if(response.status !== 200) {
           console.log(response);
@@ -18,7 +18,7 @@ export default class Enelogic {
   }
 
   getMeasuringPoints = async () => {
-      const response = await this.fetchEnelogic(this.host + '/api/measuringpoints?access_token=' + this.api_key).catch(err => {success: false, message: err});
+      const response = await this.fetchEnelogic(this.host + '/api/measuringpoints?access_token=' + this.api_key).catch(err => {return {success: false, message: err}});
       return response;
   }
   
@@ -46,7 +46,7 @@ export default class Enelogic {
       return data;
   }
   
-  getFormattedData = async (options) =? {
+  getFormattedData = async (options) => {
       const data = await this.getData(options);
       return data;
   }
