@@ -68,7 +68,13 @@ module.exports = class BunqClientWrapper {
       await this.bunqJSClient.install().catch(this.defaultErrorLogger);
 
       console.log("create/re-use a device installation")
-      await this.bunqJSClient.registerDevice('EricsApp').catch(this.defaultErrorLogger);
+      try{
+        await this.bunqJSClient.registerDevice('EricsApp').catch(this.defaultErrorLogger);
+      }catch(err){
+        console.log(err);
+        throw "foutgaan";
+      }
+      
 
       console.log("create/re-use a bunq session installation")
       await this.bunqJSClient.registerSession().catch(this.defaultErrorLogger);
