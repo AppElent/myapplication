@@ -46,10 +46,10 @@ module.exports = class BunqClientWrapper {
       this.status = 'STARTING';
       
       //Als data1 leeg is dan moeten we hier een verwijzing naar storage zetten
-      if(this.settings.data1 === null) this.settings = await this.settings.update({data1: this.encryption.generateRandomKey(16)})
+      //if(this.settings.data1 === null) this.settings = await this.settings.update({data1: this.encryption.generateRandomKey(16)})
       
       //Als er geen key is dan moeten we die aanmaken
-      if(this.settings.refresh_token === null) this.settings = await this.settings.update({refresh_token: this.encryption.generateRandomKey(16)})
+      //if(this.settings.refresh_token === null) this.settings = await this.settings.update({refresh_token: this.encryption.generateRandomKey(16)})
       
       //bunqclient zetten
       const filestore = customStore(path.resolve(__dirname, "../../../config/bunq/" +this.settings.data1 + '.json' ));
@@ -58,18 +58,19 @@ module.exports = class BunqClientWrapper {
       // load and refresh bunq client
       let bunqEnv = 'PRODUCTION';
       if(this.settings.data2 !== null) bunqEnv = this.settings.data2;
-      await this.bunqJSClient.run(this.settings.access_token, [], bunqEnv, this.settings.refresh_token).catch(this.defaultErrorLogger);
+      console.log("Running bunqclient", this.settings.access_token, bunqEnv, this.settings.refresh_token);
+      await this.bunqJSClient.run(this.settings.access_token, ['*'], bunqEnv, this.settings.refresh_token).catch(this.defaultErrorLogger);
 
       // disable keep-alive since the server will stay online without the need for a constant active session
       this.bunqJSClient.setKeepAlive(false);
 
-      // create/re-use a system installation
+      console.log("create/re-use a system installation");
       await this.bunqJSClient.install().catch(this.defaultErrorLogger);
 
-      // create/re-use a device installation
+      console.log("create/re-use a device installation")
       await this.bunqJSClient.registerDevice('EricsApp').catch(this.defaultErrorLogger);
 
-      // create/re-use a bunq session installation
+      console.log("create/re-use a bunq session installation")
       await this.bunqJSClient.registerSession().catch(this.defaultErrorLogger);
       
       //Requestlimiter zetten
