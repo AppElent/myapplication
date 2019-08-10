@@ -8,7 +8,7 @@ var epilogue = require("epilogue");
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 var fs = require('fs');
-import AppData, {setData, oauthproviders} from './app/modules/application_cache';
+import {oauthproviders} from './app/modules/application_cache';
 import OAuth from './app/modules/Oauth';
 
 
@@ -20,7 +20,6 @@ const db = require('./app/models');
 db.sequelize.sync({force: false}).then(() => {
   console.log('Drop and Resync with { force: false }');
   
-  AppData['test'] = 'hallohallo';
   //Laden van OAUTH configuratie
   (async () => {
     const allproviders = await db.oauthproviders.findAll();
@@ -35,14 +34,6 @@ db.sequelize.sync({force: false}).then(() => {
 var app = express();
 
 
-
-// Initialize epilogue
-/*
-epilogue.initialize({
-  app: app,
-  sequelize: db.sequelize
-});
-* */
 
 // view engine setup
 app.set('views', path.join(__dirname, '../views'));
@@ -68,7 +59,7 @@ app.use(function(req, res, next) {
   }
   next();
 });
-app.get('/health-check', (req, res) => res.sendStatus(200));
+app.get('/health-check', (req, res) => res.sendStatus(200)); //certificate route
 require('./app/routes.js')(app);
 
 
