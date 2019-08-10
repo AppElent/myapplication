@@ -5,9 +5,9 @@ import '@babel/polyfill'
 const node_env = (process.env.NODE_ENV || 'development').toLowerCase();
 
 console.log('Starting env ' + node_env)
-
-if(['development', 'test', 'acceptance', 'production'].includes(node_env) === false){
-  throw "NODE_ENV mussed be filled with either DEV, TEST, ACCEPTANCE or PRODUCTION";
+const config = require('../config/database/config')[node_env];
+if(!config){
+  throw "No environment with name " + node_env + ' found';
 }
 
 process.env.NODE_ENV = node_env;

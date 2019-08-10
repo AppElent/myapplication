@@ -1,0 +1,33 @@
+{
+  "addons": [
+    "heroku-postgresql"
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ],
+  "env": {
+    "APP_ROOT": {
+      "required": true
+    },
+    "OKTA_API_KEY": {
+      "required": true
+    },
+    "SEQUELIZE_ENCRYPTION_KEY": {
+      "required": true
+    },
+    "SETTING": {
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1
+    }
+  },
+  "name": "myapplication", 
+  "scripts": {
+  },
+  "stack": "heroku-18"
+}

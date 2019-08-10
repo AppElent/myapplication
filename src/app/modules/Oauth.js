@@ -20,10 +20,12 @@ export default class Oauth {
     this.oauth = SimpleOauth2.create(this.credentials);
     this.options = options;
   }
-  
-  formatUrl(state = null){
+
+ 
+  formatUrl(redirect_host, state = null){
+    const url = (redirect_host + this.options.redirect_url);
     const formatUrlOptions = {
-      redirect_uri: this.options.redirect_url
+      redirect_uri: url
     }
     if(this.options.default_scope) formatUrlOptions['scope'] = this.options.default_scope;
     if(state !== null) formatUrlOptions['state'] = state;
@@ -31,11 +33,12 @@ export default class Oauth {
     return (authorizationUri);
   }
   
-  async getToken(code, state = null){
+  async getToken(redirect_host = null, code, state = null){
     // Get the access token object (the authorization code is given from the previous step).
+    const url = (redirect_host + this.options.redirect_url);
     const tokenConfig = {
       code: code,
-      redirect_uri: this.options.redirect_url
+      redirect_uri: url
     };
     
     if(this.options.default_scope) tokenConfig['scope'] = this.options.default_scope;
