@@ -6,6 +6,8 @@ const BunqWrapper = require('../modules/BunqWrapper')
 const bunq = new BunqWrapper();
 bunq.startup();
 
+import {oauthproviders} from '../modules/application_cache';
+
 const saveBunqSettings = async (user, authorizationCode, environment = 'PRODUCTION') => {
 	const conditions = {where: {user: user, name: 'bunq'}};
 	const body = {
@@ -22,6 +24,7 @@ const saveBunqSettings = async (user, authorizationCode, environment = 'PRODUCTI
 	return entry;
 }
 
+
 exports.formatOAuthUrl = async (req, res) => {	
 	let url = await bunq.getGenericClient().formatOAuthAuthorizationRequestUrl(
 		process.env.BUNQ_CLIENT_ID, 
@@ -35,13 +38,14 @@ exports.exchangeOAuthTokens = async (req, res) => {
 	if(req.body.code === null){
 		res.send("Geen auth code meegegeven");
 	}else{
+		const bunqoauth = oauthproviders['bunq'];
 		const authorizationCode = await bunq.getGenericClient().exchangeOAuthToken(
-			process.env.BUNQ_CLIENT_ID, 
-			process.env.BUNQ_CLIENT_SECRET, 
-			'https://ericjansen.dynu.net/bunq/oauth',
-			req.body.code,
-			bunqstate
+			bunqoauth.options.client_id, 
+			bunqoauth.options.client_secret, 
+			'https://' + req.get('host') + '/bunq/oauth',
+			req.body.code
 		) 
+		console.log(authorizationCode);
 		console.log("Key: " + authorizationCode);
 		const entry = await saveBunqSettings(req.uid, authorizationCode, 'PRODUCTION');
 		/*

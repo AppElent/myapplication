@@ -58,7 +58,9 @@ const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
 exports.format = () => (req, res) => {
 	const oauthobject = oauthproviders[req.params.application];
 	// Authorization oauth2 URI
-	const authorizationUri = oauthobject.formatUrl();
+	const protocol = (req.params.application.toLowerCase() === 'bunq' ? 'https' : req.protocol);
+	const redirecthost = protocol + '://' + req.get('host');
+	const authorizationUri = oauthobject.formatUrl(redirecthost);
 
 	// Redirect example using Express (see http://expressjs.com/api.html#res.redirect)
 	res.send(authorizationUri);
@@ -68,6 +70,7 @@ exports.exchange = () => async (req, res) => {
 	const oauthobject = oauthproviders[req.params.application];
 	
 	// Get the access token object (the authorization code is given from the previous step).
+	const redirecthost = req.protocol + '://' + req.get('host');
 	const tokenConfig = {
 	  code: req.body.code,
 	  redirect_uri: oauthproviders[req.params.application].options.redirect_url,
@@ -76,7 +79,7 @@ exports.exchange = () => async (req, res) => {
 	console.log(tokenConfig)
 	// Save the access token
 	try {
-	    const accessToken = await oauthobject.getToken(req.body.code);
+	    const accessToken = await oauthobject.getToken(redirecthost, req.body.code);
 	    console.log(accessToken)
 	    console.log(req.body.name)
 	    if(req.params.application !== undefined){
