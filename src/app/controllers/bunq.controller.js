@@ -45,23 +45,8 @@ exports.exchangeOAuthTokens = async (req, res) => {
 			'https://' + req.get('host') + '/bunq/oauth',
 			req.body.code
 		) 
-		console.log(authorizationCode);
 		console.log("Key: " + authorizationCode);
 		const entry = await saveBunqSettings(req.uid, authorizationCode, 'PRODUCTION');
-		/*
-		const conditions = {where: {user: req.uid, name: 'bunq'}};
-		const body = {
-		  user: req.uid, 
-		  name: 'bunq', 
-		  access_token: authorizationCode, 
-		};
-		let entry = await db.apisettings.findOne(conditions)
-		if(entry){
-		    entry = await entry.update(body)
-		}else{
-		    entry = await db.apisettings.create(body);
-		}
-		* */
 		await bunq.installNewClient(entry);
 		return res.send(entry);
 	}
