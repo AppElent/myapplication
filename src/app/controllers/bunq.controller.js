@@ -2,11 +2,12 @@ const db = require('../models/index.js');
 
 const bunqstate = 'skjdhfkasjhbvckahsdjfhagdbjfhgmnfadnfbsmdafbe'
 
-const BunqWrapper = require('../modules/BunqWrapper')
-const bunq = new BunqWrapper();
-bunq.startup();
+//const BunqWrapper = require('../modules/BunqWrapper')
+//const bunq = new BunqWrapper();
+//bunq.startup();
 
 import {oauthproviders} from '../modules/application_cache';
+import {bunq} from '../modules/Bunq';
 
 const saveBunqSettings = async (user, authorizationCode, environment = 'PRODUCTION') => {
 	const conditions = {where: {user: user, name: 'bunq'}};
