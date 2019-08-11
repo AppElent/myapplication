@@ -13,7 +13,6 @@ import OAuth from './app/modules/Oauth';
 import { bunq } from './app/modules/Bunq';
 import { request } from 'https';
 
-
 /* Database configuratie */
 const db = require('./app/models');
 
