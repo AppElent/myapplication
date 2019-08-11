@@ -32,24 +32,24 @@ db.sequelize.sync({ force: false }).then(async () => {
     })
   })()
 
-    //laden van de BUNQ clients
-    const bunqclients = (async () => {
-      //alle clients laden
-      const allclients = await db.apisettings.findAll({ where: { name: 'bunq' } });
-      if (allclients.length === 0) return;
-      //eerste client laden
-      const client1 = allclients.shift();
-      console.log('Eerste client laden', client1.user);
-      await bunq.load(client1.user, client1.data1, client1.access_token, client1.refresh_token, { environment: 'PRODUCTION' });
-      const requestLimiter = bunq.getClient(client1.user).getBunqJSClient().ApiAdapter.RequestLimitFactory;
+  //laden van de BUNQ clients
+  const bunqclients = (async () => {
+    //alle clients laden
+    const allclients = await db.apisettings.findAll({ where: { name: 'bunq' } });
+    if (allclients.length === 0) return;
+    //eerste client laden
+    const client1 = allclients.shift();
+    console.log('Eerste client laden', client1.user);
+    await bunq.load(client1.user, client1.data1, client1.access_token, client1.refresh_token, { environment: 'PRODUCTION' });
+    const requestLimiter = bunq.getClient(client1.user).getBunqJSClient().ApiAdapter.RequestLimitFactory;
 
-      //rest laden
-      const result = await Promise.all(allclients.map(async (clientsetting) => {
-        console.log('loading client ' + clientsetting.user)
-        await bunq.load(clientsetting.user, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
-        console.log('client loaded ' + clientsetting.user)
-      }))
-    })()
+    //rest laden
+    const result = await Promise.all(allclients.map(async (clientsetting) => {
+      console.log('loading client ' + clientsetting.user)
+      await bunq.load(clientsetting.user, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
+      console.log('client loaded ' + clientsetting.user)
+    }))
+  })()
 });
 
 var app = express();
