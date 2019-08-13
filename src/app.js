@@ -8,18 +8,19 @@ var epilogue = require("epilogue");
 var httpProxy = require('http-proxy');
 var apiProxy = httpProxy.createProxyServer();
 var fs = require('fs');
-import {oauthproviders} from './app/modules/application_cache';
+import { oauthproviders, bunqclients } from './app/modules/application_cache';
 import OAuth from './app/modules/Oauth';
-
+import { bunq } from './app/modules/Bunq';
+import { request } from 'https';
 
 /* Database configuratie */
 const db = require('./app/models');
 
 // force: true will drop the table if it already exists
 //const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
-db.sequelize.sync({force: false}).then(() => {
+db.sequelize.sync({ force: false }).then(async () => {
   console.log('Drop and Resync with { force: false }');
-  
+
   //Laden van OAUTH configuratie
   (async () => {
     const allproviders = await db.oauthproviders.findAll();
@@ -28,6 +29,25 @@ db.sequelize.sync({force: false}).then(() => {
       oauthproviders[provider.id] = oauthprovider
       //setData('oauthproviders', provider.id, oauthprovider);
     })
+  })()
+
+  //laden van de BUNQ clients
+  const bunqclients = (async () => {
+    //alle clients laden
+    const allclients = await db.apisettings.findAll({ where: { name: 'bunq' } });
+    if (allclients.length === 0) return;
+    //eerste client laden
+    const client1 = allclients.shift();
+    console.log('Eerste client laden', client1.user);
+    await bunq.load(client1.user, client1.data1, client1.access_token, client1.refresh_token, { environment: 'PRODUCTION' });
+    const requestLimiter = bunq.getClient(client1.user).getBunqJSClient().ApiAdapter.RequestLimitFactory;
+
+    //rest laden
+    const result = await Promise.all(allclients.map(async (clientsetting) => {
+      console.log('loading client ' + clientsetting.user)
+      await bunq.load(clientsetting.user, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
+      console.log('client loaded ' + clientsetting.user)
+    }))
   })()
 });
 
@@ -47,14 +67,13 @@ app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 /* Express configuration */
-app.use(bodyParser.urlencoded({extended: false}));
+app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 //Routes
 //First make all query params lowercase
-app.use(function(req, res, next) {
-  for (var key in req.query)
-  { 
+app.use(function (req, res, next) {
+  for (var key in req.query) {
     req.query[key.toLowerCase()] = req.query[key];
   }
   next();
@@ -64,12 +83,12 @@ require('./app/routes.js')(app);
 
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
