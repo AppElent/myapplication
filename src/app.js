@@ -13,12 +13,9 @@ import OAuth from './app/modules/Oauth';
 import { bunq } from './app/modules/Bunq';
 import { request } from 'https';
 
-<<<<<<< HEAD
 //Load firebase
 import firebase, {db as firebaseDB} from './app/modules/Firebase';
 
-=======
->>>>>>> 6df66688d189b725e41235eaba93424acaa18b44
 /* Database configuratie */
 const db = require('./app/models');
 
