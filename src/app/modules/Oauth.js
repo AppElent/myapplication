@@ -2,22 +2,26 @@ const SimpleOauth2 = require('simple-oauth2')
 
 export default class Oauth {
 
-  constructor(client_id, client_secret, tokenHost, options) {
+  constructor(client_id, client_secret, options) {
+    
     this.credentials = {
       client: {
         id: client_id,
         secret: client_secret
       },
       auth: {
-        tokenHost: tokenHost
       }
     }
+    if(options.tokenHost) this.credentials.auth['tokenHost'] = options.tokenHost;
     if(options.idParamName) this.credentials.client['idParamName'] = options.idParamName;
     if(options.secretParamName) this.credentials.client['secretParamName'] = options.secretParamName;
     if(options.tokenPath) this.credentials.auth['tokenPath'] = options.tokenPath;
     if(options.authorizePath) this.credentials.auth['authorizePath'] = options.authorizePath;
     console.log(this.credentials);
-    this.oauth = SimpleOauth2.create(this.credentials);
+    if(options.flow === 'authorization'){
+      this.oauth = SimpleOauth2.create(this.credentials);
+    }
+    
     this.options = options;
   }
 

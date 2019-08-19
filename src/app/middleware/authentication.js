@@ -1,4 +1,4 @@
-
+import admin from '../modules/Firebase';
 const OktaJwtVerifier = require('@okta/jwt-verifier');
 const fetch = require("node-fetch");
 
@@ -42,18 +42,33 @@ const checkAuthenticated = async (req, res, options = {}) => {
 		return {result: true, jwt: false}
 		//return res.status(401).end();
 	}
-	
-	
-	
-	const bearermatch = authHeader.match(/Bearer (.+)/);
+
+	//Als NODE_ENV === development dan doorgaan met user ..
 	if (!bearermatch && process.env.NODE_ENV === 'development') {
 	    let user = '00uh1btgtpVNlyc4k356';
 	    if(req.query.user !== undefined) user = req.query.user;
 	    console.log('Authentication passed, env=DEV, user=' + user);
 	    return {result: true, jwt: {claims: {uid: user}}}
 	}
-	if (!bearermatch) return {result: false, reason: 'Bearer does not match'}
+
+	//Checken of er Firebase authenticatie is
+	const firebasematch = authHeader.match(/Firebase (.+)/);
+	if(firebasematch){
+		const firebase_token = firebasematch[1];
+		try{
+			const decodedToken = await admin.auth().verifyIdToken(firebase_token);
+			console.log(decodedToken);
+			return {result: true, jwt: decodedToken}
+		}catch(err){
+			return {result: false, reason: err}
+		}
+
+	}
 	
+	
+	
+	const bearermatch = authHeader.match(/Bearer (.+)/);
+	if (!bearermatch) return {result: false, reason: 'Bearer does not match'}
 	const accessToken = bearermatch[1];
 	try{
 		const jwt = await oktaJwtVerifier.verifyAccessToken(accessToken, 'api://default');
@@ -101,8 +116,9 @@ const authenticationRequired = (options) => (req, res, next) => {
 	    if(authenticated.result === true){
 		    req.jwt = authenticated.jwt;
 		    if(authenticated.jwt !== false){
-			console.log('User ' + req.jwt.claims.uid + ' successfully authenticated');
-			req.uid = req.jwt.claims.uid;
+			const uid = req.jwt.claims === undefined ? req.jwt.uid : req.jwt.claims.uid;
+			console.log('User ' + uid + ' successfully authenticated');
+			req.uid = uid;
 		    }
 		    next();
 	    }else{

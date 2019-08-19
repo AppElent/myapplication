@@ -85,7 +85,9 @@ module.exports = async function(app) {
 
 	//Custom routes
 	app.post('/api/redirectcall', basicAuthentication, controllers.custom.redirectCall);
-	
+	app.get('/api/testfirebase', basicAuthentication, (req, res) => {
+		res.send({result: true, asd: false});
+	});
 	
 	//Usersettings
 	app.get('/api/usersettings/:id', basicAuthentication, controllers.basic.get(db.usersettings));

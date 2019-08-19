@@ -13,6 +13,8 @@ import OAuth from './app/modules/Oauth';
 import { bunq } from './app/modules/Bunq';
 import { request } from 'https';
 
+//Load firebase
+import firebase, {db as firebaseDB} from './app/modules/Firebase';
 
 /* Database configuratie */
 const db = require('./app/models');
@@ -23,6 +25,7 @@ db.sequelize.sync({ force: false }).then(async () => {
   console.log('Drop and Resync with { force: false }');
 
   //Laden van OAUTH configuratie
+  /*
   (async () => {
     const allproviders = await db.oauthproviders.findAll();
     allproviders.forEach(provider => {
@@ -31,6 +34,8 @@ db.sequelize.sync({ force: false }).then(async () => {
       //setData('oauthproviders', provider.id, oauthprovider);
     })
   })()
+  */
+
 
   //laden van de BUNQ clients
   const bunqclients = (async () => {
@@ -51,6 +56,15 @@ db.sequelize.sync({ force: false }).then(async () => {
     }))
   })()
 });
+
+firebaseDB.collection('env/development/oauthproviders').get().then(providers => {
+  providers.forEach(provider => {
+    const data = provider.data();
+    console.log(provider.id + ": ", data);
+    const oauthprovider = new OAuth(data.client_id, data.client_secret, data);
+    oauthproviders[provider.id] = oauthprovider;
+  })
+})
 
 var app = express();
 

@@ -1,13 +1,14 @@
 // routes.jsx
-import React from 'react'
+import React, {useContext} from 'react'
 import { Route, Switch, Redirect } from 'react-router-dom'
 import App from '../App'
 import { Security, SecureRoute, ImplicitCallback } from '@okta/okta-react';
 import { AuthProvider } from '../context/AuthContext';
+import FirebaseAuthProvider, {FirebaseAuthContext} from '../context/FirebaseContext';
 
 import Home from '../pages/Home';
 import Car from '../pages/Car';
-import Paperbase from '../components/Paperbase/Paperbase';
+import Paperbase from './Paperbase/Paperbase';
 import Test from '../pages/Test';
 import Events from '../pages/Events';
 import Rekeningen from '../pages/Rekeningen';
@@ -22,6 +23,9 @@ import Protected from '../pages/Protected';
 import Settings from '../pages/Settings';
 import OAuth from '../pages/OAuth'
 
+import TestFirebase from './TestFirebase';
+import TestFirebase2 from './TestFirebase2';
+
 function onAuthRequired({history}) {
   history.push('/login');
 }
@@ -33,7 +37,6 @@ const EmptyContainer = () => (
     <Route path="/testtest2" component={Test} />
   </div>
 )
-
 
  const DefaultContainer = () => (
     <div>
@@ -66,12 +69,25 @@ const EmptyContainer = () => (
     </div>
  )
 
+ const PrivateRoute = ({ component, ...options }) => {
+  const auth = useContext(FirebaseAuthContext);
+  console.log(auth);
+  const finalComponent = auth.isUserSignedIn ? component : TestFirebase;
+
+  return <Route {...options} component={finalComponent} />;
+};
+
 const Routes = () => (
     
         <Switch>
             <Route exact path="/test1" component={Car}/>
             <Route exact path="/test2" component={Test}/>
-            <Route exact path="/paperbase" component={Paperbase}/>
+            <FirebaseAuthProvider>
+              <Route exact path="/testfirebase" component={TestFirebase} />
+              <Route exact path="/jojo" component={TestFirebase2} />
+              <PrivateRoute exact path="/magniet" component={TestFirebase2} />
+            </FirebaseAuthProvider>
+            
             <Route component={DefaultContainer}/>
             {/*
             <Security issuer='https://dev-810647.okta.com/oauth2/default'
