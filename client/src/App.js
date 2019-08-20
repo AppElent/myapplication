@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
-import {Card} from 'react-bootstrap';
+import React from 'react';
+//import {Card} from 'react-bootstrap';
 
-import NavBar from './components/NavBar';
-//import Layout from './components/Layout';
+//import NavBar from './components/NavBar';
+import Layout from './components/Layout/index.js';
 
 //class App extends Component {
 const App = ({children}) => {
@@ -10,12 +10,9 @@ const App = ({children}) => {
   //render(){
 	return (
 	<div>
-	<NavBar />
-	  <Card>
-	    <Card.Body>
-	      {children}
-	    </Card.Body>
-	  </Card>
+	<Layout >
+		{children}
+	</Layout>
 	</div>);
   //}  
 
