@@ -43,13 +43,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
 		//return res.status(401).end();
 	}
 
-	//Als NODE_ENV === development dan doorgaan met user ..
-	if (!bearermatch && process.env.NODE_ENV === 'development') {
-	    let user = '00uh1btgtpVNlyc4k356';
-	    if(req.query.user !== undefined) user = req.query.user;
-	    console.log('Authentication passed, env=DEV, user=' + user);
-	    return {result: true, jwt: {claims: {uid: user}}}
-	}
+
 
 	//Checken of er Firebase authenticatie is
 	const firebasematch = authHeader.match(/Firebase (.+)/);
@@ -63,6 +57,14 @@ const checkAuthenticated = async (req, res, options = {}) => {
 			return {result: false, reason: err}
 		}
 
+	}
+
+	//Als NODE_ENV === development dan doorgaan met user ..
+	if (!firebasematch && process.env.NODE_ENV === 'development') {
+		let user = '00uh1btgtpVNlyc4k356';
+		if(req.query.user !== undefined) user = req.query.user;
+		console.log('Authentication passed, env=DEV, user=' + user);
+		return {result: true, jwt: {claims: {uid: user}}}
 	}
 	
 	
