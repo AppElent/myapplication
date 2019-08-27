@@ -1,10 +1,13 @@
-import { useState, useEffect, useContext } from 'react';
-import {auth} from '../helpers/Firebase';
+import { useState, useEffect } from 'react';
+//import {auth} from '../helpers/Firebase';
+import useSession from './useSession';
 
 
 function useLocalStorage(key, initialValue) {
+  const firebase = useSession();
+  
   //const [userSub, setUserSub] = useState(user);
-  const uid = auth.currentUser.uid;
+  const uid = firebase.auth.currentUser.uid;
   
   const userkey = uid + '_' + key;
   
@@ -24,7 +27,7 @@ function useLocalStorage(key, initialValue) {
   const [storedValue, setStoredValue] = useState(saveStoredValue(userkey));
   
   useEffect(() => {
-      setStoredValue(saveStoredValue(userkey));
+    setStoredValue(saveStoredValue(userkey));
   }, [uid])
   
   

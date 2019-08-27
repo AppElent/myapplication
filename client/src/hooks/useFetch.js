@@ -1,10 +1,14 @@
 //import 'idempotent-babel-polyfill' // so async await works ;)
 import { useEffect, useState, useCallback } from 'react';
-import {auth} from '../helpers/Firebase';
+//import {auth} from '../helpers/Firebase';
+import useSession from './useSession';
 
 const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]'
 
 export function useFetch(arg1, arg2) {
+  const firebase = useSession();
+  //const auth = firebase.auth;
+  
   let url = null
   let options = {}
   let onMount = false
@@ -56,7 +60,7 @@ export function useFetch(arg1, arg2) {
       
     try {
       setLoading(true)
-      let token = await auth.currentUser.getIdToken(true);
+      let token = await firebase.auth.currentUser.getIdToken(true);
       console.log('Making ' + method + ' request to ' + url + query);
       var response = await fetch(url + query, {
         method,

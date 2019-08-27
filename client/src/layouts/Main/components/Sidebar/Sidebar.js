@@ -13,7 +13,7 @@ import SettingsIcon from '@material-ui/icons/Settings';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
 
 import { Profile, SidebarNav } from './components';
-import {FirebaseAuthContext} from 'context/FirebaseContext';
+import useSession from 'hooks/useSession';
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -39,7 +39,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Sidebar = props => {
-  const userContext = React.useContext(FirebaseAuthContext);
+  const firebase = useSession();
+  console.log(firebase);
   const { open, variant, onClose, className, ...rest } = props;
 
   const classes = useStyles();
@@ -99,7 +100,7 @@ const Sidebar = props => {
         {...rest}
         className={clsx(classes.root, className)}
       > 
-        {userContext.isUserSignedIn && <><Profile /><Divider className={classes.divider} /></>}
+        {firebase.auth.currentUser !== null && <><Profile /><Divider className={classes.divider} /></>}
         
         
         <SidebarNav

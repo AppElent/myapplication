@@ -44,10 +44,13 @@ export const fetchBackend = async (url, options) => {
   return (await makeAPICall(url, options.method, options.body, await options.auth.getAccessToken()));
 }
 */
-import {auth} from '../helpers/Firebase';
+//import {auth} from '../helpers/Firebase';
+//import useSession from '../hooks/useSession';
 
 const fetchBackend = async (url, options) => {
-  const token = auth.currentUser.getIdToken();
+  //const firebase = useSession();
+  const firebase = options.auth;
+  const token = firebase.auth.currentUser.getIdToken();
   if(options.body === null){options.body = undefined}
   if(options.method === undefined) options.method = 'GET';
   console.log('Making ' + options.method + ' API call to ' + url);

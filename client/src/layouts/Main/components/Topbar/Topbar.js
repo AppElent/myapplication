@@ -8,7 +8,8 @@ import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
 import AppTitle from 'components/AppTitle';
-import {auth} from 'helpers/Firebase';
+
+import useSession from 'hooks/useSession';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -23,6 +24,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Topbar = props => {
+  const firebase = useSession();
+  
   const { className, onSidebarOpen, ...rest } = props;
 
   const classes = useStyles();
@@ -53,7 +56,7 @@ const Topbar = props => {
             className={classes.signOutButton}
             color="inherit"
             onClick={() => {
-              auth.signOut();
+              firebase.auth.signOut();
             }}
           >
             <InputIcon />

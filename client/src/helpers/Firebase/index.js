@@ -1,5 +1,5 @@
-// @flow
 import * as firebase from 'firebase';
+
 
 var firebaseConfig = {
   apiKey: 'AIzaSyCCyQmkLU5UFKg7C4mqEvTw0QaVZ5ZWKyU',
@@ -11,9 +11,14 @@ var firebaseConfig = {
   appId: '1:909589468874:web:25a83d1464dd94f0'
 };
 
-
-firebase.initializeApp(firebaseConfig);
-
-export default firebase;
-export const auth = firebase.auth();
-export const db = firebase.db; 
+class Firebase {
+  constructor() {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    this.firebase = firebase;
+    this.auth = firebase.auth();
+    this.db = firebase.firestore();
+  }
+}
+export default Firebase;

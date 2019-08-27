@@ -1,10 +1,10 @@
 /* eslint-disable react/no-multi-comp */
-import React, {useContext} from 'react';
+import React from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
 import { RouteWithLayout } from './components';
 import { Main as MainLayout, Minimal as MinimalLayout } from './layouts';
-import {FirebaseAuthContext} from './context/FirebaseContext';
+import useSession from './hooks/useSession';
 
 import {
   ThemeDashboard,
@@ -22,7 +22,7 @@ import {
 } from './views';
 
 const PrivateRoute = ({ component, ...options }) => {
-  const auth = useContext(FirebaseAuthContext);
+  const auth = useSession();
   console.log(auth);
   const finalComponent = auth.isUserSignedIn ? component : Login;
 

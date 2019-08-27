@@ -1,34 +1,48 @@
 // @flow
 import * as React from 'react';
+import Firebase from '../../helpers/Firebase';
 
-import {auth} from '../../helpers/Firebase';
 
-const defaultFirebaseContext = {
-  authStatusReported: false,
-  isUserSignedIn: false
-};
-
-export const FirebaseAuthContext = React.createContext(defaultFirebaseContext);
-
+export const FirebaseContext = React.createContext(null);
+export default Firebase;
+/*
 export default class FirebaseAuthProvider extends React.Component {
 
     state = defaultFirebaseContext;
 
-
+  /*
     componentDidMount() {
-      auth.onAuthStateChanged(user => this.setState({
-        authStatusReported: true,
-        isUserSignedIn: !!user
-      }));
+      auth.onAuthStateChanged(user => {
+        if(user){
+          this.setState({
+            auth,
+            firebase,
+            authStatusReported: true,
+            isUserSignedIn: true,
+            user
+          });
+        }else{
+          this.setState({
+            auth,
+            firebase,
+            authStatusReported: true,
+            isUserSignedIn: false,
+            user: null
+          });
+        }
+
+      });
     }
+    
 
     render(){
       const {children} = this.props;
-      const {authStatusReported, isUserSignedIn} = this.state;
+      //const {firebase, authStatusReported, isUserSignedIn, user, db} = this.state;
       return (
-        <FirebaseAuthContext.Provider value={{isUserSignedIn, authStatusReported}}>
-          {authStatusReported && children}
+        <FirebaseAuthContext.Provider value={new Firebase()}>
+          {/*authStatusReported && children}
         </FirebaseAuthContext.Provider>
       );
     }
 }
+*/

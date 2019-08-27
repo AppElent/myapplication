@@ -12,7 +12,7 @@ import './assets/scss/index.scss';
 import validators from './common/validators';
 import Routes from './Routes';
 
-import FirebaseAuthProvider from './context/FirebaseContext';
+import Firebase, {FirebaseContext} from './context/FirebaseContext';
 
 const browserHistory = createBrowserHistory();
 
@@ -28,13 +28,13 @@ validate.validators = {
 export default class App extends Component {
   render() {
     return (
-      <FirebaseAuthProvider>
+      <FirebaseContext.Provider value={new Firebase()}>
         <ThemeProvider theme={theme}>
           <Router history={browserHistory}>
             <Routes />
           </Router>
         </ThemeProvider>
-      </FirebaseAuthProvider>
+      </FirebaseContext.Provider>
     );
   }
 }
