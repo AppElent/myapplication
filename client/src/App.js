@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Router } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import { Chart } from 'react-chartjs-2';
@@ -25,6 +25,36 @@ validate.validators = {
   ...validators
 };
 
+const App = () => {
+  const [user, setUser] = useState(null);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  const firebase = new Firebase();
+
+  useEffect(() => {
+    // listen for auth state changes
+    const unsubscribe = firebase.auth.onAuthStateChanged((returnedUser) => {
+      setUser(returnedUser);
+      setIsInitializing(false);
+    })
+    // unsubscribe to the listener when unmounting
+    return () => unsubscribe()
+  }, [])
+  
+  return (
+    <FirebaseContext.Provider value={{firebase, user, isInitializing}}>
+      <ThemeProvider theme={theme}>
+        <Router history={browserHistory}>
+          <Routes />
+        </Router>
+      </ThemeProvider>
+    </FirebaseContext.Provider>
+  );
+}
+
+export default App;
+
+/*
 export default class App extends Component {
 
   render() {
@@ -39,3 +69,4 @@ export default class App extends Component {
     );
   }
 }
+*/

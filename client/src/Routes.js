@@ -30,17 +30,6 @@ const PrivateRoute = ({ component, ...options }) => {
 };
 
 const Routes = () => {
-  const firebase = useSession();
-
-  useEffect(() => {
-    // listen for auth state changes
-    const unsubscribe = firebase.auth.onAuthStateChanged((user) => {
-      firebase.setUser(user);
-      console.log(user, firebase.user);
-    })
-    // unsubscribe to the listener when unmounting
-    return () => unsubscribe()
-  }, [])
   
   return (
     <Switch>

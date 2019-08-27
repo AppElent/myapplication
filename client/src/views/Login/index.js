@@ -1,14 +1,13 @@
 // Import FirebaseAuth and firebase.
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 //import firebaseui from 'react-firebaseui';
 //import firebase from 'firebase';
 import useSession from '../../hooks/useSession';
 
 const Login = () => {
-  const firebase = useSession();
-  //const [isSignedIn, setIsSignedIn] = useState(false);
-
+  const {firebase, user, isInitializing} = useSession();
+  console.log(firebase, 999, user, 999, isInitializing);
 
   // Configure FirebaseUI.
   const uiConfig = {
@@ -27,18 +26,10 @@ const Login = () => {
       signInSuccessWithAuthResult: () => false
     }
   };
-  /*
-  useEffect(() => {
-    // listen for auth state changes
-    const unsubscribe = firebase.auth.onAuthStateChanged((user) => {setIsSignedIn(!!user)})
-    // unsubscribe to the listener when unmounting
-    return () => unsubscribe()
-  }, [])
-  */
 
-  if(firebase.initializing) return <div>Authenticating</div>
+  if(isInitializing) return <div>Authenticating</div>
 
-  if (firebase.user === null) {
+  if (user === null) {
     return (
       <div>
         <StyledFirebaseAuth 
