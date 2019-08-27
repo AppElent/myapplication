@@ -26,6 +26,7 @@ validate.validators = {
 };
 
 export default class App extends Component {
+
   render() {
     return (
       <FirebaseContext.Provider value={new Firebase()}>

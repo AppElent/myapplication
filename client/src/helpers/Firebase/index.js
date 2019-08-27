@@ -19,6 +19,13 @@ class Firebase {
     this.firebase = firebase;
     this.auth = firebase.auth();
     this.db = firebase.firestore();
+    this.user = null;
+    this.initializing = true;
+  }
+
+  setUser(user){
+    this.user = user;
+    this.initializing = false;
   }
 }
 export default Firebase;

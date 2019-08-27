@@ -7,7 +7,7 @@ function useLocalStorage(key, initialValue) {
   const firebase = useSession();
   
   //const [userSub, setUserSub] = useState(user);
-  const uid = firebase.auth.currentUser.uid;
+  const uid = firebase.user === null ? '' : firebase.user.uid;
   
   const userkey = uid + '_' + key;
   

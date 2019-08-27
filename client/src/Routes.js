@@ -1,5 +1,5 @@
 /* eslint-disable react/no-multi-comp */
-import React from 'react';
+import React, {useEffect} from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
 import { RouteWithLayout } from './components';
@@ -22,14 +22,26 @@ import {
 } from './views';
 
 const PrivateRoute = ({ component, ...options }) => {
-  const auth = useSession();
-  console.log(auth);
-  const finalComponent = auth.isUserSignedIn ? component : Login;
+  const firebase = useSession();
+
+  const finalComponent = firebase.auth.user !== null ? component : Login;
 
   return <Route {...options} component={finalComponent} />;
 };
 
 const Routes = () => {
+  const firebase = useSession();
+
+  useEffect(() => {
+    // listen for auth state changes
+    const unsubscribe = firebase.auth.onAuthStateChanged((user) => {
+      firebase.setUser(user);
+      console.log(user, firebase.user);
+    })
+    // unsubscribe to the listener when unmounting
+    return () => unsubscribe()
+  }, [])
+  
   return (
     <Switch>
       

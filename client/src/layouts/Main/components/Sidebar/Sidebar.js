@@ -40,7 +40,8 @@ const useStyles = makeStyles(theme => ({
 
 const Sidebar = props => {
   const firebase = useSession();
-  console.log(firebase);
+  console.log(firebase.user);
+
   const { open, variant, onClose, className, ...rest } = props;
 
   const classes = useStyles();
@@ -100,7 +101,8 @@ const Sidebar = props => {
         {...rest}
         className={clsx(classes.root, className)}
       > 
-        {firebase.auth.currentUser !== null && <><Profile /><Divider className={classes.divider} /></>}
+        
+        {firebase.user !== null && <><Profile /><Divider className={classes.divider} /></>}
         
         
         <SidebarNav
