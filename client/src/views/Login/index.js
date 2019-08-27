@@ -7,7 +7,7 @@ import useSession from '../../hooks/useSession';
 
 const Login = () => {
   const firebase = useSession();
-  const [isSignedIn, setIsSignedIn] = useState(false);
+  //const [isSignedIn, setIsSignedIn] = useState(false);
 
 
   // Configure FirebaseUI.
@@ -27,18 +27,24 @@ const Login = () => {
       signInSuccessWithAuthResult: () => false
     }
   };
-
+  /*
   useEffect(() => {
     // listen for auth state changes
     const unsubscribe = firebase.auth.onAuthStateChanged((user) => {setIsSignedIn(!!user)})
     // unsubscribe to the listener when unmounting
     return () => unsubscribe()
   }, [])
+  */
 
-  if (!isSignedIn) {
+  if(firebase.initializing) return <div>Authenticating</div>
+
+  if (firebase.user === null) {
     return (
       <div>
-        <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={firebase.auth}/>
+        <StyledFirebaseAuth 
+          firebaseAuth={firebase.auth} 
+          uiConfig={uiConfig}
+        />
       </div>
     );
   }
