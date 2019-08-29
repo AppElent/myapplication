@@ -9,4 +9,5 @@ export { default as ThemeSignUp } from './Theme/SignUp';
 export { default as ThemeTypography } from './Theme/Typography';
 export { default as ThemeUserList } from './Theme/UserList';
 export { default as Login } from './Login';
+export { default as SignIn } from './SignIn';
 export { default as Bunq } from './Bunq';

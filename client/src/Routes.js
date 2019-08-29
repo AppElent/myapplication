@@ -21,14 +21,6 @@ import {
   Bunq
 } from './views';
 
-const PrivateRoute = ({ component, ...options }) => {
-  const firebase = useSession();
-
-  const finalComponent = firebase.auth.user !== null ? component : Login;
-
-  return <Route {...options} component={finalComponent} />;
-};
-
 const Routes = () => {
   
   return (
@@ -56,14 +48,14 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/private"
-        routeComponent={PrivateRoute}
+        protectedRoute
       />
       <RouteWithLayout 
         component={Bunq}
         exact
         layout={MainLayout}
         path="/bunq"
-        routeComponent={PrivateRoute}
+        protectedRoute
       />
       <RouteWithLayout 
         component={ThemeDashboard}

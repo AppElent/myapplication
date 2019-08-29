@@ -2,6 +2,8 @@ const path = require('path');
 const fetch = require("node-fetch");
 const db = require('./models');
 
+import {get, find, list, create, update, deleteRecords} from './modules/SequelizeREST';
+
 module.exports = async function(app) {
 	
 	const auth = require("./middleware/authentication")
@@ -97,12 +99,12 @@ module.exports = async function(app) {
 	app.put('/api/usersettings/:id', basicAuthentication, controllers.basic.update(db.usersettings))
 	
 	//Rekeningen
-	app.get('/api/rekeningen/:id', basicAuthentication, controllers.basic.get(db.rekeningen));
-	app.get('/api/rekeningen', basicAuthentication, controllers.basic.list(db.rekeningen));
-	app.get('/api/rekeningen/:column/:value', basicAuthentication, controllers.basic.findOne(db.rekeningen));
-	app.post('/api/rekeningen', basicAuthentication, controllers.basic.create(db.rekeningen))
-	app.put('/api/rekeningen/:id', basicAuthentication, controllers.basic.update(db.rekeningen))
-	app.delete('/api/rekeningen/:id', basicAuthentication, controllers.basic.delete(db.rekeningen))
+	app.get('/api/rekeningen/:id', basicAuthentication, get(db.rekeningen));
+	app.get('/api/rekeningen', basicAuthentication, list(db.rekeningen));
+	app.get('/api/rekeningen/:column/:value', basicAuthentication, find(db.rekeningen));
+	app.post('/api/rekeningen', basicAuthentication, create(db.rekeningen))
+	app.put('/api/rekeningen/:id', basicAuthentication, update(db.rekeningen))
+	app.delete('/api/rekeningen/:id', basicAuthentication, deleteRecord(db.rekeningen))
 	
 	//Meterstanden
 	const meterstandCache = new Cache(300);

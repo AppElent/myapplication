@@ -1,15 +1,22 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import useSession from '../../hooks/useSession';
+import Login from '../../views/Login';
 
 const RouteWithLayout = props => {
-  const { layout: Layout, component: Component, routeComponent: RouteComponent, ...rest } = props;
+  const {user} = useSession();
+
+
+  
+  const { layout: Layout, component: Component, protectedRoute, ...rest } = props;
+  const FinalComponent = user === null && protectedRoute ? Login : Component;
   return (
-    <RouteComponent
+    <Route
       {...rest}
       render={matchProps => (
         <Layout>
-          <Component {...matchProps} />
+          <FinalComponent {...matchProps} />
         </Layout>
       )}
     />
@@ -20,11 +27,12 @@ RouteWithLayout.propTypes = {
   component: PropTypes.any.isRequired,
   layout: PropTypes.any.isRequired,
   path: PropTypes.string,
-  routeComponent: PropTypes.any
+  protectedRoute: PropTypes.bool
 };
 
 RouteWithLayout.defaultProps = {
-  routeComponent: Route
+  protectedRoute: false
 };
+
 
 export default RouteWithLayout;

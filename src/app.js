@@ -38,6 +38,7 @@ db.sequelize.sync({ force: false }).then(async () => {
 
 
   //laden van de BUNQ clients
+  /*
   const bunqclients = (async () => {
     //alle clients laden
     const allclients = await db.apisettings.findAll({ where: { name: 'bunq' } });
@@ -55,9 +56,10 @@ db.sequelize.sync({ force: false }).then(async () => {
       console.log('client loaded ' + clientsetting.user)
     }))
   })()
+  */
 });
 
-firebaseDB.collection('env/development/oauthproviders').get().then(providers => {
+firebaseDB.collection('env/' + process.env.NODE_ENV + '/oauthproviders').get().then(providers => {
   providers.forEach(provider => {
     const data = provider.data();
     console.log(provider.id + ": ", data);

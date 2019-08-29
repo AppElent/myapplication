@@ -24,7 +24,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const Topbar = props => {
-  const firebase = useSession();
+  const {firebase} = useSession();
   
   const { className, onSidebarOpen, ...rest } = props;
 
