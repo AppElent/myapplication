@@ -1,10 +1,9 @@
 /* eslint-disable react/no-multi-comp */
-import React, {useEffect} from 'react';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import React from 'react';
+import { Switch, Redirect } from 'react-router-dom';
 
 import { RouteWithLayout } from './components';
 import { Main as MainLayout, Minimal as MinimalLayout } from './layouts';
-import useSession from './hooks/useSession';
 
 import {
   ThemeDashboard,
@@ -17,8 +16,12 @@ import {
   ThemeSignUp,
   ThemeSignIn,
   ThemeNotFound,
-  Login,
-  Bunq
+  Home,
+  SignIn,
+  Account,
+  Rekeningen,
+  Bunq,
+  NotFound
 } from './views';
 
 const Routes = () => {
@@ -32,16 +35,17 @@ const Routes = () => {
         to="/home"
       />
       <RouteWithLayout 
-        component={Login}
+        component={Home}
         exact
         layout={MainLayout}
         path="/home"
+        protectedRoute
       />
       <RouteWithLayout 
-        component={Login}
+        component={SignIn}
         exact
         layout={MinimalLayout}
-        path="/login"
+        path="/sign-in"
       />
       <RouteWithLayout 
         component={ThemeDashboard}
@@ -51,11 +55,31 @@ const Routes = () => {
         protectedRoute
       />
       <RouteWithLayout 
+        component={Account}
+        exact
+        layout={MainLayout}
+        path="/account"
+        protectedRoute
+      />
+      <RouteWithLayout 
+        component={Rekeningen}
+        exact
+        layout={MainLayout}
+        path="/rekeningen"
+        protectedRoute
+      />
+      <RouteWithLayout 
         component={Bunq}
         exact
         layout={MainLayout}
         path="/bunq"
         protectedRoute
+      />
+      <RouteWithLayout 
+        component={NotFound}
+        exact
+        layout={MinimalLayout}
+        path="/not-found"
       />
       <RouteWithLayout 
         component={ThemeDashboard}
@@ -117,7 +141,7 @@ const Routes = () => {
         layout={MinimalLayout}
         path="/theme/not-found"
       />
-      <Redirect to="/theme/not-found" />
+      <Redirect to="/not-found" />
     </Switch>
   );
 };

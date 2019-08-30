@@ -2,7 +2,7 @@ const path = require('path');
 const fetch = require("node-fetch");
 const db = require('./models');
 
-import {get, find, list, create, update, deleteRecords} from './modules/SequelizeREST';
+import {get, find, list, create, update, deleteRecord} from './modules/SequelizeREST';
 
 module.exports = async function(app) {
 	

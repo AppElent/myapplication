@@ -34,6 +34,7 @@ const App = () => {
   useEffect(() => {
     // listen for auth state changes
     const unsubscribe = firebase.auth.onAuthStateChanged((returnedUser) => {
+      console.log(returnedUser);
       setUser(returnedUser);
       setIsInitializing(false);
     })

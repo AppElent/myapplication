@@ -2,22 +2,26 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import useSession from '../../hooks/useSession';
-import Login from '../../views/Login';
+import SignIn from '../../views/SignIn';
+import { Minimal as MinimalLayout } from '../../layouts';
 
 const RouteWithLayout = props => {
-  const {user} = useSession();
+  const {user, isInitializing} = useSession();
 
-
+  if(isInitializing){
+    return <div>Loading</div>
+  }
   
   const { layout: Layout, component: Component, protectedRoute, ...rest } = props;
-  const FinalComponent = user === null && protectedRoute ? Login : Component;
+  const FinalComponent = user === null && protectedRoute ? SignIn : Component;
+  const FinalLayout = user === null && protectedRoute ? MinimalLayout : Layout;
   return (
     <Route
       {...rest}
       render={matchProps => (
-        <Layout>
+        <FinalLayout>
           <FinalComponent {...matchProps} />
-        </Layout>
+        </FinalLayout>
       )}
     />
   );

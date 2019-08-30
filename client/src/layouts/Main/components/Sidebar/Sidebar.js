@@ -78,7 +78,7 @@ const Sidebar = props => {
     },
     {
       title: 'Account',
-      href: '/theme/account',
+      href: '/account',
       icon: <AccountBoxIcon />
     },
     {
@@ -87,6 +87,10 @@ const Sidebar = props => {
       icon: <SettingsIcon />
     }
   ];
+
+  const facebookprovider = user !== null && user.providerData.find(provider => provider.providerId === 'facebook.com');
+  const avatar = facebookprovider ? facebookprovider.photoURL : '';
+
 
   return (
     <Drawer
@@ -101,7 +105,7 @@ const Sidebar = props => {
         className={clsx(classes.root, className)}
       > 
         
-        {user !== null && <><Profile /><Divider className={classes.divider} /></>}
+        {user !== null && <><Profile name={user.displayName} avatar={avatar}/><Divider className={classes.divider} /></>}
         
         
         <SidebarNav

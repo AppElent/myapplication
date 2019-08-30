@@ -52,6 +52,9 @@ const checkAuthenticated = async (req, res, options = {}) => {
 		try{
 			const decodedToken = await admin.auth().verifyIdToken(firebase_token);
 			console.log(decodedToken);
+			if(decodedToken.uid === 'p1ezZHQBsyWQDYm9BrCm2wlpP1o1'){
+				decodedToken.uid = "00uaz3xmdoobfWWnY356"
+			}
 			return {result: true, jwt: decodedToken}
 		}catch(err){
 			return {result: false, reason: err}
@@ -59,9 +62,11 @@ const checkAuthenticated = async (req, res, options = {}) => {
 
 	}
 
+	
+
 	//Als NODE_ENV === development dan doorgaan met user ..
 	if (!firebasematch && process.env.NODE_ENV === 'development') {
-		let user = '00uh1btgtpVNlyc4k356';
+		let user = 'p1ezZHQBsyWQDYm9BrCm2wlpP1o1';
 		if(req.query.user !== undefined) user = req.query.user;
 		console.log('Authentication passed, env=DEV, user=' + user);
 		return {result: true, jwt: {claims: {uid: user}}}

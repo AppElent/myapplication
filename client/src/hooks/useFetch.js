@@ -6,9 +6,9 @@ import useSession from './useSession';
 const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]'
 
 export function useFetch(arg1, arg2) {
-  const firebase = useSession();
+  const {user} = useSession();
   //const auth = firebase.auth;
-  
+  console.log(user);
   let url = null
   let options = {}
   let onMount = false
@@ -60,7 +60,7 @@ export function useFetch(arg1, arg2) {
       
     try {
       setLoading(true)
-      let token = await firebase.auth.currentUser.getIdToken(true);
+      let token = await user.getIdToken(true);
       console.log('Making ' + method + ' request to ' + url + query);
       var response = await fetch(url + query, {
         method,
@@ -83,9 +83,10 @@ export function useFetch(arg1, arg2) {
         } catch (err) {
           responsedata = await response.text()
         }
+        console.log('Response data', responsedata);
         if(method.toLowerCase() === 'get'){
           if (arg2.postProcess !== undefined) {responsedata = await arg2.postProcess(responsedata);}else{console.log(12345)}
-          setData(responsedata)
+          setData(responsedata.data)
         }
       }
 
