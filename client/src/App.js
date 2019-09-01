@@ -26,24 +26,43 @@ validate.validators = {
 };
 
 const App = () => {
-  const [user, setUser] = useState(null);
-  const [isInitializing, setIsInitializing] = useState(true);
-
   const firebase = new Firebase();
+  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, userdata: null});
+  //const [user, setUser] = useState(null);
+  //const [isInitializing, setIsInitializing] = useState(true);
+  //const [userdata, loading, error] = useFirestoreDocument('users/' + user.uid);
+  //const [userdata, setUserdata] = useState(null);
+
+  //const firebase = new Firebase();
 
   useEffect(() => {
     // listen for auth state changes
-    const unsubscribe = firebase.auth.onAuthStateChanged((returnedUser) => {
+    const unsubscribe = firebase.auth.onAuthStateChanged(async (returnedUser) => {
       console.log(returnedUser);
-      setUser(returnedUser);
-      setIsInitializing(false);
+      //setUser(returnedUser);
+      //setIsInitializing(false);
+      let data = null;
+      if(returnedUser){
+        data = await firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid).get();
+        data = data.data();
+      }
+      setAuthData({...authData, user: returnedUser, isInitializing: false, userdata: data})
+      //setUserdata(data.data());
     })
     // unsubscribe to the listener when unmounting
     return () => unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if(authData.isInitializing || authData.user === null) return;
+    const ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid);
+    return ref.onSnapshot(doc => {
+      setAuthData({...authData, userdata: doc.data()});
+    });
+  }, []);
   
   return (
-    <FirebaseContext.Provider value={{firebase, user, isInitializing}}>
+    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userdata: authData.userdata}}>
       <ThemeProvider theme={theme}>
         <Router history={browserHistory}>
           <Routes />

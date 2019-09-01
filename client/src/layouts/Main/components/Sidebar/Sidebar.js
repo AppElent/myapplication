@@ -47,6 +47,11 @@ const Sidebar = props => {
 
   const pages = [
     {
+      title: 'Rekeningen',
+      href: '/rekeningen',
+      icon: <DashboardIcon />
+    },
+    {
       title: 'Dashboard',
       href: '/theme/dashboard',
       icon: <DashboardIcon />
@@ -88,8 +93,7 @@ const Sidebar = props => {
     }
   ];
 
-  const facebookprovider = user !== null && user.providerData.find(provider => provider.providerId === 'facebook.com');
-  const avatar = facebookprovider ? facebookprovider.photoURL : '';
+  const avatar = user !== null ? user.photoURL : '';
 
 
   return (

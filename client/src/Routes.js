@@ -21,6 +21,7 @@ import {
   Account,
   Rekeningen,
   Bunq,
+  TestPage,
   NotFound
 } from './views';
 
@@ -73,6 +74,13 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/bunq"
+        protectedRoute
+      />
+      <RouteWithLayout 
+        component={TestPage}
+        exact
+        layout={MainLayout}
+        path="/testpage"
         protectedRoute
       />
       <RouteWithLayout 

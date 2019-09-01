@@ -59,7 +59,7 @@ db.sequelize.sync({ force: false }).then(async () => {
   */
 });
 
-firebaseDB.collection('env/' + process.env.NODE_ENV + '/oauthproviders').get().then(providers => {
+firebaseDB.collection('env/' + process.env.FIRESTORE_ENVIRONMENT + '/oauthproviders').get().then(providers => {
   providers.forEach(provider => {
     const data = provider.data();
     console.log(provider.id + ": ", data);
