@@ -27,7 +27,7 @@ validate.validators = {
 
 const App = () => {
   const firebase = new Firebase();
-  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, userdata: null});
+  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, userdata: {info: null, data: null}});
   //const [user, setUser] = useState(null);
   //const [isInitializing, setIsInitializing] = useState(true);
   //const [userdata, loading, error] = useFirestoreDocument('users/' + user.uid);
@@ -41,12 +41,18 @@ const App = () => {
       console.log(returnedUser);
       //setUser(returnedUser);
       //setIsInitializing(false);
-      let data = null;
+      let userdata = {info: null, data: null};
       if(returnedUser){
-        data = await firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid).get();
-        data = data.data();
+        let info = await firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid).get();
+        userdata.info = info.data();
+        const collection = await firebase.db.collection('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid + '/data').get();
+        userdata.data = {};
+        for(var doc of collection.docs){
+          userdata.data[doc.id] = doc.data();
+        }
+        console.log(userdata);
       }
-      setAuthData({...authData, user: returnedUser, isInitializing: false, userdata: data})
+      setAuthData({...authData, user: returnedUser, isInitializing: false, userdata: userdata})
       //setUserdata(data.data());
     })
     // unsubscribe to the listener when unmounting
@@ -57,12 +63,12 @@ const App = () => {
     if(authData.isInitializing || authData.user === null) return;
     const ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid);
     return ref.onSnapshot(doc => {
-      setAuthData({...authData, userdata: doc.data()});
+      setAuthData({...authData, userinfo: doc.data()});
     });
   }, []);
   
   return (
-    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userdata: authData.userdata}}>
+    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userinfo: authData.userinfo, userdata: authData.userdata}}>
       <ThemeProvider theme={theme}>
         <Router history={browserHistory}>
           <Routes />

@@ -13,8 +13,8 @@ const useStyles = makeStyles(theme => ({
 
 const TestPage = () => {
   const classes = useStyles();
-  const {userdata} = useSession();
-  console.log(userdata);
+  const authData = useSession();
+  console.log(authData);
   const {value, loading, error} = useFirestoreDocument('users/user1');
   console.log(value, loading, error);
 
@@ -31,7 +31,8 @@ const TestPage = () => {
           xs={12}
         >
           <p>Omgeving is {process.env.REACT_APP_FIRESTORE_ENVIRONMENT}</p>
-          <span>User data: {JSON.stringify(userdata)}</span>
+          <span>User data: {JSON.stringify(authData.userdata)}</span>
+          <span>User info: {JSON.stringify(authData.userinfo)}</span>
           {value && <span>User1 data: {JSON.stringify(value.data())}</span>}
         </Grid>
         <Grid
