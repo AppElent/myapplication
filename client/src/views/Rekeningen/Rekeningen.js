@@ -3,6 +3,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 
 import RekeningTable from './components/RekeningTable';
+import useFetch from '../../hooks/useFetch';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -15,11 +16,12 @@ const useStyles = makeStyles(theme => ({
 
 const Rekeningen = () => {
   const classes = useStyles();
+  const [data /*, setData, loading, error*/] = useFetch('/api/rekeningen', {onMount: true})
 
   return (
     <div className={classes.root}>
       <div className={classes.content}>
-        <RekeningTable />
+        <RekeningTable data={data}/>
       </div>
     </div>
   );

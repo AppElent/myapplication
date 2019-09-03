@@ -44,16 +44,14 @@ export const fetchBackend = async (url, options) => {
   return (await makeAPICall(url, options.method, options.body, await options.auth.getAccessToken()));
 }
 */
-//import {auth} from '../helpers/Firebase';
-//import useSession from '../hooks/useSession';
 
-const fetchBackend = async (url, options) => {
-  //const firebase = useSession();
-  const firebase = options.auth;
-  const token = firebase.auth.currentUser.getIdToken();
+
+
+const FetchBackend = async (url, options) => {
+  const token = await options.user.getIdToken();
   if(options.body === null){options.body = undefined}
   if(options.method === undefined) options.method = 'GET';
-  console.log('Making ' + options.method + ' API call to ' + url);
+  console.log('Making ' + options.method + ' API call to ' + url, token, options.body);
   return fetch(url, {    
 	  method: options.method ,
     headers: {
@@ -74,4 +72,4 @@ const fetchBackend = async (url, options) => {
 	    response.clone().json().catch(() => response.text())
     )
 }
-export default fetchBackend;
+export default FetchBackend;

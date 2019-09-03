@@ -8,7 +8,7 @@ import useStateExtended from '../../hooks/useStateExtended';
 import useLocalStorage from '../../hooks/useLocalStorage';
 //import BunqPaymentModal from '../components/BunqPaymentModal'
 //import { AuthContext } from '../context/AuthContext';
-import fetchBackend from '../../helpers/fetchBackend';
+import FetchBackend from '../../helpers/FetchBackend';
 //import { Button} from 'react-bootstrap';
 import _ from 'lodash';
 
@@ -99,14 +99,14 @@ const Bunq = () => {
     for (var rekening of rekeningen){
       console.log('Naar rekening ' + rekening.rekening + ' moet ' + rekening['month_' + maandnummer] + ' euro worden overgemaakt.');
       if(rekening['month_' + maandnummer] > 0){
-        let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: rekening.rekening}, description: 'Geld apart zetten', amount: rekening['month_' + maandnummer].toString() + '.00'}});
+        let overboeking = await FetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: rekening.rekening}, description: 'Geld apart zetten', amount: rekening['month_' + maandnummer].toString() + '.00'}});
         if(overboeking.success === false) setPreconditions({...preconditions, logging: {...preconditions.logging, [rekening.rekening]: {success: false, message: overboeking.message.Error[0].error_description}}})
         console.log(overboeking);
       }
     }
     console.log('Erna');
     if(bunqSettings.spaar !== ''){
-      let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: bunqSettings.spaar}, description: 'Geld sparen', amount: preconditions.sparen.toString() + '.00'}});
+      let overboeking = await FetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: bunqSettings.spaar}, description: 'Geld sparen', amount: preconditions.sparen.toString() + '.00'}});
       console.log(overboeking); 
       if(overboeking.success === false) setPreconditions({...preconditions, logging: {...preconditions.logging, [rekening.rekening]: {success: false, message: overboeking.message.Error[0].error_description}}})
     }
