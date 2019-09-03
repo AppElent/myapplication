@@ -27,48 +27,44 @@ validate.validators = {
 
 const App = () => {
   const firebase = new Firebase();
-  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, userdata: {info: null, data: null}});
-  //const [user, setUser] = useState(null);
-  //const [isInitializing, setIsInitializing] = useState(true);
-  //const [userdata, loading, error] = useFirestoreDocument('users/' + user.uid);
-  //const [userdata, setUserdata] = useState(null);
-
-  //const firebase = new Firebase();
-
+  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, });
+  
   useEffect(() => {
     // listen for auth state changes
     const unsubscribe = firebase.auth.onAuthStateChanged(async (returnedUser) => {
       console.log(returnedUser);
-      //setUser(returnedUser);
-      //setIsInitializing(false);
-      let userdata = {info: null, data: null};
-      if(returnedUser){
-        let info = await firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid).get();
-        userdata.info = info.data();
-        const collection = await firebase.db.collection('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid + '/data').get();
-        userdata.data = {};
-        for(var doc of collection.docs){
-          userdata.data[doc.id] = doc.data();
-        }
-        console.log(userdata);
-      }
-      setAuthData({...authData, user: returnedUser, isInitializing: false, userdata: userdata})
-      //setUserdata(data.data());
+      setAuthData({...authData, user: returnedUser, isInitializing: false})
     })
     // unsubscribe to the listener when unmounting
     return () => unsubscribe()
   }, [])
 
+  const [userInfo, setUserInfo] = useState(null);
+
   useEffect(() => {
-    if(authData.isInitializing || authData.user === null) return;
+    if (authData.isInitializing || authData.user === null) return;
     const ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid);
     return ref.onSnapshot(doc => {
-      setAuthData({...authData, userinfo: doc.data()});
+      setUserInfo(doc.data());
     });
-  }, []);
+  }, [authData.isInitializing, authData.user]);
+
+  const [userData, setUserData] = useState(null);
+
+  useEffect(() => {
+    if (authData.isInitializing || authData.user === null) return;
+    const ref = firebase.db.collection('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid + '/data');
+    return ref.onSnapshot(collection => {
+      const userdata = {}
+      for(var doc of collection.docs){
+        userdata[doc.id] = doc.data();
+      }
+      setUserData(userdata);
+    })
+  }, [authData.isInitializing, authData.user]);
   
   return (
-    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userinfo: authData.userinfo, userdata: authData.userdata}}>
+    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData}}>
       <ThemeProvider theme={theme}>
         <Router history={browserHistory}>
           <Routes />

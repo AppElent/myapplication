@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 import {
   useDocument, 
@@ -39,13 +39,6 @@ export const useFirestoreDocumentData = (docpath, options = null) => {
   return Object.assign([value, loading, error], { value, loading, error })
 };
 
-export const useFirestoreDocumentDataOnce = (docpath, options = null) => {
-  const {firebase} = useSession();
-  docpath = getPath(docpath);
-  const [value, loading, error] = useDocumentDataOnce(firebase.db.doc(docpath), options);
-  return Object.assign([value, loading, error], { value, loading, error })
-};
-
 export const useFirestoreCollection = (collpath, options = null) => {
   const {firebase} = useSession();
   collpath = getPath(collpath);
@@ -67,10 +60,63 @@ export const useFirestoreCollectionData = (collpath, options = null) => {
   return Object.assign([value, loading, error], { value, loading, error })
 };
 
-export const useFirestoreCollectionDataOnce = (collpath, options = null) => {
+export const useFirestoreDocumentDataOnce = (path) => {
   const {firebase} = useSession();
-  collpath = getPath(collpath);
-  const [value, loading, error] = useCollectionDataOnce(firebase.db.doc(collpath), options);
-  return Object.assign([value, loading, error], { value, loading, error })
-};
+  path = getPath(path);
+
+  const ref = firebase.db.doc(path);
+
+  const getFirestoreData = useCallback(async () => {
+    const fsdata =  await ref.get();
+    console.log('Getting firestore data, Path: ' + path, fsdata.data());
+    setData(fsdata.data());
+  });
+  const setFirestoreData = useCallback((fsdata) => {
+    ref.set(fsdata);
+  });
+
+  const [data, setData] = useState(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(undefined);
+
+  useEffect(() => {
+    getFirestoreData()
+      .then(setLoading(false))
+      .catch(err => {setError(err)});
+  }, [])
+
+  return Object.assign([data, loading, error, setFirestoreData], { data, loading, error, setFirestoreData })
+}
+
+export const useFirestoreCollectionDataOnce = (path) => {
+  const {firebase} = useSession();
+  path = getPath(path);
+
+  const ref = firebase.db.doc(path);
+
+  const getFirestoreData = useCallback(async () => {
+    const fsdata =  await ref.get();
+    const resultdata = {}
+    fsdata.forEach(async doc => {
+      resultdata[doc.id] = doc.data();
+    })
+    console.log('Getting firestore data, Path: ' + path, resultdata);
+    setData(resultdata);
+  });
+  const setFirestoreData = useCallback((fsdata) => {
+    ref.set(fsdata);
+  });
+
+  const [data, setData] = useState(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(undefined);
+
+  useEffect(() => {
+    getFirestoreData()
+      .then(setLoading(false))
+      .catch(err => {setError(err)});
+  }, [])
+
+  return Object.assign([data, loading, error, setFirestoreData], { data, loading, error, setFirestoreData })
+}
 

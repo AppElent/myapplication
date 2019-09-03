@@ -2,7 +2,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
 
-import {useFirestoreDocument} from '../../hooks/useFirestore';
+import { useFirestoreDocumentDataOnce} from '../../hooks/useFirestore';
 import useSession from '../../hooks/useSession';
 
 const useStyles = makeStyles(theme => ({
@@ -15,8 +15,10 @@ const TestPage = () => {
   const classes = useStyles();
   const authData = useSession();
   console.log(authData);
-  const {value, loading, error} = useFirestoreDocument('users/user1');
+  const {value, loading, error} = useFirestoreDocumentDataOnce('users/<dummy>');
+  const [een, twee, drie] = useFirestoreDocumentDataOnce('users/' + authData.user.uid);
   console.log(value, loading, error);
+  console.log(een, twee, drie);
 
 
   return (
@@ -31,9 +33,10 @@ const TestPage = () => {
           xs={12}
         >
           <p>Omgeving is {process.env.REACT_APP_FIRESTORE_ENVIRONMENT}</p>
-          <span>User data: {JSON.stringify(authData.userdata)}</span>
-          <span>User info: {JSON.stringify(authData.userinfo)}</span>
+          <span>User data: {JSON.stringify(authData.userData)}</span>
+          <span>User info: {JSON.stringify(authData.userInfo)}</span>
           {value && <span>User1 data: {JSON.stringify(value.data())}</span>}
+          {error && <span>User1 data: {JSON.stringify(error)}</span>}
         </Grid>
         <Grid
           item
