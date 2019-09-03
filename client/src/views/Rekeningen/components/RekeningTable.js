@@ -5,7 +5,7 @@ import MaterialTable from 'material-table';
 import {
   Card
 } from '@material-ui/core';
-import FetchBackend from 'helpers/FetchBackend';
+import fetchBackend from 'helpers/fetchBackend';
 import useSession from 'hooks/useSession';
 
 
@@ -45,14 +45,14 @@ const RekeningTable = ({data}) => {
           //isDeletable: rowData => rowData.name === "b", // only name(a) rows would be deletable
           onRowAdd: async newData => {
             console.log(newData);
-            FetchBackend('/api/rekeningen', {method: 'POST', body: newData, user});
+            fetchBackend('/api/rekeningen', {method: 'POST', body: newData, user});
           },
           onRowUpdate: async (newData, oldData) => {
             console.log(newData, oldData, 999);
-            FetchBackend('/api/rekeningen/' + oldData.id, {method: 'PUT', body: newData, user});
+            fetchBackend('/api/rekeningen/' + oldData.id, {method: 'PUT', body: newData, user});
           },
           onRowDelete: async oldData => {
-            FetchBackend('/api/rekeningen/' + oldData.id, {method: 'DELETE', user});
+            fetchBackend('/api/rekeningen/' + oldData.id, {method: 'DELETE', user});
           }
         }}
         options={{

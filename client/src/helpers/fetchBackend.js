@@ -47,7 +47,7 @@ export const fetchBackend = async (url, options) => {
 
 
 
-const FetchBackend = async (url, options) => {
+const fetchBackend = async (url, options) => {
   const token = await options.user.getIdToken();
   if(options.body === null){options.body = undefined}
   if(options.method === undefined) options.method = 'GET';
@@ -72,4 +72,4 @@ const FetchBackend = async (url, options) => {
 	    response.clone().json().catch(() => response.text())
     )
 }
-export default FetchBackend;
+export default fetchBackend;
