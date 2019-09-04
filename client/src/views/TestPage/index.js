@@ -20,6 +20,11 @@ const TestPage = () => {
   console.log(value, loading, error);
   console.log(een, twee, drie);
 
+  const userinforef = authData.getInfoRef();
+  userinforef.set({Fullname: 'Eric Jansen'});
+
+  const userdataref = authData.getDataRef('ibiza');
+  userdataref.set({nice: true})
 
   return (
     <div className={classes.root}>

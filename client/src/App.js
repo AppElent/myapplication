@@ -28,6 +28,13 @@ validate.validators = {
 const App = () => {
   const firebase = new Firebase();
   const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, });
+
+  const getInfoRef = () => {
+    return firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid);
+  }
+  const getDataRef = (key) => {
+    return firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid + '/data/' + key);
+  }
   
   useEffect(() => {
     // listen for auth state changes
@@ -64,7 +71,7 @@ const App = () => {
   }, [authData.isInitializing, authData.user]);
   
   return (
-    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData}}>
+    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, getInfoRef, getDataRef}}>
       <ThemeProvider theme={theme}>
         <Router history={browserHistory}>
           <Routes />

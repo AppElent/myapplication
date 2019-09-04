@@ -81,7 +81,9 @@ exports.exchange = () => async (req, res) => {
 	try {
 	    const accessToken = await oauthobject.getToken(redirecthost, req.body.code);
 	    console.log(accessToken)
-	    console.log(req.body.name)
+		console.log(req.body.name)
+		return res.send({success: true, data: accessToken});
+		/*
 	    if(req.params.application !== undefined){
 		const conditions = {where: {user: req.uid, name: req.params.application}};
 		const body = {
@@ -102,10 +104,11 @@ exports.exchange = () => async (req, res) => {
 		}
 		return res.send(entry);
 	    }
-	    return res.send(accessToken);
+		return res.send(accessToken);
+		*/
 	}catch (error) {
 	    console.log(error);
-	    return res.status(500).send('Creation failed: ' + error)
+	    return res.status(400).send({success: false, message: error})
 	}
 }
 

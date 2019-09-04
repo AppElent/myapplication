@@ -52,6 +52,21 @@ const Sidebar = props => {
       icon: <DashboardIcon />
     },
     {
+      title: 'Bunq',
+      href: '/bunq',
+      icon: <DashboardIcon />
+    },
+    {
+      title: 'Events',
+      href: '/events',
+      icon: <DashboardIcon />
+    },
+    {
+      title: 'Testpage',
+      href: '/testpage',
+      icon: <DashboardIcon />
+    },
+    {
       title: 'Dashboard',
       href: '/theme/dashboard',
       icon: <DashboardIcon />
