@@ -18,6 +18,7 @@ import firebase, {db as firebaseDB} from './app/modules/Firebase';
 
 /* Database configuratie */
 const db = require('./app/models');
+ 
 
 // force: true will drop the table if it already exists
 //const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
