@@ -20,6 +20,8 @@ import firebase, {db as firebaseDB} from './app/modules/Firebase';
 const db = require('./app/models');
  
 
+
+
 // force: true will drop the table if it already exists
 //const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
 db.sequelize.sync({ force: false }).then(async () => {
