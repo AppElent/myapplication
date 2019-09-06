@@ -1,14 +1,11 @@
 const path = require('path');
-const fetch = require("node-fetch");
+//import fetch from 'node-fetch';
 const db = require('./models');
+import {basicAuthentication, adminAuthentication} from './middleware/authentication';
 
 import {get, find, list, create, update, deleteRecord} from './modules/SequelizeREST';
 
 module.exports = async function(app) {
-	
-	const auth = require("./middleware/authentication")
-	const basicAuthentication = auth.authenticationRequired();
-	const adminAuthentication = auth.authenticationRequired({group: 'Admins'});
 	
 	console.log('test123')
 	//PROXY routes
@@ -90,6 +87,8 @@ module.exports = async function(app) {
 	app.get('/api/testfirebase', basicAuthentication, (req, res) => {
 		res.send({result: true, asd: false});
 	});
+
+	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	
 	//Usersettings
 	app.get('/api/usersettings/:id', basicAuthentication, controllers.basic.get(db.usersettings));
@@ -137,7 +136,7 @@ module.exports = async function(app) {
 	app.put('/api/events/:id', basicAuthentication, controllers.basic.update(db.events))
 	
 	//OKTA routes
-	app.use('/api/okta/', require('./controllers/okta.controller'));
+	//app.use('/api/okta/', require('./controllers/okta.controller'));
 	//app.post('/api/okta/create', adminAuthentication, controllers.okta.createUser)
 	//app.get('/api/okta/groups', basicAuthentication, controllers.okta.getGroups);
 	
@@ -157,7 +156,7 @@ module.exports = async function(app) {
 	
 	//Bunq routes
 	app.post('/api/bunq/oauth/exchange', basicAuthentication, controllers.bunq.exchangeOAuthTokens);
-	app.get('/api/bunq/oauth/formatUrl', basicAuthentication, controllers.bunq.formatOAuthUrl);
+	//app.get('/api/bunq/oauth/formatUrl', basicAuthentication, controllers.bunq.formatOAuthUrl);
 	app.get('/api/bunq/accounts/:name', basicAuthentication, controllers.bunq.getMonetaryAccountByName);
 	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	app.post('/api/bunq/payment', basicAuthentication, controllers.bunq.postPaymentInternal);

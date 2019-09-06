@@ -1,12 +1,11 @@
-const Encryption = require('../modules/Encryption');
-const encryption = new Encryption();
+import {encryption} from '../modules/Encryption';
 const key =  process.env.SEQUELIZE_ENCRYPTION_KEY;
 
 
 module.exports = (sequelize, Sequelize) => {
 
 	const Apisettings = sequelize.define('apisettings', {
-	  user: {
+	  userId: {
 		type: Sequelize.STRING,
 		allowNull: false,
 		unique: 'USERxNAME'

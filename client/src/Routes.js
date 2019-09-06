@@ -22,6 +22,7 @@ import {
   Rekeningen,
   Bunq,
   TestPage,
+  OAuthPage,
   NotFound
 } from './views';
 
@@ -81,6 +82,13 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/testpage"
+        protectedRoute
+      />
+      <RouteWithLayout 
+        component={OAuthPage}
+        exact
+        layout={MainLayout}
+        path="/oauth/:name"
         protectedRoute
       />
       <RouteWithLayout 

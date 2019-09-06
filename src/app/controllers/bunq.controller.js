@@ -8,13 +8,16 @@ const bunqstate = 'skjdhfkasjhbvckahsdjfhagdbjfhgmnfadnfbsmdafbe'
 
 import {oauthproviders} from '../modules/application_cache';
 import {bunq} from '../modules/Bunq';
+import {encryption} from '../modules/Encryption';
 
-const saveBunqSettings = async (user, authorizationCode, environment = 'PRODUCTION') => {
-	const conditions = {where: {user: user, name: 'bunq'}};
+const saveBunqSettings = async (user, authorizationCode, encryptionKey, environment = 'PRODUCTION') => {
+	const conditions = {where: {userId: user, name: 'bunq'}};
 	const body = {
-	  user: user, 
+	  userId: user, 
 	  name: 'bunq', 
 	  access_token: authorizationCode, 
+	  data1: encryptionKey,
+	  data2: environment
 	};
 	let entry = await db.apisettings.findOne(conditions)
 	if(entry){
@@ -25,7 +28,7 @@ const saveBunqSettings = async (user, authorizationCode, environment = 'PRODUCTI
 	return entry;
 }
 
-
+/*
 exports.formatOAuthUrl = async (req, res) => {	
 	let url = await bunq.getGenericClient().formatOAuthAuthorizationRequestUrl(
 		process.env.BUNQ_CLIENT_ID, 
@@ -34,35 +37,41 @@ exports.formatOAuthUrl = async (req, res) => {
 	);   
 	res.status(200).send(url);
 };
+*/
 
-exports.exchangeOAuthTokens = async (req, res) => {	
+export const exchangeOAuthTokens = async (req, res) => {	
 	if(req.body.code === null){
 		res.send("Geen auth code meegegeven");
 	}else{
-		const bunqoauth = oauthproviders['bunq'];
-		const authorizationCode = await bunq.getGenericClient().exchangeOAuthToken(
-			bunqoauth.options.client_id, 
-			bunqoauth.options.client_secret, 
-			'https://' + req.get('host') + '/bunq/oauth',
-			req.body.code
-		) 
-		console.log("Key: " + authorizationCode);
-		const entry = await saveBunqSettings(req.uid, authorizationCode, 'PRODUCTION');
-		await bunq.installNewClient(entry);
-		return res.send(entry);
+		try{
+			const bunqoauth = oauthproviders['bunq'];
+			const authorizationCode = await bunq.getGenericClient().exchangeOAuthToken(
+				bunqoauth.options.client_id, 
+				bunqoauth.options.client_secret, 
+				bunqoauth.options.redirect_url,
+				req.body.code
+			) 
+			console.log(authorizationCode);
+			const entry = await saveBunqSettings(req.uid, authorizationCode, encryption.generateRandomKey(32), 'PRODUCTION');
+			await bunq.load(req.uid, req.uid, authorizationCode, entry.data1, {}); 
+			return res.send({success: true});
+		}catch(error){
+			console.log(error);
+			return res.send({success: false, message: error.response.data.error_description});
+		}
 	}
 };
 
 
 
-exports.getMonetaryAccounts = async (req, res) => {
+export const getMonetaryAccounts = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const forceUpdate = (req.query.forceupdate !== undefined ? true : false) 
 	console.log('forceUpdate', forceUpdate)
 	return res.send(await bunqClient.getAccounts(forceUpdate));
 }
 
-exports.getMonetaryAccountByName = async (req, res) => {
+export const getMonetaryAccountByName = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const accounts = await bunqClient.getAccounts();
 	const result = accounts.find(account => account.description === req.params.name)
@@ -70,26 +79,26 @@ exports.getMonetaryAccountByName = async (req, res) => {
 	res.send(result)
 }
 
-exports.getEvents = async (req, res) => {
+export const getEvents = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const forceUpdate = (req.query.forceupdate !== undefined ? true : false) 
 	const events = await bunqClient.getEvents(forceUpdate);
 	return res.send(events);
 }
 
-exports.postPaymentInternal = async (req, res) => {
+export const postPaymentInternal = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const payment = await bunqClient.makePaymentInternal(req.body.from, req.body.to, req.body.description, req.body.amount);
 	res.send(payment);
 }
 
-exports.postDraftPayment = async (req, res) => {
+export const postDraftPayment = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const payment = await bunqClient.makeDraftPayment(req.body.from, req.body.to, req.body.description, req.body.amount);
 	res.send(payment);
 }
 
-exports.createSandboxAPIKey = async (req, res) => {
+export const createSandboxAPIKey = async (req, res) => {
 	const key = await bunq.getGenericClient().api.sandboxUser.post();
 	if(req.query.install !== undefined && req.query.install.toUpperCase() === 'TRUE') {
 		const userentry = await saveBunqSettings(req.uid, key, 'SANDBOX');
@@ -117,12 +126,12 @@ exports.createSandboxAPIKey = async (req, res) => {
 	return res.send(key);
 }
 
-exports.getCards = async (req, res) => {
+export const getCards = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	return res.send(await bunqClient.getBunqJSClient().api.card.list(bunqClient.getUser().id));
 }
 
-exports.test = async (req, res) => {
+export const test = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const accounts = await bunqClient.getAccounts();
 	const request = await bunqClient.createBunqMeTab({type: 'id', value: accounts[0].id}, 'Gimme money', {value: '500', currency: 'EUR'}).catch(err => {console.log(err)});

@@ -10,7 +10,7 @@ module.exports = (sequelize, Sequelize) => {
 			return Moment(this.getDataValue('datetime')).tz('Europe/Amsterdam');//.format('YYYY-MM-DD HH:mm:ss');
 		}
 	  },
-	  user: {
+	  userId: {
 		type: Sequelize.STRING,
 		allowNull: false,
 	  },

@@ -1,28 +1,5 @@
 import admin from '../modules/Firebase';
-const OktaJwtVerifier = require('@okta/jwt-verifier');
-const fetch = require("node-fetch");
-
-const oktaJwtVerifier = new OktaJwtVerifier({
-  issuer: 'https://dev-810647.okta.com/oauth2/default',
-  clientId: '0oabepfc2Yo0a3Q0H356',
-  assertClaims: {
-	aud: 'api://default',
-  },
-});
-
-const isMemberOfGroup = async (req, group) => {
-    const baseUrl = req ? `${req.protocol}://${req.get('Host')}` : '';
-    const result = await fetch(baseUrl + '/api/okta/groups', {
-	    method: 'GET',
-	    headers: req.headers
-    }).catch(err => console.log(err))
-    const data = await result.json();
-    for(var oktagroup of data) {
-      console.log('Groep ' + oktagroup.profile.name + ' wordt gecheckt tegen ' + group);
-      if(oktagroup.profile.name === group) return true;
-    }
-    return false;
-}
+import fetch from 'node-fetch';
 
 
 const checkAuthenticated = async (req, res, options = {}) => {
@@ -52,9 +29,9 @@ const checkAuthenticated = async (req, res, options = {}) => {
 		try{
 			const decodedToken = await admin.auth().verifyIdToken(firebase_token);
 			console.log(decodedToken);
-			if(decodedToken.uid === 'p1ezZHQBsyWQDYm9BrCm2wlpP1o1'){
-				decodedToken.uid = "00uaz3xmdoobfWWnY356"
-			}
+			//if(decodedToken.uid === 'p1ezZHQBsyWQDYm9BrCm2wlpP1o1'){
+				//decodedToken.uid = "00uaz3xmdoobfWWnY356"
+			//}
 			return {result: true, jwt: decodedToken}
 		}catch(err){
 			return {result: false, reason: err}
@@ -73,7 +50,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
 	}
 	
 	
-	
+	/*
 	const bearermatch = authHeader.match(/Bearer (.+)/);
 	if (!bearermatch) return {result: false, reason: 'Bearer does not match'}
 	const accessToken = bearermatch[1];
@@ -95,6 +72,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
 		console.log(error);
 		return {result: false, reason: 'Accesstoken incorrect'}
 	}
+	*/
 	
 	
 }
@@ -134,8 +112,8 @@ const authenticationRequired = (options) => (req, res, next) => {
     })
 }
 
-module.exports.authenticationRequired = authenticationRequired;
-module.exports.basicAuthentication = authenticationRequired();
-module.exports.adminAuthentication = authenticationRequired({group: 'Admins'});
+export default authenticationRequired;
+export const basicAuthentication = authenticationRequired();
+export const adminAuthentication = authenticationRequired({group: 'Admins'});
 
 

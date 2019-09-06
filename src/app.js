@@ -17,7 +17,7 @@ import { request } from 'https';
 import firebase, {db as firebaseDB} from './app/modules/Firebase';
 
 /* Database configuratie */
-const db = require('./app/models');
+const db = require('./app/models'); 
 
 // force: true will drop the table if it already exists
 //const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
@@ -38,25 +38,25 @@ db.sequelize.sync({ force: false }).then(async () => {
 
 
   //laden van de BUNQ clients
-  /*
+  
   const bunqclients = (async () => {
     //alle clients laden
     const allclients = await db.apisettings.findAll({ where: { name: 'bunq' } });
     if (allclients.length === 0) return;
     //eerste client laden
     const client1 = allclients.shift();
-    console.log('Eerste client laden', client1.user);
-    await bunq.load(client1.user, client1.data1, client1.access_token, client1.refresh_token, { environment: 'PRODUCTION' });
-    const requestLimiter = bunq.getClient(client1.user).getBunqJSClient().ApiAdapter.RequestLimitFactory;
+    console.log('Eerste client laden', client1.userId);
+    await bunq.load(client1.userId, client1.userId, client1.access_token, client1.data1, { environment: 'PRODUCTION' });
+    const requestLimiter = bunq.getClient(client1.userId).getBunqJSClient().ApiAdapter.RequestLimitFactory;
 
     //rest laden
     const result = await Promise.all(allclients.map(async (clientsetting) => {
-      console.log('loading client ' + clientsetting.user)
-      await bunq.load(clientsetting.user, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
-      console.log('client loaded ' + clientsetting.user)
+      console.log('loading client ' + clientsetting.userId)
+      await bunq.load(clientsetting.userId, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
+      console.log('client loaded ' + clientsetting.userId)
     }))
   })()
-  */
+  
 });
 
 firebaseDB.collection('env/' + process.env.FIRESTORE_ENVIRONMENT + '/oauthproviders').get().then(providers => {

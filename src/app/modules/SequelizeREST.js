@@ -7,7 +7,7 @@ const defaultCache = new Cache(60*60*1);
 const getOptions = (options) => {
     if(options === undefined) options = {}
     if(options.idColumnName === undefined) options.idColumnName = 'id';
-    if(options.userColumnName === undefined) options.userColumnName = 'user';
+    if(options.userColumnName === undefined) options.userColumnName = 'userId';
     return options;
 }
 

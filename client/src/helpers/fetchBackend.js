@@ -61,10 +61,10 @@ const fetchBackend = async (url, options) => {
     },
 	    body: JSON.stringify(options.body)
   })//.catch(error => console.error(error))
-    .then(response => {
+    .then(async response => {
       if (!response.ok) {
         console.log(response)
-        throw new Error('Network error')
+        throw await response.json();
       }
       return response;
     })

@@ -27,20 +27,16 @@ validate.validators = {
 
 const App = () => {
   const firebase = new Firebase();
-  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, });
-
-  const getInfoRef = () => {
-    return firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid);
-  }
-  const getDataRef = (key) => {
-    return firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid + '/data/' + key);
-  }
+  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, ref: null});
+  
   
   useEffect(() => {
     // listen for auth state changes
     const unsubscribe = firebase.auth.onAuthStateChanged(async (returnedUser) => {
       console.log(returnedUser);
-      setAuthData({...authData, user: returnedUser, isInitializing: false})
+      let ref = null;
+      if(returnedUser) ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid);
+      setAuthData({...authData, user: returnedUser, isInitializing: false, ref})
     })
     // unsubscribe to the listener when unmounting
     return () => unsubscribe()
@@ -71,7 +67,7 @@ const App = () => {
   }, [authData.isInitializing, authData.user]);
   
   return (
-    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, getInfoRef, getDataRef}}>
+    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, ref: authData.ref}}>
       <ThemeProvider theme={theme}>
         <Router history={browserHistory}>
           <Routes />

@@ -1,7 +1,9 @@
 const forge = require("node-forge");
 
-module.exports = class Encryption {
-
+export default class Encryption {
+    constructor() {
+        
+    }
   
     /**
      * Example on how to hash a string
@@ -136,3 +138,4 @@ module.exports = class Encryption {
   
 }
 
+export const encryption = new Encryption();

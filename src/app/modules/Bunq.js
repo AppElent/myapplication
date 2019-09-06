@@ -1,7 +1,9 @@
-const db = require('../models/index.js');
+//const db = require('../models/index.js');
 import BunqClient from './BunqClient';
-const BunqJSClient = require("@bunq-community/bunq-js-client").default;
-const customStore = require( "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore").default;
+import BunqJSClient from '@bunq-community/bunq-js-client';
+//const BunqJSClient = require("@bunq-community/bunq-js-client").default;
+import customStore from "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore"; 
+//const customStore = require( "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore").default;
 const path = require("path");
 
 export class Bunq {
