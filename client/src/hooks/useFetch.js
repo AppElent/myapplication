@@ -7,8 +7,7 @@ const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]
 
 export function useFetch(arg1, arg2) {
   const {user} = useSession();
-  //const auth = firebase.auth;
-  console.log(user);
+
   let url = null
   let options = {}
   let onMount = false

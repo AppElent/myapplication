@@ -1,4 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
+import Button from '@material-ui/core/Button';
+import _ from 'lodash';
+
 
 //import { ListGroup} from 'react-bootstrap';
 //import DefaultTable from '../components/DefaultTable';
@@ -10,7 +13,6 @@ import useLocalStorage from '../../hooks/useLocalStorage';
 //import { AuthContext } from '../context/AuthContext';
 import fetchBackend from '../../helpers/fetchBackend';
 //import { Button} from 'react-bootstrap';
-import _ from 'lodash';
 
 const Bunq = () => {
     
@@ -168,9 +170,9 @@ const Bunq = () => {
   ]
     
   return (<div><h1>Bunq</h1>
-    {/*
-    <Button variant="primary" onClick={() => {accountsRequest.get('/api/bunq/accounts', '?forceUpdate=true')}} disabled={accountsLoading}>Flush cache</Button>
     
+    <Button variant="contained" color="primary" onClick={() => {accountsRequest.get('/api/bunq/accounts', '?forceUpdate=true')}} disabled={accountsLoading}>Flush cache</Button>
+    {/*
     <DefaultTable data={rekeningen} columns={rekeningColumns} loading={rekeningenLoading} pageSize={15}/>
     <DefaultFormRow data={formItems} buttons={formButtons}/>
     <ListGroup>

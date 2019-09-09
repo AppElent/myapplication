@@ -52,6 +52,11 @@ const Sidebar = props => {
       icon: <DashboardIcon />
     },
     {
+      title: 'Meterstanden',
+      href: '/meterstanden',
+      icon: <DashboardIcon />
+    },
+    {
       title: 'Bunq',
       href: '/bunq',
       icon: <DashboardIcon />

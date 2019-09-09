@@ -22,6 +22,8 @@ import {
   Rekeningen,
   Bunq,
   TestPage,
+  Events,
+  Meterstanden,
   OAuthPage,
   NotFound
 } from './views';
@@ -75,6 +77,20 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/bunq"
+        protectedRoute
+      />
+      <RouteWithLayout 
+        component={Events}
+        exact
+        layout={MainLayout}
+        path="/events"
+        protectedRoute
+      />
+      <RouteWithLayout 
+        component={Meterstanden}
+        exact
+        layout={MainLayout}
+        path="/meterstanden"
         protectedRoute
       />
       <RouteWithLayout 

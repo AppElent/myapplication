@@ -13,6 +13,8 @@ export { default as Home } from './Home';
 export { default as Account } from './Account';
 export { default as Rekeningen } from './Rekeningen';
 export { default as Bunq } from './Bunq';
+export { default as Meterstanden } from './Meterstanden';
+export { default as Events } from './Events';
 export { default as TestPage } from './TestPage';
 export { default as OAuthPage } from './OAuthPage';
 export { default as NotFound } from './NotFound';

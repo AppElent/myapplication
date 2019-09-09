@@ -84,19 +84,22 @@ module.exports = async function(app) {
 
 	//Custom routes
 	app.post('/api/redirectcall', basicAuthentication, controllers.custom.redirectCall);
-	app.get('/api/testfirebase', basicAuthentication, (req, res) => {
+	app.get('/api/test', basicAuthentication, (req, res) => {
 		res.send({result: true, asd: false});
 	});
 
-	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
+
+	
 	
 	//Usersettings
+	/*
 	app.get('/api/usersettings/:id', basicAuthentication, controllers.basic.get(db.usersettings));
 	app.get('/api/usersettings', basicAuthentication, controllers.basic.list(db.usersettings));
 	app.get('/api/usersettings/:column/:value', basicAuthentication, controllers.basic.findOne(db.usersettings));
 	app.post('/api/usersettings', basicAuthentication, controllers.basic.create(db.usersettings))
 	app.put('/api/usersettings/:id', basicAuthentication, controllers.basic.update(db.usersettings))
-	
+	*/
+
 	//Rekeningen
 	app.get('/api/rekeningen/:id', basicAuthentication, get(db.rekeningen));
 	app.get('/api/rekeningen', basicAuthentication, list(db.rekeningen));
@@ -108,32 +111,33 @@ module.exports = async function(app) {
 	//Meterstanden
 	const meterstandCache = new Cache(300);
 	console.log(db.meterstanden);
-	app.get('/api/meterstanden/:id', basicAuthentication, controllers.basic.get(db.meterstanden));
-	app.get('/api/meterstanden', basicAuthentication, controllers.basic.list(db.meterstanden, {cache: meterstandCache}));
-	app.get('/api/meterstanden/:column/:value', basicAuthentication, controllers.basic.findOne(db.meterstanden));
-	app.post('/api/meterstanden', basicAuthentication, controllers.basic.create(db.meterstanden))
-	app.put('/api/meterstanden/:id', basicAuthentication, controllers.basic.update(db.meterstanden))
+	app.get('/api/meterstanden/:id', basicAuthentication, get(db.meterstanden));
+	app.get('/api/meterstanden', basicAuthentication, list(db.meterstanden, {cache: meterstandCache}));
+	app.get('/api/meterstanden/:column/:value', basicAuthentication, find(db.meterstanden));
+	app.post('/api/meterstanden', basicAuthentication, create(db.meterstanden))
+	app.put('/api/meterstanden/:id', basicAuthentication, update(db.meterstanden))
 	
 	//Users
+	/*
 	app.get('/api/users/:id', adminAuthentication, controllers.basic.get(db.users, {userColumnName: null}));
 	app.get('/api/users', adminAuthentication, controllers.basic.list(db.users, {userColumnName: null}));
 	app.get('/api/users/:column/:value', adminAuthentication, controllers.basic.findOne(db.users, {userColumnName: null}));
 	app.post('/api/users', adminAuthentication, controllers.basic.create(db.users, {userColumnName: null}))
 	app.put('/api/users/:id', adminAuthentication, controllers.basic.update(db.users, {userColumnName: null}))
-	
+	*/
+
 	//API Settings
-	app.get('/api/apisettings/:id', basicAuthentication, controllers.basic.get(db.apisettings));
-	app.get('/api/apisettings', basicAuthentication, controllers.basic.list(db.apisettings));
-	app.get('/api/apisettings/:column/:value', basicAuthentication, controllers.basic.findOne(db.apisettings));
-	app.post('/api/apisettings', basicAuthentication, controllers.basic.create(db.apisettings))
-	app.put('/api/apisettings/:id', basicAuthentication, controllers.basic.update(db.apisettings))
+	app.get('/api/apisettings/:id', basicAuthentication, get(db.apisettings));
+	app.get('/api/apisettings', basicAuthentication, list(db.apisettings));
+	app.get('/api/apisettings/:column/:value', basicAuthentication, find(db.apisettings));
+	app.post('/api/apisettings', basicAuthentication, create(db.apisettings))
+	app.put('/api/apisettings/:id', basicAuthentication, update(db.apisettings))
 	
 	//Events
-	app.get('/api/events/:id', basicAuthentication, controllers.basic.get(db.events));
-	app.get('/api/events', basicAuthentication, controllers.basic.list(db.events));
-	app.get('/api/events/:column/:value', basicAuthentication, controllers.basic.findOne(db.events));
-	app.post('/api/events', basicAuthentication, controllers.basic.create(db.events))
-	app.put('/api/events/:id', basicAuthentication, controllers.basic.update(db.events))
+	app.get('/api/events/:id', basicAuthentication, get(db.events));
+	app.get('/api/events', basicAuthentication, list(db.events));
+	app.get('/api/events/:column/:value', basicAuthentication, find(db.events));
+	app.post('/api/events', basicAuthentication, create(db.events))
 	
 	//OKTA routes
 	//app.use('/api/okta/', require('./controllers/okta.controller'));
@@ -156,6 +160,7 @@ module.exports = async function(app) {
 	
 	//Bunq routes
 	app.post('/api/bunq/oauth/exchange', basicAuthentication, controllers.bunq.exchangeOAuthTokens);
+	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	//app.get('/api/bunq/oauth/formatUrl', basicAuthentication, controllers.bunq.formatOAuthUrl);
 	app.get('/api/bunq/accounts/:name', basicAuthentication, controllers.bunq.getMonetaryAccountByName);
 	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);

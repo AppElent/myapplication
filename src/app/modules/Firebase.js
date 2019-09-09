@@ -13,7 +13,5 @@ admin.initializeApp({
 
 export default admin;
 export const db = admin.firestore();
-admin.auth().getUserByEmail('ericjansen@live.nl').then(user => {console.log(user.toJSON())})
-db.collection('env').doc('development').get().then(doc => {
-  console.log(doc.id + ": ", doc.data())
-}) 
+export const auth = admin.auth();
+auth.getUserByEmail('ericjansen@live.nl').then(user => {console.log(user.toJSON())})

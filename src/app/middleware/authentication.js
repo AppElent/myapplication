@@ -1,5 +1,5 @@
-import admin from '../modules/Firebase';
-import fetch from 'node-fetch';
+import admin, {db} from '../modules/Firebase';
+//import fetch from 'node-fetch';
 
 
 const checkAuthenticated = async (req, res, options = {}) => {
@@ -39,10 +39,13 @@ const checkAuthenticated = async (req, res, options = {}) => {
 
 	}
 
-	
-
-	//Als NODE_ENV === development dan doorgaan met user ..
-	if (!firebasematch && process.env.NODE_ENV === 'development') {
+	if(!firebasematch && req.query.api_key !== undefined){
+		console.log('Authenticatie op basis van apikey');
+		const userdoc = await db.collection('env').doc(process.env.REACT_APP_FIRESTORE_ENVIRONMENT).collection('users').where('api.key', '=', req.query.api_key).limit(1).get();
+		if(userdoc.empty) return {result: false, reason: 'API key was given with query param but not found in database'}
+		const doc = userdoc.docs[0];
+		return {result: true, jwt: {claims: {uid: doc.id}}}
+	}else if (!firebasematch && process.env.NODE_ENV === 'development') {
 		let user = 'p1ezZHQBsyWQDYm9BrCm2wlpP1o1';
 		if(req.query.user !== undefined) user = req.query.user;
 		console.log('Authentication passed, env=DEV, user=' + user);
@@ -97,7 +100,7 @@ module.exports.epilogueAuthenticationRequired = async (req, res, context, option
 const authenticationRequired = (options) => (req, res, next) => {
     checkAuthenticated(req, res, options)
     .then(authenticated => {
-	    console.log('Authentication result ' + authenticated.result);
+		console.log('Authentication result ' + authenticated.result);
 	    if(authenticated.result === true){
 		    req.jwt = authenticated.jwt;
 		    if(authenticated.jwt !== false){
