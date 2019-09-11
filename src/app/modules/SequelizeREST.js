@@ -79,6 +79,7 @@ export const create = (model, options) => async (req, res) => {
         options = getOptions(options);
         const body = req.body;
         body[options.userColumnName] = req.uid;
+        console.log(body);
         const entry = await model.create(body)
 
         return res.send({success: true, data: entry});
