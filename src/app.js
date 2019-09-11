@@ -41,18 +41,19 @@ db.sequelize.sync({ force: false }).then(async () => {
   
   const bunqclients = (async () => {
     //alle clients laden
-    const allclients = await db.apisettings.findAll({ where: { name: 'bunq' } });
+    const allclients = await db.bunq.findAll();
     if (allclients.length === 0) return;
     //eerste client laden
     const client1 = allclients.shift();
     console.log('Eerste client laden', client1.userId);
-    await bunq.load(client1.userId, client1.userId, client1.access_token, client1.data1, { environment: 'PRODUCTION' });
+    await bunq.load(client1.userId, client1.userId, client1.access_token, client1.encryption_key, { environment: client1.environment });
     const requestLimiter = bunq.getClient(client1.userId).getBunqJSClient().ApiAdapter.RequestLimitFactory;
 
     //rest laden
     const result = await Promise.all(allclients.map(async (clientsetting) => {
       console.log('loading client ' + clientsetting.userId)
-      await bunq.load(clientsetting.userId, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
+      await bunq.load(clientsetting.userId, clientsetting.userId, clientsetting.access_token, clientsetting.encryption_key, { environment: clientsetting.environment });
+      //await bunq.load(clientsetting.userId, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
       console.log('client loaded ' + clientsetting.userId)
     }))
   })()
@@ -96,6 +97,7 @@ app.use(function (req, res, next) {
   next();
 });
 app.get('/health-check', (req, res) => res.sendStatus(200)); //certificate route
+app.get('/api/testerror', (req, res) => {const blabla = inci.fact});
 require('./app/routes.js')(app);
 
 
@@ -109,10 +111,11 @@ app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
-
+  console.log(err)
   // render the error page
   res.status(err.status || 500);
-  res.render('error');
+  //res.render('error');
+  return res.json({success: false, message: err.message, test: true})
 });
 
 

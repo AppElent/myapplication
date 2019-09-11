@@ -12,7 +12,11 @@ const OAuthAuthorize = ({title, formatUrl}) => {
     fetchBackend(formatUrl, {user}).then(url => setUrl(url))
   }, [])
     
-  return <Button href={url} disabled={url === ''}>{title}</Button> 
+  return <Button color="primary"
+    disabled={url === ''}
+    href={url}
+    variant="contained">{title}
+  </Button> 
         
 }
 

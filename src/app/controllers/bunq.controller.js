@@ -11,19 +11,18 @@ import {bunq} from '../modules/Bunq';
 import {encryption} from '../modules/Encryption';
 
 const saveBunqSettings = async (user, authorizationCode, encryptionKey, environment = 'PRODUCTION') => {
-	const conditions = {where: {userId: user, name: 'bunq'}};
+	const conditions = {where: {userId: user}};
 	const body = {
 	  userId: user, 
-	  name: 'bunq', 
 	  access_token: authorizationCode, 
-	  data1: encryptionKey,
-	  data2: environment
+	  encryption_key: encryptionKey,
+	  environment: environment
 	};
-	let entry = await db.apisettings.findOne(conditions)
+	let entry = await db.bunq.findOne(conditions)
 	if(entry){
 		entry = await entry.update(body)
 	}else{
-		entry = await db.apisettings.create(body);
+		entry = await db.bunq.create(body);
 	}
 	return entry;
 }
@@ -53,7 +52,7 @@ export const exchangeOAuthTokens = async (req, res) => {
 			) 
 			console.log(authorizationCode);
 			const entry = await saveBunqSettings(req.uid, authorizationCode, encryption.generateRandomKey(32), 'PRODUCTION');
-			await bunq.load(req.uid, req.uid, authorizationCode, entry.data1, {}); 
+			await bunq.load(req.uid, req.uid, authorizationCode, entry.encryption_key, {}); 
 			return res.send({success: true});
 		}catch(error){
 			console.log(error);
@@ -68,7 +67,8 @@ export const getMonetaryAccounts = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const forceUpdate = (req.query.forceupdate !== undefined ? true : false) 
 	console.log('forceUpdate', forceUpdate)
-	return res.send(await bunqClient.getAccounts(forceUpdate));
+	const data = await bunqClient.getAccounts(forceUpdate);
+	return res.send({data: data, success: true});
 }
 
 export const getMonetaryAccountByName = async (req, res) => {

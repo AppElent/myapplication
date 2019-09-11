@@ -7,8 +7,8 @@ import {get, find, list, create, update, deleteRecord} from './modules/Sequelize
 
 module.exports = async function(app) {
 	
-	console.log('test123')
 	//PROXY routes
+	/*
 	var httpProxy = require('http-proxy');
 	var apiProxy = httpProxy.createProxyServer();
 	app.all('/domoticz(/*)?', (req, res) => {
@@ -27,6 +27,7 @@ module.exports = async function(app) {
 		prependPath: false
 	    });
 	});
+	*/
 	
 	
 	//Load all controllers
@@ -127,11 +128,13 @@ module.exports = async function(app) {
 	*/
 
 	//API Settings
+	/*
 	app.get('/api/apisettings/:id', basicAuthentication, get(db.apisettings));
 	app.get('/api/apisettings', basicAuthentication, list(db.apisettings));
 	app.get('/api/apisettings/:column/:value', basicAuthentication, find(db.apisettings));
 	app.post('/api/apisettings', basicAuthentication, create(db.apisettings))
 	app.put('/api/apisettings/:id', basicAuthentication, update(db.apisettings))
+	*/
 	
 	//Events
 	app.get('/api/events/:id', basicAuthentication, get(db.events));
@@ -209,7 +212,7 @@ module.exports = async function(app) {
 		app.get('/api/development/:model', async (req, res) => {
 			let conditions = {}
 			if(req.query.user){
-				conditions = { where: {user: req.query.user} }
+				conditions = { where: {userId: req.query.user} }
 			}
 			const data = await db[req.params.model].findAll(conditions);
 			res.send(data);

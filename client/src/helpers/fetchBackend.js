@@ -51,7 +51,7 @@ const fetchBackend = async (url, options) => {
   const token = await options.user.getIdToken();
   if(options.body === null){options.body = undefined}
   if(options.method === undefined) options.method = 'GET';
-  console.log('Making ' + options.method + ' API call to ' + url, token, options.body);
+  console.log('Making ' + options.method + ' API call to ' + url, options.body);
   return fetch(url, {    
 	  method: options.method ,
     headers: {

@@ -1,191 +1,149 @@
-import React, { useState, useEffect, useContext } from 'react';
-import Button from '@material-ui/core/Button';
-import _ from 'lodash';
+import React, { useState, useEffect } from 'react';
+import { makeStyles } from '@material-ui/styles';
+import { Button } from '@material-ui/core';
+import CircularProgress from '@material-ui/core/CircularProgress';
+//import Moment from 'react-moment';
+import MaterialTable from 'material-table';
+import queryString from 'query-string';
+import { Redirect } from 'react-router-dom'
+
+import useSession from 'hooks/useSession';
+import useFetch from 'hooks/useFetch';
+import fetchBackend from 'helpers/fetchBackend';
+import {OAuthAuthorize} from '../../components';
 
 
-//import { ListGroup} from 'react-bootstrap';
-//import DefaultTable from '../components/DefaultTable';
-//import DefaultFormRow from '../components/DefaultFormRow';
-import useFetch from '../../hooks/useFetch';
-import useStateExtended from '../../hooks/useStateExtended';
-import useLocalStorage from '../../hooks/useLocalStorage';
-//import BunqPaymentModal from '../components/BunqPaymentModal'
-//import { AuthContext } from '../context/AuthContext';
-import fetchBackend from '../../helpers/fetchBackend';
-//import { Button} from 'react-bootstrap';
+const useStyles = makeStyles(theme => ({
+  root: {
+    padding: theme.spacing(3)
+  },
+  row: {
+    height: '42px',
+    display: 'flex',
+    alignItems: 'center',
+    marginTop: theme.spacing(1)
+  },
+  spacer: {
+    flexGrow: 1
+  },
+  importButton: {
+    marginRight: theme.spacing(1)
+  },
+  exportButton: {
+    marginRight: theme.spacing(1)
+  },
+  searchInput: {
+    marginRight: theme.spacing(1)
+  },
+  content: {
+    marginTop: theme.spacing(2)
+  }
+}));
 
 const Bunq = () => {
-    
-  const sum = (array, key) => array.reduce((a, b) => a + (b[key] || 0), 0);
-    
-  const groupData = (key) => (xs) => {
-    const object = xs.reduce(function(rv, x) {
-      (rv[x[key]] = rv[x[key]] || []).push(x);
-      return rv;
-    }, {});
-      //let result = []
-    const result = Object.entries(object).map((item) => {
-      //const sum = this.sum(item[1], 'month_1')
-      let array = {rekening: item[0], entries: item[1]}
-      for(var i = 1; i<13; i++){
-        const sumvalue = _.sumBy(item[1], 'month_' + i);
-        array['month_' + i] = sumvalue
-      }
-      return array;
-    });
-    return result
-  }
-    
 
-  const initialPreconditions = {run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null, logging: {preconditions_run: false}}
-    
-  const [bunqSettings, setBunqSettings] = useLocalStorage('bunq_settings', {from: '', spaar: '', income: 0, keep: 0})
-  const [accounts, setAccounts, accountsLoading, accountsError, accountsRequest] = useFetch('/api/bunq/accounts', {onMount: true})
-  const [preconditions, setPreconditions, checking, setChecking] = useStateExtended(initialPreconditions);
-  const [rekeningen, setRekeningen, rekeningenLoading, rekeningenError, rekeningenRequest] = useFetch('/api/rekeningen', {onMount: true, postProcess: groupData('rekening')})
-  const [script_running, setScriptRunning] = useState(false);
-    
-  const maandnummer = (new Date()).getMonth()+1;
-    
-  const checkPreconditions = () => {
-    //check
-    const algemeen_account = accounts.find(account => account.description === bunqSettings.from);
-    let currentstate = {...preconditions};
-    currentstate.succeeded = true;
-    currentstate.maandtotaal = 0;
-    currentstate.incomeSufficient = true;
-    currentstate.balanceSufficient = true;
-        
-    currentstate.balance = algemeen_account.balance.value;
-    rekeningen.map(rekening => {
-      currentstate.maandtotaal += rekening['month_' + maandnummer];
-      currentstate.logging[rekening.rekening] = {success: true, message: ''}
-      let foundaccount = accounts.find(account => account.description === rekening.rekening);
-      if(foundaccount == null && rekening['month_' + maandnummer] > 0){
-        currentstate.succeeded = false;
-        currentstate.logging[rekening.rekening].message = 'Bestaat niet';
-      }
-    });
-    if((parseFloat(algemeen_account.balance.value)) < bunqSettings.income){
-      currentstate.balanceSufficient = false;
-      currentstate.succeeded = false;
-    }
-    if((currentstate.maandtotaal + bunqSettings.keep) > bunqSettings.income){
-      currentstate.incomeSufficient = false;
-      currentstate.sparen = 0;
-      currentstate.succeeded = false;
-    }else{
-            
-      currentstate.sparen = (bunqSettings.income - currentstate.maandtotaal - bunqSettings.keep);
-      if(currentstate.balanceSufficient){
-        currentstate.sparen = (currentstate.sparen + (Math.round(algemeen_account.balance.value) - bunqSettings.income));
-      }
-      if(currentstate.sparen < 0){
-        currentstate.sparen = 0;
-        currentstate.incomeSufficient = false;   
-        currentstate.succeeded = false;
-      }else{
-        currentstate.incomeSufficient = true;
-      }
-            
-    }
-    currentstate.logging.preconditions_run = true;
-    setPreconditions(currentstate);
-  }
-    
-  const runScript = async () => {
-    //check
-    setScriptRunning(true);
-    //this.setState({script_running: true});
+  const {user, userData, ref} = useSession();
+  const classes = useStyles();
+  const {data, loading, error, request} = useFetch('/api/bunq/accounts', {});
+  const [loadBunqData, setLoadBunqData] = useState(false);
+  const [loadingToken, setLoadingToken] = useState(false);
 
-    for (var rekening of rekeningen){
-      console.log('Naar rekening ' + rekening.rekening + ' moet ' + rekening['month_' + maandnummer] + ' euro worden overgemaakt.');
-      if(rekening['month_' + maandnummer] > 0){
-        let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: rekening.rekening}, description: 'Geld apart zetten', amount: rekening['month_' + maandnummer].toString() + '.00'}});
-        if(overboeking.success === false) setPreconditions({...preconditions, logging: {...preconditions.logging, [rekening.rekening]: {success: false, message: overboeking.message.Error[0].error_description}}})
-        console.log(overboeking);
+  const code = queryString.parse(window.location.search).code;
+  
+  useEffect(() => {
+    const getToken = async () => {
+      if(code !== undefined){
+        setLoadingToken(true);
+        const body = {code}
+        const accesstoken = await fetchBackend('/api/bunq/oauth/exchange', {method: 'POST', body, user}).catch(err => { console.log(err); });
+        console.log(accesstoken);
+        if(accesstoken.success){
+          if(userData !== null && userData.bunq !== undefined){
+            await ref.collection('data').doc('bunq').update({success: true});
+          }else{
+            await ref.collection('data').doc('bunq').set({success: true});
+          }
+          setLoadBunqData(true);
+        }
+        setLoadingToken(false);
       }
     }
-    console.log('Erna');
-    if(bunqSettings.spaar !== ''){
-      let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: bunqSettings.spaar}, description: 'Geld sparen', amount: preconditions.sparen.toString() + '.00'}});
-      console.log(overboeking); 
-      if(overboeking.success === false) setPreconditions({...preconditions, logging: {...preconditions.logging, [rekening.rekening]: {success: false, message: overboeking.message.Error[0].error_description}}})
-    }
+    getToken();
+  }, [])
 
-    await accountsRequest.get('/api/bunq/accounts', '?forceUpdate=true')
-    setPreconditions(initialPreconditions)
-    setScriptRunning(false);
-  }
-    
-
-  const getTotal = (cellInfo) => {
-    let total = 0
-    if(rekeningen.length > 0){
-      for (let rekening of rekeningen) {
-        total += rekening[cellInfo.column.id]
+  useEffect(() => {
+    if(loadBunqData === false){
+      if(userData !== null && userData.bunq !== undefined && userData.bunq.success){
+        setLoadBunqData(true);
       }
-      let sparen = (bunqSettings.income - bunqSettings.keep - total);
-      return (<div>{total}<br />{sparen}</div>);
     }
-  }
-    
-   
-  const months = [ 'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December' ];
-  const rekeningColumns = []
-    
-  if(preconditions.succeeded || preconditions.logging.preconditions_run) rekeningColumns.push({
-    Header: 'Foutmelding',
-    accessor: 'rekening', // String-based value accessors!
-    Cell: props => <span>{preconditions.logging[props.value] !== undefined ? preconditions.logging[props.value].message : ''}</span>
   })
-    
-  rekeningColumns.push({
-    Header: 'Rekening',
-    accessor: 'rekening', // String-based value accessors!
-    Footer: <div><b>Totaal:</b><br /><b>Sparen:</b></div>
-  },{
-    Header: 'Huidig saldo',
-    accessor: 'rekening', // String-based value accessors!
-    Cell: props => <span>{accounts.find(account => account.description === props.value) !== undefined ? '€'+accounts.find(account => account.description === props.value).balance.value : '€-'}</span> // Custom cell components!
-  })
-  for(var i = 1; i < 13; i++){
-    rekeningColumns.push({
-      Header: months[i-1],
-      accessor: 'month_'+i,
-      Footer: getTotal
-    });
+
+  useEffect(() => {
+    if(loadBunqData){
+      console.log(999);
+      request.get();
+    }
+  }, [loadBunqData])
+
+  const renderRedirect = () => {
+    if (loadBunqData && code !== undefined) {
+      return <Redirect to="/bunq" />
+    }
   }
-    
-  const formItems = [
-    {name: 'from', type: 'input', label: 'Van rekening:', value: bunqSettings.from, changehandler: (e) => {setBunqSettings({...bunqSettings, from: e.target.value})}},
-    {name: 'spaar', type: 'input', label: 'Spaarrekening:', value: bunqSettings.spaar, changehandler: (e) => {setBunqSettings({...bunqSettings, spaar: e.target.value})}},
-    {name: 'salaris', type: 'input', label: 'Netto salaris:', value: bunqSettings.income, changehandler: (e) => {setBunqSettings({...bunqSettings, income: e.target.value})}},
-    {name: 'eigen_geld', type: 'input', label: 'Eigen geld:', value: bunqSettings.keep, changehandler: (e) => {setBunqSettings({...bunqSettings, keep: e.target.value})}}
-  ]
-    
-  const formButtons = [
-    {id: 'checkpreconditions', click: checkPreconditions, disabled: accountsLoading || script_running, text: 'Controleer'},
-    {id: 'runscript', click: runScript, disabled: script_running || preconditions.succeeded === false, text: 'Boeken'}
-  ]
-    
-  return (<div><h1>Bunq</h1>
-    
-    <Button variant="contained" color="primary" onClick={() => {accountsRequest.get('/api/bunq/accounts', '?forceUpdate=true')}} disabled={accountsLoading}>Flush cache</Button>
-    {/*
-    <DefaultTable data={rekeningen} columns={rekeningColumns} loading={rekeningenLoading} pageSize={15}/>
-    <DefaultFormRow data={formItems} buttons={formButtons}/>
-    <ListGroup>
-      {preconditions.balance !== null ?<ListGroup.Item variant="success">Huidig saldo Algemene rekening: {preconditions.balance}</ListGroup.Item> : ""}
-      {preconditions.accountsExist.map((rek, i) => {return <ListGroup.Item  key={i} variant="danger">Rekening {rek} bestaat niet</ListGroup.Item>})}
-      {preconditions.balanceSufficient === false ? <ListGroup.Item variant="danger">Niet voldoende saldo. Salaris nog niet binnen?</ListGroup.Item> : ""}
-      {preconditions.incomeSufficient === false ? <ListGroup.Item variant="danger">Niet voldoende inkomen om alle rekeningen te betalen</ListGroup.Item> : ""}
-      {preconditions.sparen !== null ? <ListGroup.Item variant="success">Er wordt {preconditions.sparen} gespaard</ListGroup.Item> : ""}
-    </ListGroup>
-    <BunqPaymentModal accounts={accounts} />*/}
-  </div>
+  
+  //const data = [{description: 'a', value: '1'}, {description: 'b', value: '2'}]
+
+  const columns = [{
+    title: 'Account',
+    field: 'description'
+  }, {
+    title: 'Balance',
+    field: 'balance.value'
+  }, {
+    title: 'Type',
+    field: 'monetary_bank_account_type'
+  }, {
+    title: 'Daily limit',
+    field: 'daily_limit.value'
+  }, {
+    title: 'Daily spent',
+    field: 'daily_spent.value'
+  }, {
+    title: 'Actief',
+    field: 'status',
+    lookup: {
+      'ACTIVE': 'Actief',
+      'CANCELLED': 'Niet actief'
+    }
+  }]     
+
+  return (
+    <div className={classes.root}>
+      <div>
+        {renderRedirect()}
+        <div className={classes.row}>
+          <span className={classes.spacer} />
+          {loadBunqData && <Button
+            color="primary"
+            onClick={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}}
+            variant="contained"
+          >
+            Force account refresh
+          </Button>}
+          {!loadBunqData && <OAuthAuthorize formatUrl="/api/oauth/formaturl/bunq" title="Connect bunq" /> }
+        </div>
+      </div>
+      <div className={classes.content}>
+        {loadingToken && <CircularProgress className={classes.progress} />}
+        {loadBunqData && <MaterialTable 
+          columns={columns}
+          data={data}
+          title="Bunq accounts"
+        /> }
+      </div>
+    </div>
   );
+};
 
-}
-
-export default Bunq
+export default Bunq;
