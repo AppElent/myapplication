@@ -18,7 +18,7 @@ const useStyles = makeStyles(theme => ({
 
 const Rekeningen = () => {
   const classes = useStyles();
-  const [data /*, setData, loading, error*/] = useFetch('/api/rekeningen', {onMount: true})
+  const [data, setData, loading, error] = useFetch('/api/rekeningen', {onMount: true})
   const {user} = useSession();
   var columns = [{
     title: 'Naam',
@@ -43,6 +43,16 @@ const Rekeningen = () => {
     });
   }
 
+  function pushToArray(arr, obj) {
+    const index = arr.findIndex((e) => e.id === obj.id);
+
+    if (index === -1) {
+      arr.push(obj);
+    } else {
+      arr[index] = obj;
+    }
+  }
+
   return (
     <div className={classes.root}>
       <div className={classes.content}>
@@ -54,14 +64,23 @@ const Rekeningen = () => {
             //isDeletable: rowData => rowData.name === "b", // only name(a) rows would be deletable
             onRowAdd: async newData => {
               console.log(newData);
-              fetchBackend('/api/rekeningen', {method: 'POST', body: newData, user});
+              await fetchBackend('/api/rekeningen', {method: 'POST', body: newData, user});
+              setData(oldArray => [...oldArray, newData]);
             },
             onRowUpdate: async (newData, oldData) => {
               console.log(newData, oldData, 999);
-              fetchBackend('/api/rekeningen/' + oldData.id, {method: 'PUT', body: newData, user});
+              const index = data.findIndex(item => item.id === oldData.id);
+              let array = [...data];
+              array[index] = newData;
+              await fetchBackend('/api/rekeningen/' + oldData.id, {method: 'PUT', body: newData, user});
+              setData(array);
             },
             onRowDelete: async oldData => {
-              fetchBackend('/api/rekeningen/' + oldData.id, {method: 'DELETE', user});
+              const index = data.findIndex(item => item.id === oldData.id);
+              let array = [...data];
+              array.splice(index, 1);
+              await fetchBackend('/api/rekeningen/' + oldData.id, {method: 'DELETE', user});
+              setData(array);
             }
           }}
           options={{
