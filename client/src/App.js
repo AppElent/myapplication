@@ -27,7 +27,7 @@ validate.validators = {
 
 const App = () => {
   const firebase = new Firebase();
-  const [authData, setAuthData] = useState({firebase, user: null, isInitializing: true, ref: null});
+  const [authData, setAuthData] = useState({firebase, user: undefined, isInitializing: true, ref: null});
   
   
   useEffect(() => {
@@ -65,7 +65,8 @@ const App = () => {
       setUserData(userdata);
     })
   }, [authData.isInitializing, authData.user]);
-  
+
+
   return (
     <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, ref: authData.ref}}>
       <ThemeProvider theme={theme}>
@@ -78,20 +79,3 @@ const App = () => {
 }
 
 export default App;
-
-/*
-export default class App extends Component {
-
-  render() {
-    return (
-      <FirebaseContext.Provider value={new Firebase()}>
-        <ThemeProvider theme={theme}>
-          <Router history={browserHistory}>
-            <Routes />
-          </Router>
-        </ThemeProvider>
-      </FirebaseContext.Provider>
-    );
-  }
-}
-*/

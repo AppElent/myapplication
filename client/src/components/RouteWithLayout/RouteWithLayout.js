@@ -6,9 +6,9 @@ import SignIn from '../../views/SignIn';
 import { Minimal as MinimalLayout } from '../../layouts';
 
 const RouteWithLayout = props => {
-  const {user, isInitializing} = useSession();
+  const {user, isInitializing, userInfo} = useSession();
 
-  if(isInitializing){
+  if(isInitializing || userInfo === null){
     return <div>Loading</div>
   }
   

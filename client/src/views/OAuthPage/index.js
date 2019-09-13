@@ -40,7 +40,7 @@ const OAuthPage = ({match}) => {
       const accesstoken = await fetchBackend(settings.url, {method: 'POST', body, user}).catch(err => {console.log(err);});
       console.log(accesstoken);
       if(accesstoken !== undefined && name !== 'bunq'){
-        ref.collection('data').doc(name).update({token: accesstoken.data}).then(setLoading(false));
+        ref.update({[`${name}.token`]: accesstoken.data}).then(setLoading(false));
       }
     }
   }
@@ -49,10 +49,10 @@ const OAuthPage = ({match}) => {
     const body = userData.enelogic.data;
     const accesstoken = await fetchBackend('/api/oauth/refresh/enelogic', {method: 'POST', body, user}).catch(err => {console.log(err);});
     console.log(accesstoken);
-    ref.collection('data').doc(name).update({
-      'token.access_token': accesstoken.data.access_token,
-      'token.expires_at': accesstoken.data.expires_at,
-      'token.refresh_token': accesstoken.data.refresh_token
+    ref.update({
+      [`${name}.token.access_token`]: accesstoken.data.access_token,
+      [`${name}.token.expires_at`] : accesstoken.data.expires_at,
+      [`${name}.token.refresh_token`] : accesstoken.data.refresh_token
     }).then(setLoading(false));
     console.log(accesstoken);
   }

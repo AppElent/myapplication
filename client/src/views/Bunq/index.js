@@ -16,7 +16,8 @@ import {OAuthAuthorize} from '../../components';
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(3)
-  },
+  }, 
+  root2: {},
   row: {
     height: '42px',
     display: 'flex',
@@ -42,7 +43,8 @@ const useStyles = makeStyles(theme => ({
 
 const Bunq = () => {
 
-  const {user, userData, ref} = useSession();
+  const {user, userInfo, ref} = useSession();
+  console.log(userInfo);
   const classes = useStyles();
   const {data, loading, error, request} = useFetch('/api/bunq/accounts', {});
   const [loadBunqData, setLoadBunqData] = useState(false);
@@ -58,10 +60,10 @@ const Bunq = () => {
         const accesstoken = await fetchBackend('/api/bunq/oauth/exchange', {method: 'POST', body, user}).catch(err => { console.log(err); });
         console.log(accesstoken);
         if(accesstoken.success){
-          if(userData !== null && userData.bunq !== undefined){
-            await ref.collection('data').doc('bunq').update({success: true});
+          if(userInfo !== null && userInfo.bunq !== undefined){
+            await ref.update({'bunq.success': true})
           }else{
-            await ref.collection('data').doc('bunq').set({success: true});
+            await ref.update({bunq: {success: true, sparen: 0, eigen: 1}});
           }
           setLoadBunqData(true);
         }
@@ -73,7 +75,7 @@ const Bunq = () => {
 
   useEffect(() => {
     if(loadBunqData === false){
-      if(userData !== null && userData.bunq !== undefined && userData.bunq.success){
+      if(userInfo !== null && userInfo.bunq !== undefined && userInfo.bunq.success){
         setLoadBunqData(true);
       }
     }
@@ -81,18 +83,10 @@ const Bunq = () => {
 
   useEffect(() => {
     if(loadBunqData){
-      console.log(999);
       request.get();
     }
   }, [loadBunqData])
 
-  const renderRedirect = () => {
-    if (loadBunqData && code !== undefined) {
-      return <Redirect to="/bunq" />
-    }
-  }
-  
-  //const data = [{description: 'a', value: '1'}, {description: 'b', value: '2'}]
 
   const columns = [{
     title: 'Account',
@@ -119,9 +113,9 @@ const Bunq = () => {
   }]     
 
   return (
-    <div className={classes.root}>
-      <div>
-        {renderRedirect()}
+    <div>
+      <div className={classes.root2}>
+        {loadBunqData && code !== undefined && <Redirect to="/bunq" />}
         <div className={classes.row}>
           <span className={classes.spacer} />
           {loadBunqData && <Button
@@ -131,7 +125,11 @@ const Bunq = () => {
           >
             Force account refresh
           </Button>}
-          {!loadBunqData && <OAuthAuthorize formatUrl="/api/oauth/formaturl/bunq" title="Connect bunq" /> }
+          {!loadBunqData && 
+            <Button className={classes.exportButton}>Connect bunq sandbox</Button> &&
+            <OAuthAuthorize formatUrl="/api/oauth/formaturl/bunq" title="Connect bunq" />
+            
+          }
         </div>
       </div>
       <div className={classes.content}>
