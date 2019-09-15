@@ -151,7 +151,7 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen}) => {
         }}
         title="Rekeningen gegroepeerd"
       />
-      {checkPreconditions(accounts, 'Algemeen', rekeningen, bunqSettings)}
+      {checkPreconditions(accounts, accounts[0].description, rekeningen, bunqSettings)}
     </div>
   )
 

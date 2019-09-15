@@ -87,8 +87,8 @@ const doRequestSandboxMoney = async (uid) => {
 const createSandboxAPIKey = async (req, res) => {
 	const key = await bunq.getGenericClient().api.sandboxUser.post();
 	const userentry = await saveBunqSettings(req.uid, key, encryption.generateRandomKey(32), 'SANDBOX');
-	console.log(userentry);
-	await bunq.load(req.uid, req.uid, key, userentry.encryption_key, {env: 'SANDBOX'});
+	//console.log(userentry);
+	await bunq.load(req.uid, req.uid, key, userentry.encryption_key, 'SANDBOX');
 	const client = bunq.getClient(req.uid);
 	const users = await client.getUser();
 	try{

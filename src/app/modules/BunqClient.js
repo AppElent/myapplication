@@ -7,7 +7,7 @@ const _ = require('lodash');
 
 export default class BunqClient {
 
-  constructor(env) {
+  constructor() {
     this.status;
     this.bunqJSClient;
     this.user;
@@ -39,7 +39,7 @@ export default class BunqClient {
   }
 
   
-  async initialize(filename, access_token, encryption_key, environment = 'PRODUCTION', options){
+  async initialize(filename, access_token, encryption_key, environment = 'PRODUCTION', options = {}){
       //Status zetten
       this.status = 'STARTING';
       
@@ -49,7 +49,8 @@ export default class BunqClient {
       
       // load and refresh bunq client
       this.environment = environment;
-      await this.bunqJSClient.run(access_token, ['*'], this.environment, encryption_key).catch(this.defaultErrorLogger);
+      console.log('Connecting to environment ' + environment);
+      await this.bunqJSClient.run(access_token, ['*'], environment, encryption_key).catch(this.defaultErrorLogger);
 
       // disable keep-alive since the server will stay online without the need for a constant active session
       this.bunqJSClient.setKeepAlive(false);
