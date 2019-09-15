@@ -41,13 +41,13 @@ const useStyles = makeStyles(theme => ({
 const Bunq = () => {
 
   const {user, userInfo, ref} = useSession();
-  console.log(userInfo);
   const classes = useStyles();
   const {data: accountdata, loading, error, request} = useFetch('/api/bunq/accounts', {});
   const [rekeningen] = useFirestoreCollectionDataOnce('users/' + user.uid + '/rekeningen', {asArray: true});
-  const [loadBunqData, setLoadBunqData] = useState(false);
+  const [loadBunqData, setLoadBunqData] = useState(undefined);
   const [loadingToken, setLoadingToken] = useState(false);
   const [tab, setTab] = useState(0);
+  //const sandbox = ((userInfo === null || userInfo === undefined) ? false : (userInfo.bunq.environment === 'SANDBOX'))
 
   const code = queryString.parse(window.location.search).code;
   
@@ -73,9 +73,11 @@ const Bunq = () => {
   }, [])
 
   useEffect(() => {
-    if(loadBunqData === false){
-      if(userInfo !== undefined && userInfo !== null && userInfo.bunq !== undefined && userInfo.bunq.success){
+    if(loadBunqData === undefined){
+      if(userInfo !== null && userInfo.bunq !== undefined && userInfo.bunq.success){
         setLoadBunqData(true);
+      }else{
+        setLoadBunqData(false);
       }
     }
   })
@@ -118,7 +120,7 @@ const Bunq = () => {
     setLoadingToken(false);
   }
 
-  if(!loadBunqData){
+  if(loadBunqData === false){
     return     <div>
       <div className={classes.root}>
         <div className={classes.row}>

@@ -14,7 +14,6 @@ import {
 import useSession from './useSession';
 
 const getPath = (path) => {
-  console.log('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/' + path);
   return '/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/' + path;
 }
 
@@ -96,7 +95,6 @@ export const useFirestoreCollectionDataOnce = (path, options = {}) => {
 
   const getFirestoreData = useCallback(async () => {
     const fsdata =  await ref.get();
-    console.log(options);
     let resultdata;
     if(options.asArray === true){
       resultdata = []
@@ -113,7 +111,6 @@ export const useFirestoreCollectionDataOnce = (path, options = {}) => {
       console.log('Getting firestore data, Path: ' + path, resultdata);
       setData(resultdata);
     }
-    console.log('Getting firestore data, Path: ' + path, resultdata);
     setData(resultdata);
   });
   const setFirestoreData = useCallback((fsdata) => {

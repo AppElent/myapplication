@@ -51,8 +51,6 @@ const AccountsPage = (props) => {
       'CANCELLED': 'Niet actief'
     }
   }]  
-  console.log(props);
-
 
   return (  
       <><div className={classes.row}>

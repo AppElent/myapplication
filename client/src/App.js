@@ -42,7 +42,7 @@ const App = () => {
     return () => unsubscribe()
   }, [])
 
-  const [userInfo, setUserInfo] = useState(null);
+  const [userInfo, setUserInfo] = useState(undefined);
 
   useEffect(() => {
     if (authData.isInitializing || authData.user === null) return;
@@ -52,7 +52,7 @@ const App = () => {
     });
   }, [authData.isInitializing, authData.user]);
 
-  const [userData, setUserData] = useState(null);
+  const [userData, setUserData] = useState(undefined);
 
   useEffect(() => {
     if (authData.isInitializing || authData.user === null) return;
@@ -66,7 +66,7 @@ const App = () => {
     })
   }, [authData.isInitializing, authData.user]);
 
-  if(authData.isInitializing){
+  if(authData.isInitializing || (authData.user !== null && userInfo === undefined)){
     return <div>Loading</div>
   }
 
