@@ -162,6 +162,9 @@ module.exports = async function(app) {
 	
 	
 	//Bunq routes
+	app.use('/api/bunq', require('./controllers/bunq.controller'));
+	/*
+	
 	app.post('/api/bunq/oauth/exchange', basicAuthentication, controllers.bunq.exchangeOAuthTokens);
 	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	//app.get('/api/bunq/oauth/formatUrl', basicAuthentication, controllers.bunq.formatOAuthUrl);
@@ -172,8 +175,9 @@ module.exports = async function(app) {
 	app.post('/api/bunq/draftpayment', basicAuthentication, controllers.bunq.postDraftPayment);
 	app.get('/api/bunq/cards', basicAuthentication, controllers.bunq.getCards)
 	app.get('/api/bunq/sandbox', basicAuthentication, controllers.bunq.createSandboxAPIKey);
+	app.get('/api/bunq/sandbox/request', basicAuthentication, controllers.bunq.requestSandboxMoney);
 	app.get('/api/bunq/test', basicAuthentication, controllers.bunq.test);
-
+	*/
 
 	//SolarEdge
 	//app.get('/api/solaredge/data/formatted/:start/:end', solaredge.getFormattedData);

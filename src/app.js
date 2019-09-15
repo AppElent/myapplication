@@ -46,13 +46,13 @@ db.sequelize.sync({ force: false }).then(async () => {
     //eerste client laden
     const client1 = allclients.shift();
     console.log('Eerste client laden', client1.userId);
-    await bunq.load(client1.userId, client1.userId, client1.access_token, client1.encryption_key, { environment: client1.environment });
+    await bunq.load(client1.userId, client1.userId, client1.access_token, client1.encryption_key, client1.environment, {});
     const requestLimiter = bunq.getClient(client1.userId).getBunqJSClient().ApiAdapter.RequestLimitFactory;
 
     //rest laden
     const result = await Promise.all(allclients.map(async (clientsetting) => {
       console.log('loading client ' + clientsetting.userId)
-      await bunq.load(clientsetting.userId, clientsetting.userId, clientsetting.access_token, clientsetting.encryption_key, { environment: clientsetting.environment });
+      await bunq.load(clientsetting.userId, clientsetting.userId, clientsetting.access_token, clientsetting.encryption_key, clientsetting.environment, {  });
       //await bunq.load(clientsetting.userId, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
       console.log('client loaded ' + clientsetting.userId)
     }))
@@ -63,7 +63,7 @@ db.sequelize.sync({ force: false }).then(async () => {
 firebaseDB.collection('env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/oauthproviders').get().then(providers => {
   providers.forEach(provider => {
     const data = provider.data();
-    console.log(provider.id + ": ", data);
+    //console.log(provider.id + ": ", data);
     const oauthprovider = new OAuth(data.client_id, data.client_secret, data);
     oauthproviders[provider.id] = oauthprovider;
   })

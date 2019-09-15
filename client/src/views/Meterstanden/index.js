@@ -188,9 +188,9 @@ const MeterstandElektra = () => {
     
   useEffect(() => {
     if(localdata.length > 0) {
-      setTableData();
+      //setTableData();
     }else{
-      setLoading(false);
+      //setLoading(false);
     }
         
   }, [localdata])

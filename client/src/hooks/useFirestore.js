@@ -42,21 +42,21 @@ export const useFirestoreDocumentData = (docpath, options = null) => {
 export const useFirestoreCollection = (collpath, options = null) => {
   const {firebase} = useSession();
   collpath = getPath(collpath);
-  const [value, loading, error] = useCollection(firebase.db.doc(collpath), options);
+  const [value, loading, error] = useCollection(firebase.db.collection(collpath), options);
   return Object.assign([value, loading, error], { value, loading, error })
 };
 
 export const useFirestoreCollectionOnce = (collpath, options = null) => {
   const {firebase} = useSession();
   collpath = getPath(collpath);
-  const [value, loading, error] = useCollectionOnce(firebase.db.doc(collpath), options);
+  const [value, loading, error] = useCollectionOnce(firebase.db.collection(collpath), options);
   return Object.assign([value, loading, error], { value, loading, error })
 };
 
 export const useFirestoreCollectionData = (collpath, options = null) => {
   const {firebase} = useSession();
   collpath = getPath(collpath);
-  const [value, loading, error] = useCollectionData(firebase.db.doc(collpath), options);
+  const [value, loading, error] = useCollectionData(firebase.db.collection(collpath), options);
   return Object.assign([value, loading, error], { value, loading, error })
 };
 
@@ -88,18 +88,31 @@ export const useFirestoreDocumentDataOnce = (path) => {
   return Object.assign([data, loading, error, setFirestoreData], { data, loading, error, setFirestoreData })
 }
 
-export const useFirestoreCollectionDataOnce = (path) => {
+export const useFirestoreCollectionDataOnce = (path, options = {}) => {
   const {firebase} = useSession();
   path = getPath(path);
 
-  const ref = firebase.db.doc(path);
+  const ref = firebase.db.collection(path);
 
   const getFirestoreData = useCallback(async () => {
     const fsdata =  await ref.get();
-    const resultdata = {}
-    fsdata.forEach(async doc => {
-      resultdata[doc.id] = doc.data();
-    })
+    console.log(options);
+    let resultdata;
+    if(options.asArray === true){
+      resultdata = []
+      fsdata.forEach(async doc => {
+        resultdata.push(doc.data());
+      })
+      console.log('Getting firestore data, Path: ' + path, resultdata);
+      setData(resultdata);
+    }else{
+      resultdata = {}
+      fsdata.forEach(async doc => {
+        resultdata[doc.id] = doc.data();
+      })
+      console.log('Getting firestore data, Path: ' + path, resultdata);
+      setData(resultdata);
+    }
     console.log('Getting firestore data, Path: ' + path, resultdata);
     setData(resultdata);
   });

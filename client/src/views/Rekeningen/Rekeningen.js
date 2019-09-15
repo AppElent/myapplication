@@ -3,8 +3,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import MaterialTable from 'material-table';
 
-import useFetch from '../../hooks/useFetch';
-import fetchBackend from 'helpers/fetchBackend';
+import {useFirestoreCollectionData} from 'hooks/useFirestore';
 import useSession from 'hooks/useSession';
 
 const useStyles = makeStyles(theme => ({
@@ -18,8 +17,10 @@ const useStyles = makeStyles(theme => ({
 
 const Rekeningen = () => {
   const classes = useStyles();
-  const [data, setData, loading, error] = useFetch('/api/rekeningen', {onMount: true})
-  const {user} = useSession();
+  const {user, ref} = useSession();
+  //const [data, setData, loading, error] = useFetch('/api/rekeningen', {onMount: true})
+  const [data] = useFirestoreCollectionData('users/' + user.uid + '/rekeningen');
+  
   var columns = [{
     title: 'Naam',
     field: 'naam'
@@ -64,23 +65,26 @@ const Rekeningen = () => {
             //isDeletable: rowData => rowData.name === "b", // only name(a) rows would be deletable
             onRowAdd: async newData => {
               console.log(newData);
-              await fetchBackend('/api/rekeningen', {method: 'POST', body: newData, user});
-              setData(oldArray => [...oldArray, newData]);
+              //await fetchBackend('/api/rekeningen', {method: 'POST', body: newData, user});
+              await ref.collection('rekeningen').doc(newData.naam).set(newData);
+              //setData(oldArray => [...oldArray, newData]);
             },
             onRowUpdate: async (newData, oldData) => {
               console.log(newData, oldData, 999);
               const index = data.findIndex(item => item.id === oldData.id);
               let array = [...data];
               array[index] = newData;
-              await fetchBackend('/api/rekeningen/' + oldData.id, {method: 'PUT', body: newData, user});
-              setData(array);
+              //await fetchBackend('/api/rekeningen/' + oldData.id, {method: 'PUT', body: newData, user});
+              await ref.collection('rekeningen').doc(newData.naam).set(newData);
+              //setData(array);
             },
             onRowDelete: async oldData => {
               const index = data.findIndex(item => item.id === oldData.id);
               let array = [...data];
               array.splice(index, 1);
-              await fetchBackend('/api/rekeningen/' + oldData.id, {method: 'DELETE', user});
-              setData(array);
+              //await fetchBackend('/api/rekeningen/' + oldData.id, {method: 'DELETE', user});
+              await ref.collection('rekeningen').doc(oldData.naam).delete();
+              //setData(array);
             }
           }}
           options={{

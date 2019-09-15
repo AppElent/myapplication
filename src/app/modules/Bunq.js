@@ -19,9 +19,9 @@ export class Bunq {
     
   }
 
-  async load(key, filename, access_token, encryption_key, options){
-    this.bunqClients[key] = new BunqClient();
-    await this.bunqClients[key].initialize(filename, access_token, encryption_key, options);
+  async load(key, filename, access_token, encryption_key, environment, options){
+    this.bunqClients[key] = new BunqClient(environment);
+    await this.bunqClients[key].initialize(filename, access_token, encryption_key, environment, options);
   }
   /*
   async startup(){

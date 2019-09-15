@@ -6,11 +6,12 @@ import SignIn from '../../views/SignIn';
 import { Minimal as MinimalLayout } from '../../layouts';
 
 const RouteWithLayout = props => {
-  const {user, isInitializing, userInfo} = useSession();
-
-  if(isInitializing || userInfo === null){
+  const {user} = useSession();
+  /*
+  if(isInitializing || (user !== null && userInfo === null)){
     return <div>Loading</div>
   }
+  */
   
   const { layout: Layout, component: Component, protectedRoute, ...rest } = props;
   const FinalComponent = user === null && protectedRoute ? SignIn : Component;

@@ -18,23 +18,7 @@ const Bunq = () => {
     
   const sum = (array, key) => array.reduce((a, b) => a + (b[key] || 0), 0);
     
-  const groupData = (key) => (xs) => {
-    const object = xs.reduce(function(rv, x) {
-      (rv[x[key]] = rv[x[key]] || []).push(x);
-      return rv;
-    }, {});
-      //let result = []
-    const result = Object.entries(object).map((item) => {
-      //const sum = this.sum(item[1], 'month_1')
-      let array = {rekening: item[0], entries: item[1]}
-      for(var i = 1; i<13; i++){
-        const sumvalue = _.sumBy(item[1], 'month_' + i);
-        array['month_' + i] = sumvalue
-      }
-      return array;
-    });
-    return result
-  }
+
     
 
   const initialPreconditions = {run: false, succeeded: false, accountsExist: [], balanceSufficient: true, incomeSufficient: true, sparen: null, maandtotaal: 0, balance: null, logging: {preconditions_run: false}}
@@ -45,90 +29,9 @@ const Bunq = () => {
   const [rekeningen, setRekeningen, rekeningenLoading, rekeningenError, rekeningenRequest] = useFetch('/api/rekeningen', {onMount: true, postProcess: groupData('rekening')})
   const [script_running, setScriptRunning] = useState(false);
     
-  const maandnummer = (new Date()).getMonth()+1;
-    
-  const checkPreconditions = () => {
-    //check
-    const algemeen_account = accounts.find(account => account.description === bunqSettings.from);
-    let currentstate = {...preconditions};
-    currentstate.succeeded = true;
-    currentstate.maandtotaal = 0;
-    currentstate.incomeSufficient = true;
-    currentstate.balanceSufficient = true;
-        
-    currentstate.balance = algemeen_account.balance.value;
-    rekeningen.map(rekening => {
-      currentstate.maandtotaal += rekening['month_' + maandnummer];
-      currentstate.logging[rekening.rekening] = {success: true, message: ''}
-      let foundaccount = accounts.find(account => account.description === rekening.rekening);
-      if(foundaccount == null && rekening['month_' + maandnummer] > 0){
-        currentstate.succeeded = false;
-        currentstate.logging[rekening.rekening].message = 'Bestaat niet';
-      }
-    });
-    if((parseFloat(algemeen_account.balance.value)) < bunqSettings.income){
-      currentstate.balanceSufficient = false;
-      currentstate.succeeded = false;
-    }
-    if((currentstate.maandtotaal + bunqSettings.keep) > bunqSettings.income){
-      currentstate.incomeSufficient = false;
-      currentstate.sparen = 0;
-      currentstate.succeeded = false;
-    }else{
-            
-      currentstate.sparen = (bunqSettings.income - currentstate.maandtotaal - bunqSettings.keep);
-      if(currentstate.balanceSufficient){
-        currentstate.sparen = (currentstate.sparen + (Math.round(algemeen_account.balance.value) - bunqSettings.income));
-      }
-      if(currentstate.sparen < 0){
-        currentstate.sparen = 0;
-        currentstate.incomeSufficient = false;   
-        currentstate.succeeded = false;
-      }else{
-        currentstate.incomeSufficient = true;
-      }
-            
-    }
-    currentstate.logging.preconditions_run = true;
-    setPreconditions(currentstate);
-  }
-    
-  const runScript = async () => {
-    //check
-    setScriptRunning(true);
-    //this.setState({script_running: true});
-
-    for (var rekening of rekeningen){
-      console.log('Naar rekening ' + rekening.rekening + ' moet ' + rekening['month_' + maandnummer] + ' euro worden overgemaakt.');
-      if(rekening['month_' + maandnummer] > 0){
-        let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: rekening.rekening}, description: 'Geld apart zetten', amount: rekening['month_' + maandnummer].toString() + '.00'}});
-        if(overboeking.success === false) setPreconditions({...preconditions, logging: {...preconditions.logging, [rekening.rekening]: {success: false, message: overboeking.message.Error[0].error_description}}})
-        console.log(overboeking);
-      }
-    }
-    console.log('Erna');
-    if(bunqSettings.spaar !== ''){
-      let overboeking = await fetchBackend('/api/bunq/payment', {method: 'POST', body: {from: {type: 'description', value: bunqSettings.from}, to: {type: 'description', value: bunqSettings.spaar}, description: 'Geld sparen', amount: preconditions.sparen.toString() + '.00'}});
-      console.log(overboeking); 
-      if(overboeking.success === false) setPreconditions({...preconditions, logging: {...preconditions.logging, [rekening.rekening]: {success: false, message: overboeking.message.Error[0].error_description}}})
-    }
-
-    await accountsRequest.get('/api/bunq/accounts', '?forceUpdate=true')
-    setPreconditions(initialPreconditions)
-    setScriptRunning(false);
-  }
+  
     
 
-  const getTotal = (cellInfo) => {
-    let total = 0
-    if(rekeningen.length > 0){
-      for (let rekening of rekeningen) {
-        total += rekening[cellInfo.column.id]
-      }
-      let sparen = (bunqSettings.income - bunqSettings.keep - total);
-      return (<div>{total}<br />{sparen}</div>);
-    }
-  }
     
    
   const months = [ 'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December' ];

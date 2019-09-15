@@ -84,8 +84,9 @@ export function useFetch(arg1, arg2) {
         }
         console.log('Response data', responsedata);
         if(method.toLowerCase() === 'get'){
-          if (arg2.postProcess !== undefined) {responsedata = await arg2.postProcess(responsedata);}else{console.log(12345)}
-          setData(responsedata.data)
+          let realdata = responsedata.data;
+          if (arg2.postProcess !== undefined) {realdata = await arg2.postProcess(realdata);}else{console.log(12345)}
+          setData(realdata)
         }
       }
 

@@ -66,6 +66,9 @@ const App = () => {
     })
   }, [authData.isInitializing, authData.user]);
 
+  if(authData.isInitializing || (authData.user !== null && userInfo === null)){
+    return <div>Loading</div>
+  }
 
   return (
     <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, ref: authData.ref}}>
