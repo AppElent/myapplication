@@ -74,7 +74,7 @@ const Bunq = () => {
 
   useEffect(() => {
     if(loadBunqData === false){
-      if(userInfo !== null && userInfo.bunq !== undefined && userInfo.bunq.success){
+      if(userInfo !== undefined && userInfo !== null && userInfo.bunq !== undefined && userInfo.bunq.success){
         setLoadBunqData(true);
       }
     }

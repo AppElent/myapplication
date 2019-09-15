@@ -173,5 +173,4 @@ router.get('/api/bunq/sandbox/request', basicAuthentication, requestSandboxMoney
 router.get('/api/bunq/test', basicAuthentication, test);
 
 
-
 module.exports = router;

@@ -66,7 +66,7 @@ const App = () => {
     })
   }, [authData.isInitializing, authData.user]);
 
-  if(authData.isInitializing || (authData.user !== null && userInfo === null)){
+  if(authData.isInitializing || (authData.user !== null && userInfo === undefined)){
     return <div>Loading</div>
   }
 
