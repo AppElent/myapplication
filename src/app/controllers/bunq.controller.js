@@ -160,17 +160,17 @@ const test = async (req, res) => {
 }
 
 
-router.post('/api/bunq/oauth/exchange', basicAuthentication, exchangeOAuthTokens);
-router.get('/api/bunq/accounts', basicAuthentication, getMonetaryAccounts);
-router.get('/api/bunq/accounts/:name', basicAuthentication, getMonetaryAccountByName);
-router.get('/api/bunq/accounts', basicAuthentication, getMonetaryAccounts);
-router.post('/api/bunq/payment', basicAuthentication, postPaymentInternal);
-router.get('/api/bunq/events', basicAuthentication, getEvents);
-router.post('/api/bunq/draftpayment', basicAuthentication, postDraftPayment);
-router.get('/api/bunq/cards', basicAuthentication, getCards)
-router.get('/api/bunq/sandbox', basicAuthentication, createSandboxAPIKey);
-router.get('/api/bunq/sandbox/request', basicAuthentication, requestSandboxMoney);
-router.get('/api/bunq/test', basicAuthentication, test);
+router.post('/oauth/exchange', basicAuthentication, exchangeOAuthTokens);
+router.get('/accounts', basicAuthentication, getMonetaryAccounts);
+router.get('/accounts/:name', basicAuthentication, getMonetaryAccountByName);
+router.get('/accounts', basicAuthentication, getMonetaryAccounts);
+router.post('/payment', basicAuthentication, postPaymentInternal);
+router.get('/events', basicAuthentication, getEvents);
+router.post('/draftpayment', basicAuthentication, postDraftPayment);
+router.get('/cards', basicAuthentication, getCards)
+router.get('/sandbox', basicAuthentication, createSandboxAPIKey);
+router.get('/sandbox/request', basicAuthentication, requestSandboxMoney);
+router.get('/test', basicAuthentication, test);
 
 
 module.exports = router;
