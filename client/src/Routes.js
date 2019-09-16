@@ -76,6 +76,13 @@ const Routes = () => {
         component={Bunq}
         exact
         layout={MainLayout}
+        path="/bunq/:tab"
+        protectedRoute
+      />
+      <RouteWithLayout 
+        component={Bunq}
+        exact
+        layout={MainLayout}
         path="/bunq"
         protectedRoute
       />

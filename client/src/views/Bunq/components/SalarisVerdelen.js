@@ -1,19 +1,9 @@
 import React, {useState} from 'react';
 import MaterialTable from 'material-table';
 import { makeStyles } from '@material-ui/styles';
-import { 
-  Button,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  TextField,
-  DialogActions
-} from '@material-ui/core';
 import PropTypes from 'prop-types';
 
 
-import useFetch from 'hooks/useFetch';
 import useStateExtended from 'hooks/useStateExtended';
 import fetchBackend from 'helpers/fetchBackend';
 
@@ -151,7 +141,7 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen}) => {
         }}
         title="Rekeningen gegroepeerd"
       />
-      {checkPreconditions(accounts, accounts[0].description, rekeningen, bunqSettings)}
+      {accounts[0] !== undefined && checkPreconditions(accounts, accounts[0].description, rekeningen, bunqSettings)}
     </div>
   )
 
