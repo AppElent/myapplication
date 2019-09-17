@@ -50,7 +50,6 @@ const Bunq = ({match}) => {
   const [tab, setTab] = useState(0);
   const urlTab = (match.params.tab ? match.params.tab : null);
 
-  console.log(bunqConfig, bunqConfigLoading);
 
   useEffect(() => {
     if(bunqConfigLoading === false){

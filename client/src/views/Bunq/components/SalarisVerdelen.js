@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import useStateExtended from 'hooks/useStateExtended';
 import fetchBackend from 'helpers/fetchBackend';
 
-import checkPreconditions from '../functions/checkPrecondtions';
+import {checkPreconditions, runScript} from 'helpers/bunq-functions';
 import ScriptDialog from './ScriptDialog';
 
 
@@ -65,7 +65,7 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen}) => {
   
   
 
-    
+    /*
   const runScript = async () => {
     //check
     setScriptRunning(true);
@@ -90,6 +90,7 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen}) => {
     setPreconditions(initialPreconditions)
     setScriptRunning(false);
   }
+  */
 
   const getRekeningColumns = () => {
     const months = [ 'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December' ];
@@ -130,7 +131,11 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen}) => {
 
   return (  
     <div className={classes.content}>
-      <ScriptDialog />
+      <ScriptDialog 
+        accounts={accounts}
+        bunqSettings={bunqSettings}
+        rekeningen={rekeningen}
+      />
       <MaterialTable 
         columns={getRekeningColumns()}
         data={rekeningen}

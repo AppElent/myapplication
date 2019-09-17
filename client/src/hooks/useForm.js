@@ -1,10 +1,12 @@
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 
 const useForm = (submitFunction, initialValue = {}) => {
   
   const [values, setValues] = useState(initialValue);
   const [changing, setChanging] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  console.log(values);
 
   const handleSubmit = async (event) => {
     setSubmitting(true)
@@ -23,7 +25,7 @@ const useForm = (submitFunction, initialValue = {}) => {
     let newEntryItem = values[event.target.name];
     let newValue = event.target.value
     if(Number.isInteger(newEntryItem)){
-        newValue = parseInt(newValue);
+      newValue = parseInt(newValue);
     }
     setValues(values => ({ ...values, [event.target.name]: newValue }));
     setChanging(false)
