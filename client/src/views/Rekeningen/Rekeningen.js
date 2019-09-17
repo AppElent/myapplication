@@ -20,7 +20,7 @@ const Rekeningen = () => {
   const classes = useStyles();
   const {ref} = useSession();
   //const [data, setData, loading, error] = useFetch('/api/rekeningen', {onMount: true})
-  const {value, loading, error, ref: collectionRef} = useFirestoreCollectionData(ref.collection('rekeningen'));
+  const {data, loading, error, ref: collectionRef} = useFirestoreCollectionData(ref.collection('rekeningen'));
   
   var columns = [{
     title: 'Naam',
@@ -60,7 +60,7 @@ const Rekeningen = () => {
       <div className={classes.content}>
         <MaterialTable 
           columns={columns}
-          data={value}
+          data={data}
           editable={{
             //isEditable: rowData => rowData.name === "a", // only name(a) rows would be editable
             //isDeletable: rowData => rowData.name === "b", // only name(a) rows would be deletable

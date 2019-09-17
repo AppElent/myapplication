@@ -27,7 +27,7 @@ validate.validators = {
 
 const App = () => {
   const firebase = new Firebase();
-  const [authData, setAuthData] = useState({firebase, user: undefined, isInitializing: true, ref: null});
+  const [authData, setAuthData] = useState({firebase, user: undefined, isInitializing: true, ref: null, userDataRef: null});
   
   
   useEffect(() => {
@@ -35,8 +35,13 @@ const App = () => {
     const unsubscribe = firebase.auth.onAuthStateChanged(async (returnedUser) => {
       console.log(returnedUser);
       let ref = null;
-      if(returnedUser) ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid);
-      setAuthData({...authData, user: returnedUser, isInitializing: false, ref})
+      let userDataRef = null;
+      if(returnedUser){
+        ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid);
+        userDataRef = ref.collection('config');
+      } 
+
+      setAuthData({...authData, user: returnedUser, isInitializing: false, ref, userDataRef})
     })
     // unsubscribe to the listener when unmounting
     return () => unsubscribe()
@@ -56,22 +61,25 @@ const App = () => {
 
   useEffect(() => {
     if (authData.isInitializing || authData.user === null) return;
-    const ref = firebase.db.collection('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid + '/data');
-    return ref.onSnapshot(collection => {
+    const ref = firebase.db.collection('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid + '/config');
+    return ref.onSnapshot(async collection => {
       const userdata = {}
       for(var doc of collection.docs){
         userdata[doc.id] = doc.data();
       }
+      if(userdata.bunq === undefined) await ref.doc('bunq').set({success: false});
+      if(userdata.enelogic === undefined) await ref.doc('enelogic').set({success: false});
+      if(userdata.solaredge === undefined) await ref.doc('solaredge').set({success: false});
       setUserData(userdata);
     })
   }, [authData.isInitializing, authData.user]);
 
-  if(authData.isInitializing || (authData.user !== null && userInfo === undefined)){
+  if(authData.isInitializing || (authData.user !== null && userInfo === undefined) || (authData.user !== null && userData === undefined)){
     return <div>Loading</div>
   }
 
   return (
-    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, ref: authData.ref}}>
+    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, ref: authData.ref, userDataRef: authData.userDataRef}}>
       <ThemeProvider theme={theme}>
         <Router history={browserHistory}>
           <Routes />

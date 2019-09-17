@@ -26,8 +26,8 @@ export const useFirestoreDocument = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useDocument(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useDocument(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 };
 
 export const useFirestoreDocumentOnce = (refpath, options = null) => {
@@ -39,8 +39,8 @@ export const useFirestoreDocumentOnce = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useDocumentOnce(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useDocumentOnce(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 };
 
 export const useFirestoreDocumentData = (refpath, options = null) => {
@@ -52,8 +52,8 @@ export const useFirestoreDocumentData = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useDocumentData(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useDocumentData(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 };
 
 export const useFirestoreDocumentDataOnce = (refpath, options = null) => {
@@ -65,8 +65,8 @@ export const useFirestoreDocumentDataOnce = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useDocumentDataOnce(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useDocumentDataOnce(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 }
 
 export const useFirestoreCollection = (refpath, options = null) => {
@@ -78,8 +78,8 @@ export const useFirestoreCollection = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useCollection(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useCollection(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 };
 
 export const useFirestoreCollectionOnce = (refpath, options = null) => {
@@ -91,8 +91,8 @@ export const useFirestoreCollectionOnce = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useCollectionOnce(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useCollectionOnce(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 };
 
 export const useFirestoreCollectionData = (refpath, options = null) => {
@@ -104,8 +104,8 @@ export const useFirestoreCollectionData = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useCollectionData(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useCollectionData(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 };
 
 export const useFirestoreCollectionDataOnce = (refpath, options = null) => {
@@ -117,8 +117,8 @@ export const useFirestoreCollectionDataOnce = (refpath, options = null) => {
   }else{
     ref = refpath;
   }
-  const [value, loading, error] = useCollectionDataOnce(ref, options);
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  const [data, loading, error] = useCollectionDataOnce(ref, options);
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 };
 
 /*
@@ -174,10 +174,10 @@ export const useFirestoreCollectionDataOnce = (path, options = {}) => {
       })
       console.log('Getting firestore data, Path: ' + path, resultdata);
     }
-    setValue(resultdata);
+    setdata(resultdata);
   });
 
-  const [value, setValue] = useState(undefined);
+  const [data, setdata] = useState(undefined);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(undefined);
 
@@ -187,6 +187,6 @@ export const useFirestoreCollectionDataOnce = (path, options = {}) => {
       .catch(err => {setError(err)});
   }, [])
 
-  return Object.assign([value, loading, error, ref], { value, loading, error, ref })
+  return Object.assign([data, loading, error, ref], { data, loading, error, ref })
 }
 */

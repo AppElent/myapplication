@@ -41,7 +41,7 @@ const useStyles = makeStyles(theme => ({
 const Bunq = ({match}) => {
 
   const {user, userInfo, ref} = useSession();
-  const {value: bunqConfig, loading: bunqConfigLoading, ref: bunqRef} = useFirestoreDocumentData(ref.collection('config').doc('bunq'));
+  const {data: bunqConfig, loading: bunqConfigLoading, ref: bunqRef} = useFirestoreDocumentData(ref.collection('config').doc('bunq'));
   const classes = useStyles();
   const {data: accountdata, loading, error, request} = useFetch('/api/bunq/accounts', {});
   const [rekeningen, rekeningenLoading, rekeningenError, rekeningenRef] = useFirestoreCollectionDataOnce(ref.collection('rekeningen'));
