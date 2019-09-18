@@ -63,7 +63,7 @@ const ScriptDialog = ({accounts, rekeningen, bunqSettings}) => {
           margin="dense"
           name="sparen"
           onChange={handleOnChange}
-          type="numeric"
+          type="number"
           value={state.sparen.value}
         />
       </DialogContent>

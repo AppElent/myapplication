@@ -50,7 +50,7 @@ function useForm(stateSchema, validationSchema = {}, callback) {
       if(isDirty === false) setIsDirty(true);
 
       const name = event.target.name;
-      const value = event.target.value;
+      const value = event.target.type === 'number' ? parseInt(event.target.value) : event.target.value;
 
       let error = '';
       const validateErrors = validate({[name]: value}, validationSchema);
