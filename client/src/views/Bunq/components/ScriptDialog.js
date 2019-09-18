@@ -15,7 +15,24 @@ import useForm from 'hooks/useForm';
 
 const ScriptDialog = ({accounts, rekeningen, bunqSettings}) => {
   const [running, setRunning] = useState(false);
-  const {values, handleChange, handleSubmit, submitting, changing, setInitial, setValues} = useForm(undefined, {from_account: '', sparen: 0});
+  const initialState = {
+    from_account: {
+      value: '',
+      error: ''
+    }, sparen: {
+      value: 0,
+      error: ''
+    }
+  }
+  const validationSchema = {
+    from_account: {
+      type: 'string'
+    },
+    sparen: {
+      type: 'number'
+    }
+  }
+  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialState, validationSchema, () => {});
   
   const [open, setOpen] = useState(false);
   return (<div>
@@ -35,9 +52,9 @@ const ScriptDialog = ({accounts, rekeningen, bunqSettings}) => {
           label="Salaris rekening"
           margin="dense"
           name="from_account"
-          onChange={handleChange}
+          onChange={handleOnChange}
           type="text"
-          value={values.from_account}
+          value={state.from_account.value}
         />
         <TextField
           fullWidth
@@ -45,9 +62,9 @@ const ScriptDialog = ({accounts, rekeningen, bunqSettings}) => {
           label="Behouden"
           margin="dense"
           name="sparen"
-          onChange={handleChange}
+          onChange={handleOnChange}
           type="numeric"
-          value={values.sparen}
+          value={state.sparen.value}
         />
       </DialogContent>
       <DialogActions>
@@ -56,9 +73,10 @@ const ScriptDialog = ({accounts, rekeningen, bunqSettings}) => {
         </Button>
         <Button 
           color="primary" 
+          disabled={hasError}
           onClick={async () => {
             setRunning(true);
-            runSalarisVerdelenScript(accounts, rekeningen, values.from_account, bunqSettings, values.sparen);
+            runSalarisVerdelenScript(accounts, rekeningen, state.from_account, bunqSettings, state.sparen);
             setRunning(false);
           }}
         >
