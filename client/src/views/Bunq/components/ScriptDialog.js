@@ -18,9 +18,12 @@ import {
 
 import {checkPreconditions, runSalarisVerdelenScript } from 'helpers/bunq-functions';
 import useForm from 'hooks/useForm';
+import useCustomMediaQuery from 'hooks/useCustomMediaQuery';
 
 
 const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => {
+  const isDesktop = useCustomMediaQuery();
+  
   const [running, setRunning] = useState(false);
   const initialState = {
     from_account: {
@@ -51,7 +54,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
     from_account: state.from_account.value,
     keep: state.keep.value
   }
-  const preconditions = accounts[0] === undefined ? {} : checkPreconditions(accounts, rekeningen, options);
+  const preconditions = accounts[0] === undefined ? {balance: 0, maandtotaal: 0, sparen: 0} : checkPreconditions(accounts, rekeningen, options);
   console.log(preconditions);
   
   const [open, setOpen] = useState(false);
@@ -91,6 +94,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
               name: 'from_account',
               id: 'age-label-placeholder',
             }}
+            native={!isDesktop}
             onChange={handleOnChange}
             value={state.from_account.value}
           >
@@ -138,6 +142,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
               name: 'savings_account',
               id: 'age-label-placeholder',
             }}
+            native={!isDesktop}
             onChange={handleOnChange}
             value={state.savings_account.value}
           >
