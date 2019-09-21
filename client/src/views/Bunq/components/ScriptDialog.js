@@ -13,7 +13,8 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  FormHelperText
+  FormHelperText,
+  NativeSelect
 } from '@material-ui/core';
 
 import {checkPreconditions, runSalarisVerdelenScript } from 'helpers/bunq-functions';
@@ -56,6 +57,8 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
   }
   const preconditions = accounts[0] === undefined ? {balance: 0, maandtotaal: 0, sparen: 0} : checkPreconditions(accounts, rekeningen, options);
   console.log(preconditions);
+
+  const SelectVersion = isDesktop ? Select : NativeSelect;
   
   const [open, setOpen] = useState(false);
   return (<div>
@@ -87,7 +90,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
           >
             Salarisrekening
           </InputLabel>
-          <Select
+          <SelectVersion
             displayEmpty
             fullWidth
             inputProps={{
@@ -98,8 +101,14 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
             onChange={handleOnChange}
             value={state.from_account.value}
           >
-            {accounts.filter(account => account.status === 'ACTIVE').map(account => <MenuItem key={account.id} value={account.description}>{account.description}</MenuItem>)}
-          </Select>
+            {accounts.filter(account => account.status === 'ACTIVE').map(account => {
+              if(isDesktop){
+                return <MenuItem key={account.id} value={account.description}>{account.description}</MenuItem>
+              }else{
+                return <option key={account.id} value={account.description}>{account.description}</option>
+              }
+            })}
+          </SelectVersion>
           <FormHelperText>Vul hier de rekening waarvandaan verdeeld moet worden</FormHelperText>
         </FormControl>
         <FormControlLabel
@@ -135,7 +144,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
           >
             Spaarrekening
           </InputLabel>
-          <Select
+          <SelectVersion
             displayEmpty
             fullWidth
             inputProps={{
@@ -146,8 +155,14 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
             onChange={handleOnChange}
             value={state.savings_account.value}
           >
-            {accounts.filter(account => account.status === 'ACTIVE').map(account => <MenuItem key={account.id} value={account.description}>{account.description}</MenuItem>)}
-          </Select>
+            {accounts.filter(account => account.status === 'ACTIVE').map(account => {
+              if(isDesktop){
+                return <MenuItem key={account.id} value={account.description}>{account.description}</MenuItem>
+              }else{
+                return <option key={account.id} value={account.description}>{account.description}</option>
+              }
+            })}
+          </SelectVersion>
           <FormHelperText>Vul hier de spaarrekening</FormHelperText>
         </FormControl>}
 

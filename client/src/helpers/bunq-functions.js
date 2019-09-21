@@ -24,6 +24,7 @@ export const checkPreconditions = (accounts, rekeningen, options = {}) => {
     if(foundaccount == null && rekening['month_' + maandnummer] > 0){
       currentstate.succeeded = false;
       currentstate.logging[rekening.rekening].message = 'Bestaat niet';
+      currentstate.accountsExist.push('Account ' + rekening.rekening + ' bestaat niet');
     }
   });
   if((parseFloat(currentstate.balance)) < options.income){
@@ -31,6 +32,8 @@ export const checkPreconditions = (accounts, rekeningen, options = {}) => {
     currentstate.succeeded = false;
   }
   currentstate.sparen = (currentstate.balance - currentstate.maandtotaal);
+  if(options.keep !== undefined) currentstate.sparen = currentstate.sparen - options.keep;
+
   if(currentstate.sparen < 0) currentstate.sparen = 0;
   if((currentstate.maandtotaal + options.keep) > options.income){
     currentstate.incomeSufficient = false;
