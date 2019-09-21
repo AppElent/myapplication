@@ -48,9 +48,14 @@ function useForm(stateSchema, validationSchema = {}, callback) {
   const handleOnChange = useCallback(
     event => {
       if(isDirty === false) setIsDirty(true);
-
+      console.log(event.target);
       const name = event.target.name;
-      const value = event.target.type === 'number' ? parseInt(event.target.value) : event.target.value;
+      let value = event.target.value;
+      if(event.target.type === 'number'){
+        value = parseInt(event.target.value)
+      }else if(event.target.type === 'checkbox'){
+        value = event.target.checked;
+      }
 
       let error = '';
       const validateErrors = validate({[name]: value}, validationSchema);

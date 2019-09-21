@@ -114,7 +114,7 @@ const getMonetaryAccounts = async (req, res) => {
 	const bunqClient = bunq.getClient(req.uid);
 	const forceUpdate = (req.query.forceupdate !== undefined ? true : false) 
 	console.log('forceUpdate', forceUpdate)
-	const data = await bunqClient.getAccounts(forceUpdate);
+	const data = await bunqClient.getAccounts(true);
 	return res.send({data: data, success: true});
 }
 
