@@ -136,9 +136,9 @@ const Bunq = ({match}) => {
             value={tab}
             variant="scrollable"
           >
-            <Tab label="Rekening overzicht"/>
-            <Tab label="Salaris verdelen"/>
-            <Tab label="Overboeken" />
+            <Tab label="Rekening overzicht" disabled={loading} />
+            <Tab label="Salaris verdelen" disabled={loading} />
+            <Tab label="Overboeken" disabled={loading} />
           </Tabs>
         </AppBar>
         {tab === 0 && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={bunqConfig !== undefined && bunqConfig.environment === 'SANDBOX'} />}
