@@ -151,9 +151,9 @@ if(settings.http_redirect) {
     else
       next()
   })
-}else{
-  app.listen(settings.http_port);
 }
+
+app.listen(settings.http_port);
 
 /*
 // Redirect from http port to https
