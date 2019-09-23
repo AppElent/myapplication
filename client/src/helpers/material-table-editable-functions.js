@@ -4,7 +4,6 @@ const getDataObject = (data, columns) => {
     const keys = Object.keys(data);
     for(var key of keys){
       const foundColumn = columns.find(column => column.field === key);
-      console.log(foundColumn, key);
       if(foundColumn !== undefined){
         if(foundColumn.type && foundColumn.type === 'numeric'){
           data[key] = parseInt(data[key]);

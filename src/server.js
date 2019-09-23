@@ -18,7 +18,7 @@ process.env.NODE_ENV = node_env;
  */
 const all_settings = {
   "HEROKU": {
-    http_redirect: false,
+    http_redirect: true,
     load_certs: false,
     http_port: process.env.PORT,
     https_port: 3002
