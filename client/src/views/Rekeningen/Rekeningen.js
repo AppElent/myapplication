@@ -24,7 +24,8 @@ const Rekeningen = () => {
   
   var columns = [{
     title: 'Naam',
-    field: 'naam'
+    field: 'naam',
+    editable: 'onAdd'
   },{
     title: 'Dag vd maand',
     field: 'dag',
@@ -64,11 +65,15 @@ const Rekeningen = () => {
           editable={{
             //isEditable: rowData => rowData.name === "a", // only name(a) rows would be editable
             //isDeletable: rowData => rowData.name === "b", // only name(a) rows would be deletable
-            onRowAdd: addData(ref.collection('rekeningen'), 'naam'),
-            onRowUpdate: updateData(ref.collection('rekeningen'), 'naam'),
-            onRowDelete: deleteData(ref.collection('rekeningen'), 'naam')
+            onRowAdd: addData(ref.collection('rekeningen'), 'naam', columns),
+            onRowUpdate: updateData(ref.collection('rekeningen'), 'naam', columns),
+            onRowDelete: deleteData(ref.collection('rekeningen'), 'naam', columns)
           }}
           options={{
+            exportAllData: true,
+            exportButton: true,
+            exportFilename: 'Rekeningen.csv',
+            exportDelimiter: ';',
             pageSize: 10,
             padding: 'dense'
           }}
