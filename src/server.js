@@ -144,6 +144,18 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
+if(settings.http_redirect) {
+  app.use((req, res, next) => {
+    if (req.header('x-forwarded-proto') !== 'https')
+      res.redirect(`https://${req.header('host')}${req.url}`)
+    else
+      next()
+  })
+}else{
+  app.listen(settings.http_port);
+}
+
+/*
 // Redirect from http port to https
 if(settings.http_redirect){
   http.createServer(function (req, res) {
@@ -153,7 +165,7 @@ if(settings.http_redirect){
 }else{
   app.listen(settings.http_port);
 }
-
+*/
 
 
 
