@@ -5,7 +5,7 @@ import { Grid } from '@material-ui/core';
 import { useFirestoreDocumentDataOnce} from '../../hooks/useFirestore';
 import useSession from '../../hooks/useSession';
 
-import {OAuthAuthorize, OAuthToken} from '../../components';
+import {OAuthAuthorize, OAuthToken, LoadingButton} from '../../components';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -22,9 +22,7 @@ const TestPage = () => {
   console.log(value, loading, error);
   console.log(een, twee, drie);
 
-  authData.ref.set({Fullname: 'Eric Jansen'});
-
-  authData.ref.collection('data').doc('ibiza').set({nice: true})
+  
 
   return (
     <div className={classes.root}>
@@ -44,6 +42,7 @@ const TestPage = () => {
           <span>User info: {JSON.stringify(authData.userInfo)}</span>
           {value && <span>User1 data: {JSON.stringify(value.data())}</span>}
           {error && <span>User1 data: {JSON.stringify(error)}</span>}
+          <LoadingButton loading={true}>Testje</LoadingButton>
         </Grid>
         <Grid
           item

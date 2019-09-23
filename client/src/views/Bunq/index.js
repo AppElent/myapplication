@@ -142,7 +142,7 @@ const Bunq = ({match}) => {
           </Tabs>
         </AppBar>
         {tab === 0 && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={bunqConfig !== undefined && bunqConfig.environment === 'SANDBOX'} />}
-        {tab === 1 && <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={groupData('rekening')(rekeningen)} />} 
+        {tab === 1 && <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={groupData('rekening')(rekeningen)} user={user}/>} 
         {tab === 2 && <Overboeken />}
       </div>
     </div>

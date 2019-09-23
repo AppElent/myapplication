@@ -22,7 +22,7 @@ import useForm from 'hooks/useForm';
 import useCustomMediaQuery from 'hooks/useCustomMediaQuery';
 
 
-const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => {
+const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user}) => {
   const isDesktop = useCustomMediaQuery();
   
   const [running, setRunning] = useState(false);
@@ -57,6 +57,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
   }
   const preconditions = accounts[0] === undefined ? {balance: 0, maandtotaal: 0, sparen: 0} : checkPreconditions(accounts, rekeningen, options);
   console.log(preconditions);
+
 
   const SelectVersion = isDesktop ? Select : NativeSelect;
   
@@ -185,7 +186,8 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings}) => 
               savings_account: state.savings_account.value,
               keep: state.keep.value,
               income: 10000,
-              sparen: preconditions.sparen
+              sparen: preconditions.sparen,
+              user
             }
             runSalarisVerdelenScript(rekeningen, options);
             accountsRequest.get();

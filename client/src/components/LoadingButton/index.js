@@ -27,7 +27,7 @@ const LoadingButton = (props) => {
   return (
     <Button {...rest}>
       {children}
-      {loading && <CircularProgress className={classes.spinner} size={20} {...rest} />}
+      {loading && <CircularProgress className={classes.spinner} size={20} />}
     </Button>
   )
 }

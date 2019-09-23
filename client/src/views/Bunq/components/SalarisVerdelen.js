@@ -27,7 +27,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SalarisVerdelen = ({accounts, accountsRequest, rekeningen}) => {
+const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
   const classes = useStyles();
   console.log(rekeningen);
   const [bunqSettings, setBunqSettings] = useState({from: '', spaar: '', income: 3150, keep: 80})
@@ -73,6 +73,7 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen}) => {
         accountsRequest={accountsRequest}
         bunqSettings={bunqSettings}
         rekeningen={rekeningen}
+        user={user}
       />
       <MaterialTable 
         columns={getRekeningColumns()}

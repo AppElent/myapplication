@@ -17,7 +17,6 @@ export default class Oauth {
     if(options.secretParamName) this.credentials.client['secretParamName'] = options.secretParamName;
     if(options.tokenPath) this.credentials.auth['tokenPath'] = options.tokenPath;
     if(options.authorizePath) this.credentials.auth['authorizePath'] = options.authorizePath;
-    console.log(this.credentials);
     if(options.flow === 'authorization'){
       this.oauth = SimpleOauth2.create(this.credentials);
     }
