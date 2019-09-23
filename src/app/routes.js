@@ -1,15 +1,14 @@
 const path = require('path');
-const fetch = require("node-fetch");
+//import fetch from 'node-fetch';
 const db = require('./models');
+import {basicAuthentication, adminAuthentication} from './middleware/authentication';
+
+import {get, find, list, create, update, deleteRecord} from './modules/SequelizeREST';
 
 module.exports = async function(app) {
 	
-	const auth = require("./middleware/authentication")
-	const basicAuthentication = auth.authenticationRequired();
-	const adminAuthentication = auth.authenticationRequired({group: 'Admins'});
-	
-	console.log('test123')
 	//PROXY routes
+	/*
 	var httpProxy = require('http-proxy');
 	var apiProxy = httpProxy.createProxyServer();
 	app.all('/domoticz(/*)?', (req, res) => {
@@ -28,6 +27,7 @@ module.exports = async function(app) {
 		prependPath: false
 	    });
 	});
+	*/
 	
 	
 	//Load all controllers
@@ -85,55 +85,65 @@ module.exports = async function(app) {
 
 	//Custom routes
 	app.post('/api/redirectcall', basicAuthentication, controllers.custom.redirectCall);
+	app.get('/api/test', basicAuthentication, (req, res) => {
+		res.send({result: true, asd: false});
+	});
+
+
 	
 	
 	//Usersettings
+	/*
 	app.get('/api/usersettings/:id', basicAuthentication, controllers.basic.get(db.usersettings));
 	app.get('/api/usersettings', basicAuthentication, controllers.basic.list(db.usersettings));
 	app.get('/api/usersettings/:column/:value', basicAuthentication, controllers.basic.findOne(db.usersettings));
 	app.post('/api/usersettings', basicAuthentication, controllers.basic.create(db.usersettings))
 	app.put('/api/usersettings/:id', basicAuthentication, controllers.basic.update(db.usersettings))
-	
+	*/
+
 	//Rekeningen
-	app.get('/api/rekeningen/:id', basicAuthentication, controllers.basic.get(db.rekeningen));
-	app.get('/api/rekeningen', basicAuthentication, controllers.basic.list(db.rekeningen));
-	app.get('/api/rekeningen/:column/:value', basicAuthentication, controllers.basic.findOne(db.rekeningen));
-	app.post('/api/rekeningen', basicAuthentication, controllers.basic.create(db.rekeningen))
-	app.put('/api/rekeningen/:id', basicAuthentication, controllers.basic.update(db.rekeningen))
-	app.delete('/api/rekeningen/:id', basicAuthentication, controllers.basic.delete(db.rekeningen))
+	app.get('/api/rekeningen/:id', basicAuthentication, get(db.rekeningen));
+	app.get('/api/rekeningen', basicAuthentication, list(db.rekeningen));
+	app.get('/api/rekeningen/:column/:value', basicAuthentication, find(db.rekeningen));
+	app.post('/api/rekeningen', basicAuthentication, create(db.rekeningen))
+	app.put('/api/rekeningen/:id', basicAuthentication, update(db.rekeningen))
+	app.delete('/api/rekeningen/:id', basicAuthentication, deleteRecord(db.rekeningen))
 	
 	//Meterstanden
 	const meterstandCache = new Cache(300);
 	console.log(db.meterstanden);
-	app.get('/api/meterstanden/:id', basicAuthentication, controllers.basic.get(db.meterstanden));
-	app.get('/api/meterstanden', basicAuthentication, controllers.basic.list(db.meterstanden, {cache: meterstandCache}));
-	app.get('/api/meterstanden/:column/:value', basicAuthentication, controllers.basic.findOne(db.meterstanden));
-	app.post('/api/meterstanden', basicAuthentication, controllers.basic.create(db.meterstanden))
-	app.put('/api/meterstanden/:id', basicAuthentication, controllers.basic.update(db.meterstanden))
+	app.get('/api/meterstanden/:id', basicAuthentication, get(db.meterstanden));
+	app.get('/api/meterstanden', basicAuthentication, list(db.meterstanden, {cache: meterstandCache}));
+	app.get('/api/meterstanden/:column/:value', basicAuthentication, find(db.meterstanden));
+	app.post('/api/meterstanden', basicAuthentication, create(db.meterstanden))
+	app.put('/api/meterstanden/:id', basicAuthentication, update(db.meterstanden))
 	
 	//Users
+	/*
 	app.get('/api/users/:id', adminAuthentication, controllers.basic.get(db.users, {userColumnName: null}));
 	app.get('/api/users', adminAuthentication, controllers.basic.list(db.users, {userColumnName: null}));
 	app.get('/api/users/:column/:value', adminAuthentication, controllers.basic.findOne(db.users, {userColumnName: null}));
 	app.post('/api/users', adminAuthentication, controllers.basic.create(db.users, {userColumnName: null}))
 	app.put('/api/users/:id', adminAuthentication, controllers.basic.update(db.users, {userColumnName: null}))
-	
+	*/
+
 	//API Settings
-	app.get('/api/apisettings/:id', basicAuthentication, controllers.basic.get(db.apisettings));
-	app.get('/api/apisettings', basicAuthentication, controllers.basic.list(db.apisettings));
-	app.get('/api/apisettings/:column/:value', basicAuthentication, controllers.basic.findOne(db.apisettings));
-	app.post('/api/apisettings', basicAuthentication, controllers.basic.create(db.apisettings))
-	app.put('/api/apisettings/:id', basicAuthentication, controllers.basic.update(db.apisettings))
+	/*
+	app.get('/api/apisettings/:id', basicAuthentication, get(db.apisettings));
+	app.get('/api/apisettings', basicAuthentication, list(db.apisettings));
+	app.get('/api/apisettings/:column/:value', basicAuthentication, find(db.apisettings));
+	app.post('/api/apisettings', basicAuthentication, create(db.apisettings))
+	app.put('/api/apisettings/:id', basicAuthentication, update(db.apisettings))
+	*/
 	
 	//Events
-	app.get('/api/events/:id', basicAuthentication, controllers.basic.get(db.events));
-	app.get('/api/events', basicAuthentication, controllers.basic.list(db.events));
-	app.get('/api/events/:column/:value', basicAuthentication, controllers.basic.findOne(db.events));
-	app.post('/api/events', basicAuthentication, controllers.basic.create(db.events))
-	app.put('/api/events/:id', basicAuthentication, controllers.basic.update(db.events))
+	app.get('/api/events/:id', basicAuthentication, get(db.events));
+	app.get('/api/events', basicAuthentication, list(db.events));
+	app.get('/api/events/:column/:value', basicAuthentication, find(db.events));
+	app.post('/api/events', basicAuthentication, create(db.events))
 	
 	//OKTA routes
-	app.use('/api/okta/', require('./controllers/okta.controller'));
+	//app.use('/api/okta/', require('./controllers/okta.controller'));
 	//app.post('/api/okta/create', adminAuthentication, controllers.okta.createUser)
 	//app.get('/api/okta/groups', basicAuthentication, controllers.okta.getGroups);
 	
@@ -152,8 +162,12 @@ module.exports = async function(app) {
 	
 	
 	//Bunq routes
+	app.use('/api/bunq', require('./controllers/bunq.controller'));
+	/*
+	
 	app.post('/api/bunq/oauth/exchange', basicAuthentication, controllers.bunq.exchangeOAuthTokens);
-	app.get('/api/bunq/oauth/formatUrl', basicAuthentication, controllers.bunq.formatOAuthUrl);
+	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
+	//app.get('/api/bunq/oauth/formatUrl', basicAuthentication, controllers.bunq.formatOAuthUrl);
 	app.get('/api/bunq/accounts/:name', basicAuthentication, controllers.bunq.getMonetaryAccountByName);
 	app.get('/api/bunq/accounts', basicAuthentication, controllers.bunq.getMonetaryAccounts);
 	app.post('/api/bunq/payment', basicAuthentication, controllers.bunq.postPaymentInternal);
@@ -161,8 +175,9 @@ module.exports = async function(app) {
 	app.post('/api/bunq/draftpayment', basicAuthentication, controllers.bunq.postDraftPayment);
 	app.get('/api/bunq/cards', basicAuthentication, controllers.bunq.getCards)
 	app.get('/api/bunq/sandbox', basicAuthentication, controllers.bunq.createSandboxAPIKey);
+	app.get('/api/bunq/sandbox/request', basicAuthentication, controllers.bunq.requestSandboxMoney);
 	app.get('/api/bunq/test', basicAuthentication, controllers.bunq.test);
-
+	*/
 
 	//SolarEdge
 	//app.get('/api/solaredge/data/formatted/:start/:end', solaredge.getFormattedData);
@@ -201,7 +216,7 @@ module.exports = async function(app) {
 		app.get('/api/development/:model', async (req, res) => {
 			let conditions = {}
 			if(req.query.user){
-				conditions = { where: {user: req.query.user} }
+				conditions = { where: {userId: req.query.user} }
 			}
 			const data = await db[req.params.model].findAll(conditions);
 			res.send(data);

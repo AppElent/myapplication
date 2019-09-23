@@ -13,3 +13,4 @@ client/.env
 .env
 config/database/seeders/*.js
 config/bunq/*.json
+*.sqlite

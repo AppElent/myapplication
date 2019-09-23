@@ -13,6 +13,7 @@ export default class BunqClient {
     this.user;
     this.longCache = new Cache(9999999);
     this.shortCache = new Cache(300);
+    this.environment;
   }
   
   getObject(object){
@@ -38,7 +39,7 @@ export default class BunqClient {
   }
 
   
-  async initialize(filename, access_token, encryption_key, options){
+  async initialize(filename, access_token, encryption_key, environment = 'PRODUCTION', options = {}){
       //Status zetten
       this.status = 'STARTING';
       
@@ -47,10 +48,9 @@ export default class BunqClient {
       this.bunqJSClient = new BunqJSClient(filestore);
       
       // load and refresh bunq client
-      this.environment = 'PRODUCTION';
-      if(options.env !== undefined) this.environment = options.env;
-      console.log("Running bunqclient", access_token, this.environment, encryption_key);
-      await this.bunqJSClient.run(access_token, ['*'], this.environment, encryption_key).catch(this.defaultErrorLogger);
+      this.environment = environment;
+      console.log('Connecting to environment ' + environment);
+      await this.bunqJSClient.run(access_token, ['*'], environment, encryption_key).catch(this.defaultErrorLogger);
 
       // disable keep-alive since the server will stay online without the need for a constant active session
       this.bunqJSClient.setKeepAlive(false);
@@ -58,11 +58,11 @@ export default class BunqClient {
       console.log("create/re-use a system installation");
       await this.bunqJSClient.install().catch(this.defaultErrorLogger);
 
-      console.log("create/re-use a device installation")
+      console.log("create/re-use a device installation");
       try{
         await this.bunqJSClient.registerDevice('EricsApp');
       }catch(err){
-        console.log( "Fout bij laden van BunqClient met bestandsnaam " + filename);
+        console.log( "Fout bij laden van BunqClient met bestandsnaam " + filename, err.response.data);
         return;
       }
       

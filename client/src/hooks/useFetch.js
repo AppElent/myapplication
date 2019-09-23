@@ -1,15 +1,20 @@
 //import 'idempotent-babel-polyfill' // so async await works ;)
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react';
+//import {auth} from '../helpers/Firebase';
+import useSession from './useSession';
 
 const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]'
 
 export function useFetch(arg1, arg2) {
+  const {user} = useSession();
+
   let url = null
   let options = {}
   let onMount = false
   let baseUrl = ''
   let method = 'GET'
-  
+
+ 
   if (arg2.defaultData === undefined) arg2.defaultData = []
 
   //console.log('useFetch is called with args ', arg1, arg2);
@@ -38,58 +43,60 @@ export function useFetch(arg1, arg2) {
   const [error, setError] = useState(null)
 
   const fetchData = useCallback(method => async (fArg1, fArg2) => {
-      let query = ''
+    let query = ''
       
-      const fetchOptions = {}
-      if (isObject(fArg1) && method.toLowerCase() !== 'get') {
-        fetchOptions.body = JSON.stringify(fArg1)
-      } else if (baseUrl && typeof fArg1 === 'string') {
-        url = baseUrl + fArg1
-        if (isObject(fArg2)) fetchOptions.body = JSON.stringify(fArg2)
-      } else if ( typeof fArg1 === 'string'){
-        url = fArg1
-        if (isObject(fArg2)) fetchOptions.body = JSON.stringify(fArg2)
-      }
-      if (typeof fArg1 === 'string' && typeof fArg2 === 'string') query = fArg2
+    const fetchOptions = {}
+    if (isObject(fArg1) && method.toLowerCase() !== 'get') {
+      fetchOptions.body = JSON.stringify(fArg1)
+    } else if (baseUrl && typeof fArg1 === 'string') {
+      url = baseUrl + fArg1
+      if (isObject(fArg2)) fetchOptions.body = JSON.stringify(fArg2)
+    } else if ( typeof fArg1 === 'string'){
+      url = fArg1
+      if (isObject(fArg2)) fetchOptions.body = JSON.stringify(fArg2)
+    }
+    if (typeof fArg1 === 'string' && typeof fArg2 === 'string') query = fArg2
       
-      try {
-        setLoading(true)
-        let token = await arg2.auth.getAccessToken();
-        console.log('Making ' + method + ' request to ' + url + query);
-        var response = await fetch(url + query, {
-          method,
-          ...options,
-          ...fetchOptions,
-          headers: {
-             Authorization: 'Bearer ' + token,
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-        })
-        console.log(response);
-        if(!response.ok){
-          console.log("error request");
-          throw (response.status + ' - ' + response.statusText);
-        }else{
-          let responsedata = null;
-          try {
-            responsedata = await response.json()
-          } catch (err) {
-            responsedata = await response.text()
-          }
-          if(method.toLowerCase() === 'get'){
-            if (arg2.postProcess !== undefined) {responsedata = await arg2.postProcess(responsedata);}else{console.log(12345)}
-            setData(responsedata)
-          }
+    try {
+      setLoading(true)
+      let token = await user.getIdToken(true);
+      console.log('Making ' + method + ' request to ' + url + query);
+      var response = await fetch(url + query, {
+        method,
+        ...options,
+        ...fetchOptions,
+        headers: {
+          Authorization: 'Firebase ' + token,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      })
+      console.log(response);
+      if(!response.ok){
+        console.log('error request');
+        throw (response.status + ' - ' + response.statusText);
+      }else{
+        let responsedata = null;
+        try {
+          responsedata = await response.json()
+        } catch (err) {
+          responsedata = await response.text()
         }
-
-      } catch (err) {
-        setError(err)
-      } finally {
-        setLoading(false)
+        console.log('Response data', responsedata);
+        if(method.toLowerCase() === 'get'){
+          let realdata = responsedata.data;
+          if (arg2.postProcess !== undefined) {realdata = await arg2.postProcess(realdata);}
+          setData(realdata)
+        }
       }
-    },
-    [url]
+
+    } catch (err) {
+      setError(err)
+    } finally {
+      setLoading(false)
+    }
+  },
+  [url]
   )
 
   const get = useCallback(fetchData('GET'))

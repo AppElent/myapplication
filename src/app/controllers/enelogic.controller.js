@@ -1,6 +1,6 @@
 //
 const router = require('express').Router();
-const auth = require('../middleware/authentication');
+//const auth = require('../middleware/authentication');
 
 const db = require('../models');
 const MeterstandElektra = db.meterstanden;
@@ -13,6 +13,7 @@ const Cache = require('../modules/Cache');
 const enelogicCache = new Cache(9999999);
 
 import {oauthproviders} from '../modules/application_cache';
+import {basicAuthentication} from '../middleware/authentication';
 
 const getEnelogicData = (period) => async (req, res) => {
 //async function getMeterstanden(from, to, period){
@@ -142,9 +143,9 @@ const test = async (req, res) => {
 	res.send(accessTokenObject);
 }
 
-router.get('/data/dag/:start/:end', auth.basicAuthentication, getEnelogicData('day'));
-router.get('/data/kwartier/:start/:end', auth.basicAuthentication, getEnelogicData('quarter'));
-router.get('/test', auth.basicAuthentication, test);
+router.get('/data/dag/:start/:end', basicAuthentication, getEnelogicData('day'));
+router.get('/data/kwartier/:start/:end', basicAuthentication, getEnelogicData('quarter'));
+router.get('/test', basicAuthentication, test);
 
 
 module.exports = router;
