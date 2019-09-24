@@ -67,49 +67,9 @@ const Sidebar = props => {
       icon: <DashboardIcon />
     },
     {
-      title: 'Testpage',
-      href: '/testpage',
-      icon: <DashboardIcon />
-    },
-    {
-      title: 'Dashboard',
-      href: '/theme/dashboard',
-      icon: <DashboardIcon />
-    },
-    {
-      title: 'Users',
-      href: '/theme/users',
-      icon: <PeopleIcon />
-    },
-    {
-      title: 'Products',
-      href: '/theme/products',
-      icon: <ShoppingBasketIcon />
-    },
-    {
-      title: 'Authentication',
-      href: '/theme/sign-in',
-      icon: <LockOpenIcon />
-    },
-    {
-      title: 'Typography',
-      href: '/theme/typography',
-      icon: <TextFieldsIcon />
-    },
-    {
-      title: 'Icons',
-      href: '/theme/icons',
-      icon: <ImageIcon />
-    },
-    {
       title: 'Account',
       href: '/account',
       icon: <AccountBoxIcon />
-    },
-    {
-      title: 'Settings',
-      href: '/theme/settings',
-      icon: <SettingsIcon />
     }
   ];
 
