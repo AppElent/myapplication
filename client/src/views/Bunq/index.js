@@ -9,7 +9,7 @@ import useSession from 'hooks/useSession';
 import useFetch from 'hooks/useFetch';
 import fetchBackend from 'helpers/fetchBackend';
 import {useFirestoreCollectionDataOnce, useFirestoreDocumentData} from 'hooks/useFirestore';
-import {OAuthAuthorize} from '../../components';
+import {OauthAuthorize} from '../../components';
 import AccountsPage from './components/AccountsPage';
 import SalarisVerdelen from './components/SalarisVerdelen';
 import Overboeken from './components/Overboeken';
@@ -113,7 +113,7 @@ const Bunq = ({match}) => {
             onClick={createBunqSandbox}
             variant="contained"
           >Connect bunq sandbox</Button>
-          <OAuthAuthorize
+          <OauthAuthorize
             formatUrl="/api/oauth/formaturl/bunq"
             title="Connect bunq"
           />

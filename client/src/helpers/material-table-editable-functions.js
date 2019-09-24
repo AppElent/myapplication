@@ -2,11 +2,11 @@
 const getDataObject = (data, columns) => {
   if(columns !== undefined){
     const keys = Object.keys(data);
-    for(var key of keys){
-      const foundColumn = columns.find(column => column.field === key);
+    for(var objectkey of keys){
+      const foundColumn = columns.find(column => column.field === objectkey);
       if(foundColumn !== undefined){
         if(foundColumn.type && foundColumn.type === 'numeric'){
-          data[key] = parseInt(data[key]);
+          data[objectkey] = parseInt(data[objectkey]);
         }
       }
     }

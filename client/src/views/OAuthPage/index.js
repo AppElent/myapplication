@@ -7,7 +7,7 @@ import { Redirect } from 'react-router-dom';
 
 import fetchBackend from '../../helpers/fetchBackend';
 import useSession from '../../hooks/useSession';
-import {OAuthAuthorize} from '../../components';
+import {OauthAuthorize} from '../../components';
 
 const config = {
   enelogic: {
@@ -62,7 +62,7 @@ const OAuthPage = ({match}) => {
   }, [])
 
   return (<div>
-    <OAuthAuthorize title={name} formatUrl={settings.formatUrl} />
+    <OauthAuthorize title={name} formatUrl={settings.formatUrl} />
     <Typography variant='h1'>OAuth 2.0</Typography>
     {!loading && <Redirect to={settings.redirectUrl} />}
     <Button onClick={refreshToken}>Refresh</Button>

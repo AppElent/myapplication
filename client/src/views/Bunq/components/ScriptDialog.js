@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { 
   Button,
   Checkbox,
-  DialogTitle,
   DialogContent,
   DialogContentText,
   TextField,
@@ -15,7 +14,6 @@ import {
 
 import {checkPreconditions, runSalarisVerdelenScript } from 'helpers/bunq-functions';
 import useForm from 'hooks/useForm';
-import useCustomMediaQuery from 'hooks/useCustomMediaQuery';
 import {ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem} from 'components'
 
 
