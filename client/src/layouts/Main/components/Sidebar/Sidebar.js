@@ -47,13 +47,13 @@ const Sidebar = props => {
 
   const pages = [
     {
-      title: 'Rekeningen',
-      href: '/rekeningen',
+      title: 'Meterstanden',
+      href: '/meterstanden',
       icon: <DashboardIcon />
     },
     {
-      title: 'Meterstanden',
-      href: '/meterstanden',
+      title: 'Rekeningen',
+      href: '/rekeningen',
       icon: <DashboardIcon />
     },
     {

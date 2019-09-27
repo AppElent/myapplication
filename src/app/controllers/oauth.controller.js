@@ -69,14 +69,6 @@ exports.format = () => (req, res) => {
 exports.exchange = () => async (req, res) => {
 	const oauthobject = oauthproviders[req.params.application];
 	
-	// Get the access token object (the authorization code is given from the previous step).
-	//const redirecthost = req.protocol + '://' + req.get('host');
-	const tokenConfig = {
-	  code: req.body.code,
-	  redirect_uri: oauthproviders[req.params.application].options.redirect_url,
-	  scope: oauthproviders[req.params.application].options.default_scope , // also can be an array of multiple scopes, ex. ['<scope1>, '<scope2>', '...']
-	};
-	console.log(tokenConfig)
 	// Save the access token
 	try {
 	    const accessToken = await oauthobject.getToken(req.body.code);
@@ -90,30 +82,6 @@ exports.exchange = () => async (req, res) => {
 			token_type: accessToken.token.token_type
 		}
 		return res.send({success: true, data: accessTokenObject});
-
-		/*
-	    if(req.params.application !== undefined){
-		const conditions = {where: {user: req.uid, name: req.params.application}};
-		const body = {
-		  user: req.uid, 
-		  name: req.params.application, 
-		  access_token: accessToken.token.access_token, 
-		  refresh_token: accessToken.token.refresh_token,
-		  expires_at: accessToken.token.expires_at,
-		  token_type: accessToken.token.token_type,
-		  scope: accessToken.token.scope, 
-		};
-		console.log(conditions, body)
-		let entry = await db.apisettings.findOne(conditions)
-		if(entry){
-		    entry = await entry.update(body)
-		}else{
-		    entry = await db.apisettings.create(body);
-		}
-		return res.send(entry);
-	    }
-		return res.send(accessToken);
-		*/
 	}catch (error) {
 	    console.log(error.message, error.output);
 	    return res.status(400).send({success: false, message: error.message, output: error.output})
@@ -125,6 +93,7 @@ exports.exchange = () => async (req, res) => {
 exports.refresh = () => async (req, res) => {
 	try{
 		const oauthobject = oauthproviders[req.params.application];
+
 		const accessToken = await oauthobject.refresh(req.body);
 		const accessTokenObject = {
 			access_token: accessToken.token.access_token,

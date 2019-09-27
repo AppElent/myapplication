@@ -6,6 +6,9 @@ import CircularProgress from '@material-ui/core/CircularProgress'
 const useStyles = makeStyles(theme => ({
   root: {
     marginLeft: theme.spacing(3)
+  },
+  spinner: {
+    color: 'white'
   }
 }))
 
@@ -25,8 +28,8 @@ const LoadingButton = (props) => {
     ...rest
   } = props
   return (
-    <Button {...rest}>
-      {children}
+    <Button disabled={loading} {...rest}>
+      {!loading && children}
       {loading && <CircularProgress className={classes.spinner} size={20} />}
     </Button>
   )

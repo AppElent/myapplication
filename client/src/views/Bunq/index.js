@@ -7,9 +7,10 @@ import queryString from 'query-string';
 
 import useSession from 'hooks/useSession';
 import useFetch from 'hooks/useFetch';
+import useTabs from 'hooks/useTabs';
 import fetchBackend from 'helpers/fetchBackend';
 import {useFirestoreCollectionDataOnce, useFirestoreDocumentData} from 'hooks/useFirestore';
-import {OauthAuthorize} from '../../components';
+import {OauthAuthorize} from 'components';
 import AccountsPage from './components/AccountsPage';
 import SalarisVerdelen from './components/SalarisVerdelen';
 import Overboeken from './components/Overboeken';
@@ -47,9 +48,7 @@ const Bunq = ({match}) => {
   const [rekeningen, rekeningenLoading, rekeningenError, rekeningenRef] = useFirestoreCollectionDataOnce(ref.collection('rekeningen'));
   const [loadBunqData, setLoadBunqData] = useState(undefined);
   const [loadingToken, setLoadingToken] = useState(false);
-  const [tab, setTab] = useState(0);
-  const urlTab = (match.params.tab ? match.params.tab : null);
-
+  const [tab, handleTabChange] = useTabs('overzicht');
 
   useEffect(() => {
     if(bunqConfigLoading === false){
@@ -131,19 +130,19 @@ const Bunq = ({match}) => {
         <AppBar position="static">
           <Tabs 
             aria-label="simple tabs example"
-            onChange={(e, newValue) => setTab(newValue)}
+            onChange={handleTabChange}
             scrollButtons="auto"
             value={tab}
             variant="scrollable"
           >
-            <Tab label="Rekening overzicht" disabled={loading} />
-            <Tab label="Salaris verdelen" disabled={loading} />
-            <Tab label="Overboeken" disabled={loading} />
+            <Tab label="Rekening overzicht" value="overzicht" disabled={loading} />
+            <Tab label="Salaris verdelen" value="verdelen" disabled={loading} />
+            <Tab label="Overboeken" value="overboeken" disabled={loading} />
           </Tabs>
         </AppBar>
-        {tab === 0 && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={bunqConfig !== undefined && bunqConfig.environment === 'SANDBOX'} />}
-        {tab === 1 && <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={groupData('rekening')(rekeningen)} user={user}/>} 
-        {tab === 2 && <Overboeken />}
+        {tab === 'overzicht' && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={bunqConfig !== undefined && bunqConfig.environment === 'SANDBOX'} />}
+        {tab === 'verdelen' && <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={groupData('rekening')(rekeningen)} user={user}/>} 
+        {tab === 'overboeken' && <Overboeken />}
       </div>
     </div>
   );

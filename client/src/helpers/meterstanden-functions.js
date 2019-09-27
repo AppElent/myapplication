@@ -2,6 +2,7 @@ import moment from 'moment';
 import 'moment-timezone';
 
 import fetchBackend from 'helpers/fetchBackend';
+import { Exception } from 'handlebars';
 
 export const isDayQuery = (localtimeframe) => (['minute', 'quarter', 'hour'].includes(localtimeframe))
 
@@ -146,6 +147,69 @@ export const getTableData = async (values, localdata, user) => {
   return (returndata);
   //---setLoading(false )
   //console.log(data);
+}
+
+const getEnelogicData = async (url, config) => {
+  url +='?access_token=' + config.token.access_token;
+  if(!config.measuringpoints) throw Error('Geen measuringpoints');
+  if(config.measuringpoints.electra){
+    url += '&mpointelectra=' + config.measuringpoints.electra.id;
+  }
+  if(config.measuringpoints.gas){
+    url += '&mpointgas=' + config.measuringpoints.gas.id;
+  }
+  const response = await fetch(url);
+  const data = await response.json();
+  console.log(url);
+  return data;
+}
+
+export const getDifferenceArray = async (array, id, columnArray) => {
+  var savedItems = {}
+  //savedItems['first'] = array[0];
+  savedItems['previous'] = array[0];
+  for(var item of array){
+    let index = array.findIndex((e) => e[id] === item[id]);
+    for(var column of columnArray){
+      if(column in savedItems){
+              
+      }
+      let difference = item[column]-savedItems['previous'][column];
+          
+      array[index][column + '_diff'] = difference;
+          
+    }
+    savedItems['previous'] = item;
+  }
+  return array;
+}
+
+export const getData = async (user, datefrom, dateto, enelogicConfig) => {
+  const momentdatefrom = moment(datefrom);
+  let momentdateto = moment(dateto);
+  if(momentdateto.isBefore(momentdatefrom)) throw Exception('Date to is before date from.')
+  const isDayQuery = (momentdatefrom.isSame(momentdateto, 'day') ? true : false);
+  const daysBetween = (momentdateto.diff(momentdatefrom, 'days'));
+  const timeframe = isDayQuery ? 'QUARTER_OF_AN_HOUR' : (daysBetween > 60 ? (daysBetween > 364 ? 'YEAR' : 'MONTH') : 'DAY');
+
+
+
+  console.log(isDayQuery, timeframe, daysBetween);
+  //if(timeframe === 'QUARTER_OF_AN_HOUR') momentdateto = momentdatefrom.clone().add(1, 'days');
+  let dataUrl = '/api/enelogic/data/' + timeframe + '/';
+  if(isDayQuery){
+    dataUrl += momentdatefrom.format('YYYY-MM-DD') + '/' + momentdatefrom.clone().add(1, 'days').format('YYYY-MM-DD')
+  }else if(timeframe === 'DAY'){
+    dataUrl += momentdatefrom.format('YYYY-MM-DD') + '/' + momentdateto.clone().add(1, 'days').format('YYYY-MM-DD')
+  }else if(timeframe === 'MONTH'){
+    dataUrl += momentdatefrom.clone().subtract(1, 'month').format('YYYY-MM-DD') + '/' + momentdateto.clone().add(1, 'days').format('YYYY-MM-DD')
+  }else if(timeframe === 'YEAR'){
+    dataUrl = '/api/enelogic/data/month/' + momentdatefrom.clone().subtract(1, 'year').format('YYYY-MM-DD') + '/' + momentdateto.clone().add(1, 'days').format('YYYY-MM-DD')
+  }
+  console.log(dataUrl);
+  let data = await getEnelogicData(dataUrl, enelogicConfig);
+  data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+  return data;
 }
     
    
