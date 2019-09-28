@@ -149,7 +149,7 @@ export const getTableData = async (values, localdata, user) => {
   //console.log(data);
 }
 
-const getEnelogicData = async (url, config) => {
+const getEnelogicData = async (user, url, config) => {
   url +='?access_token=' + config.token.access_token;
   if(!config.measuringpoints) throw Error('Geen measuringpoints');
   if(config.measuringpoints.electra){
@@ -160,7 +160,7 @@ const getEnelogicData = async (url, config) => {
   }
   const response = await fetch(url);
   const data = await response.json();
-  console.log(url);
+  console.log(url, data);
   return data;
 }
 
@@ -207,7 +207,7 @@ export const getData = async (user, datefrom, dateto, enelogicConfig) => {
     dataUrl = '/api/enelogic/data/month/' + momentdatefrom.clone().subtract(1, 'year').format('YYYY-MM-DD') + '/' + momentdateto.clone().add(1, 'days').format('YYYY-MM-DD')
   }
   console.log(dataUrl);
-  let data = await getEnelogicData(dataUrl, enelogicConfig);
+  let data = await getEnelogicData(user, dataUrl, enelogicConfig);
   data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
   return data;
 }
