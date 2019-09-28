@@ -11,6 +11,7 @@ import { LoadingButton } from 'components';
 import useForm from 'hooks/useForm';
 import MaterialTable from 'material-table';
 import {refresh} from 'helpers/Oauth';
+import {updateEnelogicSettings} from 'helpers/Enelogic';
 
 
 //import { Table } from 'react-bootstrap';
@@ -62,7 +63,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const Overzicht = ({user, config}) => {
+const Overzicht = ({user, config, userDataRef}) => {
   const classes = useStyles();
 
   const [datefrom, setDateFrom] = useState(moment().startOf('month').add(-1, 'month').toDate());
@@ -80,7 +81,9 @@ const Overzicht = ({user, config}) => {
 
   const haalDataOp = async () => {
     console.log(config);
-    //refresh('/api/oauth/refresh/enelogic', config.token)
+    const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', config.token)
+    console.log(refreshedtoken);
+    if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, config)
     let data = await getData(user, datefrom, dateto, config);
     console.log(data);
     setData(data);

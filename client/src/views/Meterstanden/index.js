@@ -8,7 +8,7 @@ import {OauthAuthorize, OauthReceiver} from 'components';
 import useSession from 'hooks/useSession';
 import useTabs from 'hooks/useTabs';
 import Overzicht from './components/Overzicht';
-import fetchBackend from 'helpers/fetchBackend';
+import {saveEnelogicSettings} from 'helpers/Enelogic';
 
 
 
@@ -48,31 +48,9 @@ const Meterstanden = () => {
   const [tab, handleTabChange] = useTabs('overzicht');
   const enelogicConfig = userData.enelogic;
 
-  const saveEnelogicSettings = (ref, enelogicConfig) => async (accesstoken) => {
-    if(enelogicConfig === undefined) enelogicConfig = {}
-    if(!accesstoken.success){
-      enelogicConfig.success = false
-      await ref.set(enelogicConfig);
-      return;
-    }
-    enelogicConfig['token'] = accesstoken.data;
-    try{
-      const measuringpoints = await fetchBackend('/api/enelogic/measuringpoints?access_token=' + accesstoken.data.access_token, {user});
-      enelogicConfig.measuringpoints = {}
-      const mpointelectra = measuringpoints.data.find(item => (item.active === true && item.unitType === 0))
-      if(mpointelectra !== undefined) enelogicConfig.measuringpoints.electra = mpointelectra;
-      const mpointgas = measuringpoints.data.find(item => (item.active === true && item.unitType === 1))
-      if(mpointgas !== undefined) enelogicConfig.measuringpoints.gas = mpointgas;
-      enelogicConfig.success = true;
-    }catch(err){
-      enelogicConfig.success = false;
-    }
-    await ref.set(enelogicConfig);
-  }
-
   //if there is a query-param named code, the OauthReceiver is returned
   const code = queryString.parse(window.location.search).code;
-  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/oauth/exchange/enelogic" saveFunction={saveEnelogicSettings(userDataRef.doc('enelogic'), enelogicConfig)} />
+  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/oauth/exchange/enelogic" saveFunction={saveEnelogicSettings(user, userDataRef.doc('enelogic'), enelogicConfig)} />
 
   if((enelogicConfig !== undefined && !enelogicConfig.success)){
     return     <div>
@@ -106,7 +84,7 @@ const Meterstanden = () => {
             <Tab label="Instellingen" value="settings" />
           </Tabs>
         </AppBar>
-        {tab === 'overzicht' && <Overzicht config={enelogicConfig} user={user} />}
+        {tab === 'overzicht' && <Overzicht config={enelogicConfig} user={user} userDataRef={userDataRef.doc('enelogic')}/>}
         {tab === 'settings' && <div>Hallo</div>}
       </div>
     </div>

@@ -1,8 +1,11 @@
 import moment from 'moment';
+import fetchBackend from 'helpers/fetchBackend';
 
-export const refresh = async (url, accesstoken) => {
+export const refresh = async (user, url, accesstoken) => {
   const momentexpires = moment(accesstoken.expires_at);
   console.log(momentexpires, accesstoken);
-  //const refreshedToken = await fetch(url, {method: 'POST', body: accesstoken})
-  //return refreshedToken;
+  if(momentexpires.add(-2, 'minutes').isAfter(moment())) return null;
+  const refreshedToken = await fetchBackend(url, {user, method: 'POST', body: accesstoken});
+  console.log(refreshedToken);
+  return refreshedToken;
 }

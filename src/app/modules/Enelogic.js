@@ -19,7 +19,7 @@ export default class Enelogic {
   }
 
   getMeasuringPoints = async () => {
-      const response = await this.fetchEnelogic(this.host + '/api/measuringpoints?access_token=' + this.api_key).catch(err => {return {success: false, message: err}});
+      const response = await this.fetchEnelogic(this.host + '/measuringpoints?access_token=' + this.api_key).catch(err => {return {success: false, message: err}});
       return response;
   }
   
