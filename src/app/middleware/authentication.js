@@ -50,6 +50,8 @@ const checkAuthenticated = async (req, res, options = {}) => {
 		if(req.query.user !== undefined) user = req.query.user;
 		console.log('Authentication passed, env=DEV, user=' + user);
 		return {result: true, jwt: {claims: {uid: user}}}
+	}else{
+		return {result: false, message: 'No authentication'}
 	}
 	
 	
@@ -100,7 +102,7 @@ module.exports.epilogueAuthenticationRequired = async (req, res, context, option
 const authenticationRequired = (options) => (req, res, next) => {
     checkAuthenticated(req, res, options)
     .then(authenticated => {
-		console.log('Authentication result ' + authenticated.result);
+		console.log('Authentication result ', authenticated);
 	    if(authenticated.result === true){
 		    req.jwt = authenticated.jwt;
 		    if(authenticated.jwt !== false){
