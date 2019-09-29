@@ -158,8 +158,7 @@ const getEnelogicData = async (user, url, config) => {
   if(config.measuringpoints.gas){
     url += '&mpointgas=' + config.measuringpoints.gas.id;
   }
-  const response = await fetch(url);
-  const data = await response.json();
+  const data = await fetchBackend(url, {user});
   console.log(url, data);
   return data;
 }
