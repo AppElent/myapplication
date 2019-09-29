@@ -12,6 +12,7 @@ const OauthReceiver = ({code, exchangeUrl, saveFunction}) => {
   const [loadingToken, setLoadingToken] = useState(false);
   
   useEffect(() => {
+    let isMounted = true;
     const getToken = async () => {
       if(code !== undefined){
         setLoadingToken(true);
@@ -22,13 +23,14 @@ const OauthReceiver = ({code, exchangeUrl, saveFunction}) => {
         if(accesstoken.success){
           await saveFunction(accesstoken);
         }
-        setLoadingToken(false);
+        if(isMounted) setLoadingToken(false);
       }
     }
     getToken();
+
+    return (() => {isMounted = false})
   }, [])
 
-  console.log(window.location, code);
 
   if(loadingToken) return <CircularProgress />
 

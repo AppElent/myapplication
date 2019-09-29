@@ -18,7 +18,7 @@ process.env.NODE_ENV = node_env;
  */
 const all_settings = {
   "HEROKU": {
-    http_redirect: false,
+    http_redirect: true,
     load_certs: false,
     http_port: process.env.PORT,
     https_port: 3002
@@ -144,6 +144,22 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
+if(settings.http_redirect) {
+  app.use((req, res, next) => {
+    console.log(req.header);
+    if (req.header('x-forwarded-proto') !== 'https'){
+      
+      res.redirect(`https://${req.header('host')}${req.url}`)
+    }else{
+      next()
+    }
+      
+  })
+}
+
+app.listen(settings.http_port);
+
+/*
 // Redirect from http port to https
 if(settings.http_redirect){
   http.createServer(function (req, res) {
@@ -153,7 +169,7 @@ if(settings.http_redirect){
 }else{
   app.listen(settings.http_port);
 }
-
+*/
 
 
 

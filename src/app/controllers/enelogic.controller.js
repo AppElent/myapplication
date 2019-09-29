@@ -10,17 +10,19 @@ const fetch = require("node-fetch");
 var host = 'https://enelogic.com';
 
 const Cache = require('../modules/Cache');
-const enelogicCache = new Cache(9999999);
+const enelogicCache = new Cache();
 
 import {oauthproviders} from '../modules/application_cache';
 import {basicAuthentication} from '../middleware/authentication';
+import cache from '../middleware/cacheMiddleware';
+import Enelogic from '../modules/Enelogic';
 
 const getEnelogicData = (period) => async (req, res) => {
 //async function getMeterstanden(from, to, period){
 	console.log(1);
-	const cachekey = req.uid + '_' + period.toUpperCase() + '_' + req.params.start + '_' + req.params.end;
-	const cachedata = await enelogicCache.simpleGet(cachekey);
-	if(cachedata !== null) return res.send(cachedata);
+	//---const cachekey = req.uid + '_' + period.toUpperCase() + '_' + req.params.start + '_' + req.params.end;
+	//---const cachedata = await enelogicCache.simpleGet(cachekey);
+	//---if(cachedata !== null) return res.send(cachedata);
 		
 	let from = req.params.start;
 	let to = (period === 'day' ? req.params.end : moment(req.params.start).add(1, 'days').format('YYYY-MM-DD'))
@@ -143,9 +145,30 @@ const test = async (req, res) => {
 	res.send(accessTokenObject);
 }
 
-router.get('/data/dag/:start/:end', basicAuthentication, getEnelogicData('day'));
-router.get('/data/kwartier/:start/:end', basicAuthentication, getEnelogicData('quarter'));
+const getMeasuringPoints = async (req, res) => {
+	if(req.query.access_token === undefined) return res.send({success: false, message: 'No query param access_token present'});
+	const enelogic = new Enelogic(req.query.access_token);
+	const measuringpoints = await enelogic.getMeasuringPoints();
+	return res.send({success: true, data: measuringpoints});
+}
+
+const getData = async (req, res) => {
+	if(req.query.access_token === undefined) return res.send({success: false, message: 'No query param access_token present'});
+	const enelogic = new Enelogic(req.query.access_token);
+	const options = {
+		mpointelectra: req.query.mpointelectra
+	}
+	const data = await enelogic.getFormattedData(req.params.start, req.params.end, req.params.period, options);
+	return res.send(data);
+}
+
+//router.get('/data/dag/:start/:end', basicAuthentication, getEnelogicData('day'));
+//router.get('/data/kwartier/:start/:end', basicAuthentication, getEnelogicData('quarter'));
+//router.get('/data/dag/:start/:end', basicAuthentication, cache(enelogicCache), getData('DAY'));
+//router.get('/data/kwartier/:start/:end', basicAuthentication, cache(enelogicCache), getData('QUARTER_OF_AN_HOUR'));
+router.get('/data/:period/:start/:end', basicAuthentication, cache(enelogicCache), getData);
 router.get('/test', basicAuthentication, test);
+router.get('/measuringpoints', basicAuthentication, getMeasuringPoints);
 
 
 module.exports = router;

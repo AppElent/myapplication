@@ -2,7 +2,8 @@ const NodeCache = require('node-cache');
 
 module.exports = class Cache {
 
-  constructor(ttlSeconds) {
+  constructor(ttlSeconds = null) {
+    if(ttlSeconds === null) ttlSeconds = 9999999;
     this.cache = new NodeCache({ stdTTL: ttlSeconds, checkperiod: ttlSeconds * 0.2, useClones: false });
   }
 

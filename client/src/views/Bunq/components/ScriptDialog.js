@@ -2,8 +2,6 @@ import React, {useState} from 'react';
 import { 
   Button,
   Checkbox,
-  Dialog,
-  DialogTitle,
   DialogContent,
   DialogContentText,
   TextField,
@@ -11,19 +9,15 @@ import {
   FormControlLabel,
   FormControl,
   InputLabel,
-  Select,
-  MenuItem,
-  FormHelperText,
-  NativeSelect
+  FormHelperText
 } from '@material-ui/core';
 
 import {checkPreconditions, runSalarisVerdelenScript } from 'helpers/bunq-functions';
 import useForm from 'hooks/useForm';
-import useCustomMediaQuery from 'hooks/useCustomMediaQuery';
+import {ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem} from 'components'
 
 
 const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user}) => {
-  const isDesktop = useCustomMediaQuery();
   
   const [running, setRunning] = useState(false);
   const initialState = {
@@ -58,8 +52,6 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
   const preconditions = accounts[0] === undefined ? {balance: 0, maandtotaal: 0, sparen: 0} : checkPreconditions(accounts, rekeningen, options);
   console.log(preconditions);
 
-
-  const SelectVersion = isDesktop ? Select : NativeSelect;
   
   const [open, setOpen] = useState(false);
   return (<div>
@@ -70,12 +62,12 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
     >
         Verdelen
     </Button>
-    <Dialog
+    <ResponsiveDialog
       aria-labelledby="form-dialog-title"
       onClose={() => {setOpen(false)}}
       open={open}
+      title="Salaris verdelen"
     >
-      <DialogTitle id="form-dialog-title">Salaris verdelen</DialogTitle>
       <DialogContent>
         <DialogContentText>
             Gebruik deze functie om binnenkomend salaris te verdelen over de rekeningen.<br />
@@ -91,25 +83,17 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
           >
             Salarisrekening
           </InputLabel>
-          <SelectVersion
-            displayEmpty
+          <ResponsiveSelect
             fullWidth
             inputProps={{
               name: 'from_account',
               id: 'age-label-placeholder',
             }}
-            native={!isDesktop}
             onChange={handleOnChange}
             value={state.from_account.value}
           >
-            {accounts.filter(account => account.status === 'ACTIVE').map(account => {
-              if(isDesktop){
-                return <MenuItem key={account.id} value={account.description}>{account.description}</MenuItem>
-              }else{
-                return <option key={account.id} value={account.description}>{account.description}</option>
-              }
-            })}
-          </SelectVersion>
+            {accounts.filter(account => account.status === 'ACTIVE').map(account => <ResponsiveSelectItem key={account.id} value={account.description}>{account.description}</ResponsiveSelectItem>)}
+          </ResponsiveSelect>
           <FormHelperText>Vul hier de rekening waarvandaan verdeeld moet worden</FormHelperText>
         </FormControl>
         <FormControlLabel
@@ -145,25 +129,17 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
           >
             Spaarrekening
           </InputLabel>
-          <SelectVersion
-            displayEmpty
+          <ResponsiveSelect
             fullWidth
             inputProps={{
               name: 'savings_account',
               id: 'age-label-placeholder',
             }}
-            native={!isDesktop}
             onChange={handleOnChange}
             value={state.savings_account.value}
           >
-            {accounts.filter(account => account.status === 'ACTIVE').map(account => {
-              if(isDesktop){
-                return <MenuItem key={account.id} value={account.description}>{account.description}</MenuItem>
-              }else{
-                return <option key={account.id} value={account.description}>{account.description}</option>
-              }
-            })}
-          </SelectVersion>
+            {accounts.filter(account => account.status === 'ACTIVE').map(account => <ResponsiveSelectItem key={account.id} value={account.description}>{account.description}</ResponsiveSelectItem>)}
+          </ResponsiveSelect>
           <FormHelperText>Vul hier de spaarrekening</FormHelperText>
         </FormControl>}
 
@@ -197,7 +173,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
             Run
         </Button>
       </DialogActions>
-    </Dialog>
+    </ResponsiveDialog>
   </div>);
 }
 

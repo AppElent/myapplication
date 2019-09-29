@@ -5,7 +5,7 @@ import { Grid } from '@material-ui/core';
 import { useFirestoreDocumentDataOnce} from '../../hooks/useFirestore';
 import useSession from '../../hooks/useSession';
 
-import {OAuthAuthorize, OAuthToken, LoadingButton} from '../../components';
+import {OauthAuthorize, OAuthToken, LoadingButton} from '../../components';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -35,7 +35,7 @@ const TestPage = () => {
           md={7}
           xs={12}
         > 
-          <OAuthAuthorize title="Enelogic" formatUrl='/api/oauth/formaturl/enelogic' />
+          <OauthAuthorize title="Enelogic" formatUrl='/api/oauth/formaturl/enelogic' />
           <OAuthToken />
           <p>Omgeving is {process.env.REACT_APP_FIRESTORE_ENVIRONMENT}</p>
           <span>User data: {JSON.stringify(authData.userData)}</span>
