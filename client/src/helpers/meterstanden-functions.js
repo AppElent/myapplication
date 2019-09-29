@@ -4,9 +4,9 @@ import 'moment-timezone';
 import fetchBackend from 'helpers/fetchBackend';
 import { Exception } from 'handlebars';
 
-export const isDayQuery = (localtimeframe) => (['minute', 'quarter', 'hour'].includes(localtimeframe))
+const isDayQuery = (localtimeframe) => (['minute', 'quarter', 'hour'].includes(localtimeframe))
 
-export const addSolarEdgeData = async (data, values, user) => {
+const addSolarEdgeData = async (data, values, user) => {
   let dayQuery = isDayQuery(values.timeframe);
   let timeframeSolarEdge = values.timeframe;
   timeframeSolarEdge = (dayQuery ? 'quarter_of_an_hour' : timeframeSolarEdge);
@@ -35,7 +35,7 @@ export const addSolarEdgeData = async (data, values, user) => {
   return data;
 }
     
-export const addBrutoNetto = async (data) => {
+const addBrutoNetto = async (data) => {
   data.forEach((item, i) => {
     data[i]['bruto'] = item['180_diff'];
     if(item.opwekking !== undefined){
@@ -47,7 +47,7 @@ export const addBrutoNetto = async (data) => {
 }
     
 
-export const getTableData = async (values, localdata, user) => {
+const getTableData = async (values, localdata, user) => {
         
   //---setLoading(true);
   console.log('Getting electricity data');
@@ -163,7 +163,7 @@ const getEnelogicData = async (user, url, config) => {
   return data;
 }
 
-export const getDifferenceArray = async (array, id, columnArray) => {
+const getDifferenceArray = async (array, id, columnArray) => {
   var savedItems = {}
   //savedItems['first'] = array[0];
   savedItems['previous'] = array[0];
@@ -183,7 +183,7 @@ export const getDifferenceArray = async (array, id, columnArray) => {
   return array;
 }
 
-export const getData = async (user, datefrom, dateto, enelogicConfig) => {
+const getData = async (user, datefrom, dateto, enelogicConfig) => {
   const momentdatefrom = moment(datefrom);
   let momentdateto = moment(dateto);
   if(momentdateto.isBefore(momentdatefrom)) throw Exception('Date to is before date from.')
@@ -212,7 +212,7 @@ export const getData = async (user, datefrom, dateto, enelogicConfig) => {
 }
     
    
-export const processLocalData = async (data) => {
+const processLocalData = async (data) => {
   //Sort on date, just to be sure
   data = data.sort((a, b) => (a.datetime > b.datetime) ? 1 : -1);
   return data;

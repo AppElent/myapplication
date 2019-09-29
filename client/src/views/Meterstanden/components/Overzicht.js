@@ -1,37 +1,17 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import 'moment-timezone';
 import { makeStyles } from '@material-ui/styles';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import {isDayQuery, addSolarEdgeData, addBrutoNetto, getData, processLocalData} from 'helpers/meterstanden-functions';
 import { LoadingButton } from 'components';
-import useForm from 'hooks/useForm';
 import MaterialTable from 'material-table';
 import {refresh} from 'helpers/Oauth';
-import {updateEnelogicSettings} from 'helpers/Enelogic';
+import {updateEnelogicSettings, getData} from 'helpers/Enelogic';
+import useForm from 'hooks/useForm';
 
-
-//import { Table } from 'react-bootstrap';
-//import ReactTable from "react-table";
-//import fetchBackend from 'helpers/fetchBackend';
-////import {getDifferenceArray} from '../utils/arrays';
-//import { Button, Form, Col } from 'react-bootstrap';
-//import useFetch from 'hooks/useFetch';
-
-
-//import useStateExtended from 'hooks/useStateExtended';
-
-//import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, VictoryLabel, VictoryStack } from 'victory';
-
-//import DatePicker from 'react-datepicker';
-
-//import 'react-datepicker/dist/react-datepicker.css';
-
-////import MeterstandenTabel from '../components/MeterstandenTabel';
-////import DialogMessage from '../components/DialogMessage'
 
 
 const useStyles = makeStyles(theme => ({
@@ -66,28 +46,22 @@ const useStyles = makeStyles(theme => ({
 const Overzicht = ({user, config, userDataRef}) => {
   const classes = useStyles();
 
-  const [datefrom, setDateFrom] = useState(moment().startOf('month').add(-1, 'month').toDate());
-  const [dateto, setDateTo] = useState(new Date());
-  //const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialTimeframe, {})
-  const [data, setData] = useState([]);
-
-  const handleDateChange = (fromto) => date => {
-    if(fromto === 'dateto'){
-      setDateTo(date);
-    }else{
-      setDateFrom(date);
-    }
-  };
-
   const haalDataOp = async () => {
     console.log(config);
     const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', config.token)
     console.log(refreshedtoken);
     if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, config)
-    let data = await getData(user, datefrom, dateto, config);
+    let data = await getData(user, state.datefrom.value, state.dateto.value, config);
     console.log(data);
     setData(data);
   }
+
+  const datefrom = (moment().date() < 3 ? moment().startOf('month').add(-1, 'month') : moment().startOf('month')).toDate()//
+  const dateto = moment().add(-1, 'days').toDate();
+
+  const {state, handleOnValueChange, handleOnSubmit, submitting} = useForm({datefrom, dateto}, {}, haalDataOp);
+  const [data, setData] = useState([]);
+
 
   var columns = [{
     title: 'Datum',
@@ -131,8 +105,9 @@ const Overzicht = ({user, config, userDataRef}) => {
             }}
             label="Datum vanaf"
             margin="normal"
-            onChange={handleDateChange('datefrom')}
-            value={datefrom}
+            minDate={new Date(config.measuringpoints.electra.dayMin)}
+            onChange={handleOnValueChange('datefrom')}
+            value={state.datefrom.value}
             variant="inline"
           />
           <KeyboardDatePicker
@@ -144,12 +119,12 @@ const Overzicht = ({user, config, userDataRef}) => {
             }}
             label="Datum tot"
             margin="normal"
-            onChange={handleDateChange('dateto')}
-            value={dateto}
+            onChange={handleOnValueChange('dateto')}
+            value={state.dateto.value}
             variant="inline"
           />
         </MuiPickersUtilsProvider>
-        <LoadingButton variant="contained" color="primary" className={classes.button} onClick={haalDataOp} >
+        <LoadingButton variant="contained" color="primary" className={classes.button} onClick={handleOnSubmit} loading={submitting}>
             Haal op
         </LoadingButton>
       </div>

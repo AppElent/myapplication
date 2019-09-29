@@ -115,11 +115,14 @@ export default class Enelogic {
   
   getFormattedData = async (datefrom, dateto, period, options) => {
     let results = []  
+    const enelogicperiod = (period === 'YEAR' ? 'MONTH' : period)
     const momentdateto = (period === 'QUARTER_OF_AN_HOUR' ? moment(datefrom).add(1, 'days') : moment(dateto))
-    const data = await this.getData(datefrom, momentdateto.format('YYYY-MM-DD'), period, options);
+    let data = await this.getData(datefrom, momentdateto.format('YYYY-MM-DD'), enelogicperiod, options);
     if(period === 'QUARTER_OF_AN_HOUR'){
         const daydata = await this.getData(datefrom, momentdateto.format('YYYY-MM-DD'), 'DAY', options);
         results = this.formatData(results, daydata, 'date');
+    }else if(period === 'YEAR'){
+      data = await data.filter(result => moment(result.date).format('MM-DD') === '01-01')
     }
     results = this.formatData(results, data, (period === 'QUARTER_OF_AN_HOUR' ? 'datetime' : 'date'));
     results.sort((a,b) => (a.datetime > b.datetime) ? 1 : -1); 

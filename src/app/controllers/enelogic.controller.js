@@ -158,7 +158,7 @@ const getData = async (req, res) => {
 	const options = {
 		mpointelectra: req.query.mpointelectra
 	}
-	const data = await enelogic.getFormattedData(req.params.start, req.params.end, req.params.period, options);
+	const data = await enelogic.getFormattedData(req.params.start, req.params.end, req.params.period.toUpperCase(), options);
 	return res.send(data);
 }
 
