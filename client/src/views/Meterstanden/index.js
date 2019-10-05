@@ -4,10 +4,11 @@ import queryString from 'query-string';
 import { makeStyles } from '@material-ui/styles';
 import {AppBar, Tab, Tabs} from '@material-ui/core'
 
-import {OauthAuthorize, OauthReceiver} from 'components';
+import {OauthReceiver, TabPanel} from 'components';
 import useSession from 'hooks/useSession';
 import useTabs from 'hooks/useTabs';
 import Overzicht from './components/Overzicht';
+import Settings from './components/Settings';
 import {saveEnelogicSettings} from 'helpers/Enelogic';
 
 
@@ -15,28 +16,6 @@ import {saveEnelogicSettings} from 'helpers/Enelogic';
 const useStyles = makeStyles(theme => ({
   root: {
     //padding: theme.spacing(3)
-  }, 
-  row: {
-    height: '42px',
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing(2),
-    marginTop: theme.spacing(2)
-  },
-  spacer: {
-    flexGrow: 1
-  },
-  content: {
-    padding: theme.spacing(2)
-  },
-  textField: {
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    width: 200,
-  },
-  button: {
-    marginTop: theme.spacing(2),
-    marginLeft: theme.spacing(1)
   }
 }));
 
@@ -46,28 +25,14 @@ const Meterstanden = () => {
   const {user, ref, userData, userDataRef} = useSession();
 
   const [tab, handleTabChange] = useTabs('overzicht');
-  const enelogicConfig = userData.enelogic;
 
   //if there is a query-param named code, the OauthReceiver is returned
   const code = queryString.parse(window.location.search).code;
-  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/oauth/exchange/enelogic" saveFunction={saveEnelogicSettings(user, userDataRef.doc('enelogic'), enelogicConfig)} />
+  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/oauth/exchange/enelogic" saveFunction={saveEnelogicSettings(user, userDataRef.doc('enelogic'), userData.enelogic)} />
 
-  if((enelogicConfig !== undefined && !enelogicConfig.success)){
-    return     <div>
-      <div className={classes.root}>
-        <div className={classes.row}>
-          <OauthAuthorize
-            formatUrl="/api/oauth/formaturl/enelogic"
-            title="Connect Enelogic"
-          />
-        </div>
-      </div>
-    </div>
+  if((userData.enelogic !== undefined && !userData.enelogic.success)){
+    if(tab !== 'settings') handleTabChange(null, 'settings')
   }
-
-  //Refresh token if necessary
-  ///////////////////////////
-
 
   return (
     <div>
@@ -80,12 +45,16 @@ const Meterstanden = () => {
             value={tab}
             variant="scrollable"
           >
-            <Tab label="Overzicht" value="overzicht" />
+            <Tab label="Overzicht" value="overzicht" disabled={!userData.enelogic.success} />
             <Tab label="Instellingen" value="settings" />
           </Tabs>
         </AppBar>
-        {tab === 'overzicht' && <Overzicht config={enelogicConfig} user={user} userDataRef={userDataRef.doc('enelogic')}/>}
-        {tab === 'settings' && <div>Hallo</div>}
+        <TabPanel visible={tab === 'overzicht'} tab="overzicht">
+          <Overzicht />
+        </TabPanel>
+        <TabPanel visible={tab === 'settings'} tab="settings">
+          <Settings />
+        </TabPanel>
       </div>
     </div>
   );

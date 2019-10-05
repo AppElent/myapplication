@@ -1,11 +1,16 @@
+
+const router = require('express').Router();
+
+import SolarEdge from '../modules/SolarEdge';
+import {basicAuthentication} from '../middleware/authentication';
+import asyncHandler from 'express-async-handler';
+import cache from '../middleware/cacheMiddleware';
+import Cache from '../modules/Cache';
+const solarEdgeCache = new Cache();
+
 const db = require('../models/index.js');
-var moment = require('moment');
-const path = require("path");
-const arrays = require('../utils/arrays');
 const fetch = require("node-fetch");
 
-const Cache = require('../modules/Cache');
-const solarEdgeCache = new Cache(9999999);
 
 const solaredge_host = 'https://monitoringapi.solaredge.com';
 const timeUnits = ['HOUR', 'DAY', 'MONTH', 'QUARTER_OF_AN_HOUR', 'YEAR']
@@ -54,25 +59,34 @@ exports.getData = async (req, res) => {
 	//res.send(await getSolarEdgeData('/site/' + siteID + '/energy?timeUnit=' + req.params.timeUnit.toUpperCase() + '&endDate=' + req.params.end + '&startDate=' + req.params.start));
 }
 
-exports.getSiteData = async (req, res) => {
-	const key = req.uid + '_site';
-	const sitedata = await solarEdgeCache.get(key, async () => {
-		const config = await getSolarEdgeConfig(req.uid);
-		if(config === null || config === false) return res.status(404).send('No api key');
-		const response = await fetch(solaredge_host + '/sites/list?size=1&api_key=' + config.access_token);
-		return (await response.json());
-	})
-	return res.send(sitedata)
+const getData = async (req, res) => {
+	if(req.query.access_token === undefined) return res.send({success: false, message: 'No query param access_token present'});
+	if(timeUnits.includes(req.params.period.toUpperCase()) === false){
+		throw new Error('Geen geldige periode opgegeven (Opgegeven: ' + req.params.period + '). Geldige waarden zijn: ' + timeUnits);
+	}
+	const solaredge = new SolarEdge(req.query.access_token);
+	const data = await solaredge.getData(req.params.site, req.params.start, req.params.end, req.params.period)
+	return res.send({success: true, data});
 }
 
-exports.getEquipmentData = async (req, res) => {
-	const key = req.uid + '_equipment';
-	const equipmentdata = await solarEdgeCache.get(key, async () => {
-		const config = await getSolarEdgeConfig(req.uid);
-		if(config === null || config === false) return res.status(404).send('No api key');
-		const response = await fetch(solaredge_host + '/equipment/' + config.data1 + '/list?size=1&api_key=' + config.access_token);
-		return (await response.json());
-	})
-	return res.send(equipmentdata)
+const getSiteData = async (req, res) => {
+	if(req.query.access_token === undefined) return res.send({success: false, message: 'No query param access_token present'});
+	const solaredge = new SolarEdge(req.query.access_token);
+	const sites = await solaredge.getSiteData();
+	return res.send({success: true, data: sites});
 }
 
+const getEquipmentData = async (req, res) => {
+	if(req.query.access_token === undefined) return res.send({success: false, message: 'No query param access_token present'});
+	const solaredge = new SolarEdge(req.query.access_token);
+	const equipment = await solaredge.getEquipmentData(req.params.site)
+	return res.send({success: true, data: equipment});
+}
+
+
+//router.get('/sites/:period/:start/:end', basicAuthentication, cache(enelogicCache), getData);
+router.get('/sites', basicAuthentication, asyncHandler(getSiteData));
+router.get('/:site/equipment', basicAuthentication, asyncHandler(getEquipmentData));
+router.get('/:site/data/:period/:start/:end', basicAuthentication, cache(solarEdgeCache), asyncHandler(getData));
+
+module.exports = router;

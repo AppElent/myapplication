@@ -67,9 +67,9 @@ const App = () => {
       for(var doc of collection.docs){
         userdata[doc.id] = doc.data();
       }
-      if(userdata.bunq === undefined) await ref.doc('bunq').set({success: false});
-      if(userdata.enelogic === undefined) await ref.doc('enelogic').set({success: false});
-      if(userdata.solaredge === undefined) await ref.doc('solaredge').set({success: false});
+      //if(userdata.bunq === undefined) await ref.doc('bunq').set({success: false});
+      //if(userdata.enelogic === undefined) await ref.doc('enelogic').set({success: false});
+      //if(userdata.solaredge === undefined) await ref.doc('solaredge').set({success: false});
       setUserData(userdata);
     })
   }, [authData.isInitializing, authData.user]);

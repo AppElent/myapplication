@@ -35,7 +35,57 @@ const getDifferenceArray = async (array, id, columnArray) => {
   return array;
 }
 
-export const getData = async (user, datefrom, dateto, enelogicConfig) => {
+const setVerbruikDates = async (data, timeframe) => {
+  timeframe = timeframe.toLowerCase();
+  let newData = await data.map(item => {
+    if(timeframe === 'day'){
+      item.datetime_verbruik = moment(item.datetime).add(-1, 'days').format('YYYY-MM-DD')
+    }else if(timeframe === 'month'){
+      item.datetime_verbruik = moment(item.datetime).add(-1, 'month').format('YYYY-MM')
+    }else if(timeframe === 'year'){
+      item.datetime_verbruik = moment(item.datetime).add(-1, 'year').format('YYYY')
+    }else if(timeframe === 'quarter_of_an_hour'){
+      item.datetime_verbruik = moment(item.datetime).add(-15, 'minutes').format('YYYY-MM-DD HH:mm')
+    }
+    return item;
+  });
+  newData = newData.filter((item, index) => index > 0)
+  console.log(newData);
+  return newData;
+}
+
+const addSolarEdgeData = async (data, start, end, timeframe, solarEdgeConfig, user) => {
+  let solarEdgeUrl = '/api/solaredge/' + solarEdgeConfig.site.id + '/data/' + timeframe + '/' + start + '/' + end + '?access_token=' + solarEdgeConfig.access_token;
+  try{
+    let solaredgedata = await fetchBackend(solarEdgeUrl, {user});
+    solaredgedata = solaredgedata.data.energy.values;
+    for(let item of data){
+      console.log(item);
+      item['opwekking'] = null;
+      let solaredgeitem = solaredgedata.find(entry => moment(entry.date).isSame(moment(item.datetime_verbruik)));
+      if(solaredgeitem !== undefined && solaredgeitem.value !== null){
+        item['opwekking'] = (Math.round(parseFloat(solaredgeitem.value)));
+      }
+    }
+  }catch(err){
+    return data;
+  }
+
+  return data;
+}
+
+const addBrutoNetto = async (data) => {
+  data.forEach((item, i) => {
+    data[i]['bruto'] = item['180_diff'];
+    if(item.opwekking !== undefined){
+      data[i]['bruto'] = item['180_diff'] + item.opwekking - item['280_diff'];
+    }
+    data[i]['netto'] = item['180_diff'] - item['280_diff'];
+  });
+  return data;
+}
+
+export const getData = async (user, datefrom, dateto, enelogicConfig, solarEdgeConfig) => {
   const momentdatefrom = moment(datefrom);
   let momentdateto = moment(dateto);
   if(momentdateto.isBefore(momentdatefrom)) throw 'Date to is before date from.';
@@ -60,6 +110,12 @@ export const getData = async (user, datefrom, dateto, enelogicConfig) => {
   console.log(dataUrl);
   let data = await getEnelogicData(user, dataUrl, enelogicConfig);
   data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
+  data = await setVerbruikDates(data, timeframe);
+  if(solarEdgeConfig.success){
+    data = await addSolarEdgeData(data, momentdatefrom.format('YYYY-MM-DD'), momentdateto.format('YYYY-MM-DD'), timeframe, solarEdgeConfig, user);
+    data = await addBrutoNetto(data);
+  }
+
   return data;
 }
 
@@ -95,6 +151,10 @@ export const updateEnelogicSettings = (ref, enelogicConfig) => async (accesstoke
   enelogicConfig['token'] = accesstoken.data;
   enelogicConfig['success'] = true;
   await ref.set(enelogicConfig);
+}
+
+export const deleteEnelogicSettings = async (ref) => {
+  await ref.set({success: false})
 }
 
 export const getMeasuringPoints = async () => {

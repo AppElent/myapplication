@@ -29,7 +29,6 @@ const useStyles = makeStyles(theme => ({
 
 const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
   const classes = useStyles();
-  console.log(rekeningen);
   const [bunqSettings, setBunqSettings] = useState({from: '', spaar: '', income: 3150, keep: 80})
 
   

@@ -11,6 +11,7 @@ import MaterialTable from 'material-table';
 import {refresh} from 'helpers/Oauth';
 import {updateEnelogicSettings, getData} from 'helpers/Enelogic';
 import useForm from 'hooks/useForm';
+import useSession from 'hooks/useSession';
 
 
 
@@ -43,15 +44,16 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const Overzicht = ({user, config, userDataRef}) => {
+const Overzicht = () => {
   const classes = useStyles();
+  const {user, userData, userDataRef} = useSession();
 
   const haalDataOp = async () => {
-    console.log(config);
-    const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', config.token)
+    console.log(userData.enelogic);
+    const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userData.enelogic.token)
     console.log(refreshedtoken);
-    if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, config)
-    let data = await getData(user, state.datefrom.value, state.dateto.value, config);
+    if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, userData.enelogic)
+    let data = await getData(user, state.datefrom.value, state.dateto.value, userData.enelogic, userData.solaredge);
     console.log(data);
     setData(data);
   }
@@ -62,10 +64,12 @@ const Overzicht = ({user, config, userDataRef}) => {
   const {state, handleOnValueChange, handleOnSubmit, submitting} = useForm({datefrom, dateto}, {}, haalDataOp);
   const [data, setData] = useState([]);
 
+  if(!userData.enelogic.success) return <div></div>
+
 
   var columns = [{
     title: 'Datum',
-    field: 'datetime'
+    field: 'datetime_verbruik'
   },{
     title: 'KwH verbruik laag',
     field: '181',
@@ -79,18 +83,28 @@ const Overzicht = ({user, config, userDataRef}) => {
     field: '180',
     render: rowData => (rowData['180'] + ' (' + rowData['180_diff'] + ')')
   }, {
-    title: 'KwH opwekking laag',
+    title: 'KwH teruglevering laag',
     field: '281',
     render: rowData => (rowData['281'] + ' (' + rowData['281_diff'] + ')')
   }, {
-    title: 'KwH opwekking hoog',
+    title: 'KwH teruglevering hoog',
     field: '282',
     render: rowData => (rowData['282'] + ' (' + rowData['282_diff'] + ')')
   }, {
-    title: 'Opwekking totaal',
+    title: 'Teruglevering totaal',
     field: '280',
     render: rowData => (rowData['280'] + ' (' + rowData['280_diff'] + ')')
   }]
+  if(userData.solaredge.success) columns.push({
+    title: 'Opwekking',
+    field: 'opwekking'
+  }, {
+    title: 'Netto',
+    field: 'netto'
+  }, {
+    title: 'Bruto',
+    field: 'bruto'
+  });
 
   return <div>
     <div className={classes.root}>
@@ -99,13 +113,13 @@ const Overzicht = ({user, config, userDataRef}) => {
           <KeyboardDatePicker
             disableToolbar
             format="yyyy-MM-dd"
-            id="date-picker-inline"
+            id="date-picker-datefrom"
             KeyboardButtonProps={{
               'aria-label': 'change date from',
             }}
             label="Datum vanaf"
             margin="normal"
-            minDate={new Date(config.measuringpoints.electra.dayMin)}
+            minDate={new Date(userData.enelogic.measuringpoints.electra.dayMin)}
             onChange={handleOnValueChange('datefrom')}
             value={state.datefrom.value}
             variant="inline"
@@ -113,7 +127,7 @@ const Overzicht = ({user, config, userDataRef}) => {
           <KeyboardDatePicker
             disableToolbar
             format="yyyy-MM-dd"
-            id="date-picker-inline"
+            id="date-picker-dateto"
             KeyboardButtonProps={{
               'aria-label': 'change date to',
             }}
