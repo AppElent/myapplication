@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import { Button, AppBar, Tabs, Tab } from '@material-ui/core';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import { AppBar, Tabs, Tab } from '@material-ui/core';
 import queryString from 'query-string';
 
 
@@ -9,13 +8,13 @@ import useSession from 'hooks/useSession';
 import useFetch from 'hooks/useFetch';
 import useTabs from 'hooks/useTabs';
 import fetchBackend from 'helpers/fetchBackend';
-import {useFirestoreCollectionDataOnce, useFirestoreDocumentData} from 'hooks/useFirestore';
-import {OauthAuthorize} from 'components';
+import {useFirestoreCollectionDataOnce} from 'hooks/useFirestore';
+import {OauthReceiver, TabPanel} from 'components';
 import AccountsPage from './components/AccountsPage';
 import SalarisVerdelen from './components/SalarisVerdelen';
 import Overboeken from './components/Overboeken';
+import Settings from './components/Settings';
 import groupData from 'helpers/groupData';
-import OauthReceiver from 'components/OauthReceiver';
 
 
 const useStyles = makeStyles(theme => ({
@@ -41,24 +40,21 @@ const useStyles = makeStyles(theme => ({
 
 const Bunq = ({match}) => {
 
-  const {user, userInfo, ref} = useSession();
-  const {data: bunqConfig, loading: bunqConfigLoading, ref: bunqRef} = useFirestoreDocumentData(ref.collection('config').doc('bunq'));
+  const {user, ref, userData, userDataRef} = useSession();
   const classes = useStyles();
   const {data: accountdata, loading, error, request} = useFetch('/api/bunq/accounts', {});
+
   const [rekeningen, rekeningenLoading, rekeningenError, rekeningenRef] = useFirestoreCollectionDataOnce(ref.collection('rekeningen'));
   const [loadBunqData, setLoadBunqData] = useState(undefined);
-  const [loadingToken, setLoadingToken] = useState(false);
   const [tab, handleTabChange] = useTabs('overzicht');
 
   useEffect(() => {
-    if(bunqConfigLoading === false){
-      if(bunqConfig !== undefined && bunqConfig.success){
-        setLoadBunqData(true);
-      }else{
-        setLoadBunqData(false);
-      }
+    if(userData.bunq !== undefined && userData.bunq.success){
+      setLoadBunqData(true);
+    }else{
+      setLoadBunqData(false);
     }
-  }, [bunqConfigLoading])
+  }, [userData.bunq])
 
   useEffect(() => {
     if(loadBunqData){
@@ -82,47 +78,14 @@ const Bunq = ({match}) => {
     }
   }
 
-
   //if there is a query-param named code, the OauthReceiver is returned
   const code = queryString.parse(window.location.search).code;
-  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/bunq/oauth/exchange" saveFunction={saveBunqSettings(bunqRef, bunqConfig)} />
+  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/bunq/oauth/exchange" saveFunction={saveBunqSettings(userDataRef.doc('bunq'), userData.bunq)} />
 
 
-
-  const createBunqSandbox = async () => {
-    setLoadingToken(true);
-    const data = await fetchBackend('/api/bunq/sandbox', {user});
-    console.log(data);
-    if(bunqConfig === undefined){
-      await bunqRef.set({'success': true, 'environment': 'SANDBOX', sparen: 0, eigen: 0})
-    }else{
-      await bunqRef.update({'success': true, 'environment': 'SANDBOX'});
-    }
-    setLoadingToken(false);
+  if((userData.bunq !== undefined && !userData.bunq.success)){
+    if(tab !== 'settings') handleTabChange(null, 'settings')
   }
-  if(loadingToken) return <CircularProgress className={classes.progress} />
-
-  if(loadBunqData === false){
-    return     <div>
-      <div className={classes.root}>
-        <div className={classes.row}>
-          <Button
-            className={classes.button}
-            color ="primary"
-            onClick={createBunqSandbox}
-            variant="contained"
-          >Connect bunq sandbox</Button>
-          <OauthAuthorize
-            formatUrl="/api/oauth/formaturl/bunq"
-            title="Connect bunq"
-          />
-        </div>
-      </div>
-    </div>
-  }
-
-
-
 
   return (
     <div>
@@ -138,11 +101,21 @@ const Bunq = ({match}) => {
             <Tab label="Rekening overzicht" value="overzicht" disabled={loading} />
             <Tab label="Salaris verdelen" value="verdelen" disabled={loading} />
             <Tab label="Overboeken" value="overboeken" disabled={loading} />
+            <Tab label="Instellingen" value="settings" />
           </Tabs>
         </AppBar>
-        {tab === 'overzicht' && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={bunqConfig !== undefined && bunqConfig.environment === 'SANDBOX'} />}
-        {tab === 'verdelen' && <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={groupData('rekening')(rekeningen)} user={user}/>} 
-        {tab === 'overboeken' && <Overboeken />}
+        <TabPanel visible={tab === 'overzicht'} tab="overzicht">
+          {tab === 'overzicht' && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={userData.bunq !== undefined && userData.bunq.environment === 'SANDBOX'} />}
+        </TabPanel>
+        <TabPanel visible={tab === 'verdelen'} tab="verdelen">
+          <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={rekeningenLoading ? undefined : groupData('rekening')(rekeningen)} user={user}/>
+        </TabPanel>
+        <TabPanel visible={tab === 'overboeken'} tab="overboeken">
+          <Overboeken />
+        </TabPanel>
+        <TabPanel visible={tab === 'settings'} tab="settings">
+          <Settings />
+        </TabPanel>
       </div>
     </div>
   );

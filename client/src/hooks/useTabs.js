@@ -12,7 +12,9 @@ const useTabs = (initialTab = null) => {
     }
   }, [])
 
-  const handleTabChange = useCallback((e, newValue) => {setTab(newValue)})
+  const handleTabChange = useCallback((e, newValue) => {
+    setTab(newValue)
+  })
 
   return Object.assign([tab, handleTabChange, setTab], { tab, handleTabChange, setTab })
 }

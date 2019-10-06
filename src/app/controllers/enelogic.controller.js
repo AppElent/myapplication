@@ -16,6 +16,7 @@ import {oauthproviders} from '../modules/application_cache';
 import {basicAuthentication} from '../middleware/authentication';
 import cache from '../middleware/cacheMiddleware';
 import Enelogic from '../modules/Enelogic';
+import asyncHandler from 'express-async-handler';
 
 const getEnelogicData = (period) => async (req, res) => {
 //async function getMeterstanden(from, to, period){
@@ -158,7 +159,7 @@ const getData = async (req, res) => {
 	const options = {
 		mpointelectra: req.query.mpointelectra
 	}
-	const data = await enelogic.getFormattedData(req.params.start, req.params.end, req.params.period, options);
+	const data = await enelogic.getFormattedData(req.params.start, req.params.end, req.params.period.toUpperCase(), options);
 	return res.send(data);
 }
 
@@ -166,9 +167,9 @@ const getData = async (req, res) => {
 //router.get('/data/kwartier/:start/:end', basicAuthentication, getEnelogicData('quarter'));
 //router.get('/data/dag/:start/:end', basicAuthentication, cache(enelogicCache), getData('DAY'));
 //router.get('/data/kwartier/:start/:end', basicAuthentication, cache(enelogicCache), getData('QUARTER_OF_AN_HOUR'));
-router.get('/data/:period/:start/:end', basicAuthentication, cache(enelogicCache), getData);
-router.get('/test', basicAuthentication, test);
-router.get('/measuringpoints', basicAuthentication, getMeasuringPoints);
+router.get('/data/:period/:start/:end', basicAuthentication, cache(enelogicCache), asyncHandler(getData));
+router.get('/test', basicAuthentication, asyncHandler(test));
+router.get('/measuringpoints', basicAuthentication, asyncHandler(getMeasuringPoints));
 
 
 module.exports = router;

@@ -180,12 +180,11 @@ module.exports = async function(app) {
 	*/
 
 	//SolarEdge
-	//app.get('/api/solaredge/data/formatted/:start/:end', solaredge.getFormattedData);
-	//app.get('/api/solaredge/inverterdata/:start/:end', basicAuthentication, controllers.solaredge.getInverterData);
-	app.get('/api/solaredge/data/:timeUnit/:start/:end', basicAuthentication, controllers.solaredge.getData);
-	app.get('/api/solaredge/sites', basicAuthentication, controllers.solaredge.getSiteData);
-	app.get('/api/solaredge/equipment', basicAuthentication, controllers.solaredge.getEquipmentData);
-	//app.get('/api/solaredge/updatedata/:start/:end', solaredge.updateSolarEdgeData);
+	app.use('/api/solaredge', require('./controllers/solaredge.controller'));
+	//app.get('/api/solaredge/data/:timeUnit/:start/:end', basicAuthentication, controllers.solaredge.getData);
+	//app.get('/api/solaredge/sites', basicAuthentication, controllers.solaredge.getSiteData);
+	//app.get('/api/solaredge/equipment', basicAuthentication, controllers.solaredge.getEquipmentData);
+
 	
 	
 	

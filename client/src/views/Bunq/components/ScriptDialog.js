@@ -49,8 +49,7 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
     from_account: state.from_account.value,
     keep: state.keep.value
   }
-  const preconditions = accounts[0] === undefined ? {balance: 0, maandtotaal: 0, sparen: 0} : checkPreconditions(accounts, rekeningen, options);
-  console.log(preconditions);
+  const preconditions = ((accounts[0] === undefined || rekeningen === undefined) ? {balance: 0, maandtotaal: 0, sparen: 0, accountsExist: []} : checkPreconditions(accounts, rekeningen, options));
 
   
   const [open, setOpen] = useState(false);

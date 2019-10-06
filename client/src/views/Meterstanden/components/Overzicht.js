@@ -1,37 +1,18 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import moment from 'moment';
 import 'moment-timezone';
 import { makeStyles } from '@material-ui/styles';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import {isDayQuery, addSolarEdgeData, addBrutoNetto, getData, processLocalData} from 'helpers/meterstanden-functions';
 import { LoadingButton } from 'components';
-import useForm from 'hooks/useForm';
 import MaterialTable from 'material-table';
 import {refresh} from 'helpers/Oauth';
-import {updateEnelogicSettings} from 'helpers/Enelogic';
+import {updateEnelogicSettings, getData} from 'helpers/Enelogic';
+import useForm from 'hooks/useForm';
+import useSession from 'hooks/useSession';
 
-
-//import { Table } from 'react-bootstrap';
-//import ReactTable from "react-table";
-//import fetchBackend from 'helpers/fetchBackend';
-////import {getDifferenceArray} from '../utils/arrays';
-//import { Button, Form, Col } from 'react-bootstrap';
-//import useFetch from 'hooks/useFetch';
-
-
-//import useStateExtended from 'hooks/useStateExtended';
-
-//import { VictoryBar, VictoryLine, VictoryChart, VictoryAxis, VictoryTheme, VictoryLabel, VictoryStack } from 'victory';
-
-//import DatePicker from 'react-datepicker';
-
-//import 'react-datepicker/dist/react-datepicker.css';
-
-////import MeterstandenTabel from '../components/MeterstandenTabel';
-////import DialogMessage from '../components/DialogMessage'
 
 
 const useStyles = makeStyles(theme => ({
@@ -63,35 +44,32 @@ const useStyles = makeStyles(theme => ({
 }));
 
 
-const Overzicht = ({user, config, userDataRef}) => {
+const Overzicht = () => {
   const classes = useStyles();
-
-  const [datefrom, setDateFrom] = useState(moment().startOf('month').add(-1, 'month').toDate());
-  const [dateto, setDateTo] = useState(new Date());
-  //const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialTimeframe, {})
-  const [data, setData] = useState([]);
-
-  const handleDateChange = (fromto) => date => {
-    if(fromto === 'dateto'){
-      setDateTo(date);
-    }else{
-      setDateFrom(date);
-    }
-  };
+  const {user, userData, userDataRef} = useSession();
 
   const haalDataOp = async () => {
-    console.log(config);
-    const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', config.token)
+    console.log(userData.enelogic);
+    const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userData.enelogic.token)
     console.log(refreshedtoken);
-    if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, config)
-    let data = await getData(user, datefrom, dateto, config);
+    if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, userData.enelogic)
+    let data = await getData(user, state.datefrom.value, state.dateto.value, userData.enelogic, userData.solaredge);
     console.log(data);
     setData(data);
   }
 
+  const datefrom = (moment().date() < 3 ? moment().startOf('month').add(-1, 'month') : moment().startOf('month')).toDate()//
+  const dateto = moment().add(-1, 'days').toDate();
+
+  const {state, handleOnValueChange, handleOnSubmit, submitting} = useForm({datefrom, dateto}, {}, haalDataOp);
+  const [data, setData] = useState([]);
+
+  if(!userData.enelogic.success) return <div></div>
+
+
   var columns = [{
     title: 'Datum',
-    field: 'datetime'
+    field: 'datetime_verbruik'
   },{
     title: 'KwH verbruik laag',
     field: '181',
@@ -105,18 +83,28 @@ const Overzicht = ({user, config, userDataRef}) => {
     field: '180',
     render: rowData => (rowData['180'] + ' (' + rowData['180_diff'] + ')')
   }, {
-    title: 'KwH opwekking laag',
+    title: 'KwH teruglevering laag',
     field: '281',
     render: rowData => (rowData['281'] + ' (' + rowData['281_diff'] + ')')
   }, {
-    title: 'KwH opwekking hoog',
+    title: 'KwH teruglevering hoog',
     field: '282',
     render: rowData => (rowData['282'] + ' (' + rowData['282_diff'] + ')')
   }, {
-    title: 'Opwekking totaal',
+    title: 'Teruglevering totaal',
     field: '280',
     render: rowData => (rowData['280'] + ' (' + rowData['280_diff'] + ')')
   }]
+  if(userData.solaredge.success) columns.push({
+    title: 'Opwekking',
+    field: 'opwekking'
+  }, {
+    title: 'Netto',
+    field: 'netto'
+  }, {
+    title: 'Bruto',
+    field: 'bruto'
+  });
 
   return <div>
     <div className={classes.root}>
@@ -125,31 +113,32 @@ const Overzicht = ({user, config, userDataRef}) => {
           <KeyboardDatePicker
             disableToolbar
             format="yyyy-MM-dd"
-            id="date-picker-inline"
+            id="date-picker-datefrom"
             KeyboardButtonProps={{
               'aria-label': 'change date from',
             }}
             label="Datum vanaf"
             margin="normal"
-            onChange={handleDateChange('datefrom')}
-            value={datefrom}
+            minDate={new Date(userData.enelogic.measuringpoints.electra.dayMin)}
+            onChange={handleOnValueChange('datefrom')}
+            value={state.datefrom.value}
             variant="inline"
           />
           <KeyboardDatePicker
             disableToolbar
             format="yyyy-MM-dd"
-            id="date-picker-inline"
+            id="date-picker-dateto"
             KeyboardButtonProps={{
               'aria-label': 'change date to',
             }}
             label="Datum tot"
             margin="normal"
-            onChange={handleDateChange('dateto')}
-            value={dateto}
+            onChange={handleOnValueChange('dateto')}
+            value={state.dateto.value}
             variant="inline"
           />
         </MuiPickersUtilsProvider>
-        <LoadingButton variant="contained" color="primary" className={classes.button} onClick={haalDataOp} >
+        <LoadingButton variant="contained" color="primary" className={classes.button} onClick={handleOnSubmit} loading={submitting}>
             Haal op
         </LoadingButton>
       </div>

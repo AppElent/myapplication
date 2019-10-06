@@ -3,7 +3,21 @@ import validate from 'validate.js';
 import _ from 'lodash';
 
 function useForm(stateSchema, validationSchema = {}, callback) {
-  const [state, setState] = useState(stateSchema);
+  
+  const formatStateSchema = (schema) => {
+    let newSchema = {};
+    const keys = Object.keys(schema);
+    for(var key of keys){
+      newSchema[key] = {
+        value: schema[key],
+        error: '',
+        touched: false
+      }
+    }
+    return newSchema;
+  }
+
+  const [state, setState] = useState(formatStateSchema(stateSchema));
   const [hasError, setHasError] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -48,7 +62,6 @@ function useForm(stateSchema, validationSchema = {}, callback) {
   const handleOnChange = useCallback(
     event => {
       if(isDirty === false) setIsDirty(true);
-      console.log(event.target);
       const name = event.target.name;
       let value = event.target.value;
       if(event.target.type === 'number'){
@@ -71,6 +84,25 @@ function useForm(stateSchema, validationSchema = {}, callback) {
     },
     [validationSchema]
   );
+
+  const handleOnValueChange = useCallback(
+    name => value => {
+      if(isDirty === false) setIsDirty(true);
+
+      let error = '';
+      const validateErrors = validate({[name]: value}, validationSchema);
+      if(validateErrors){
+        error = validateErrors[name];
+      }
+      console.log(999, error, name, value);
+
+      setState(prevState => ({
+        ...prevState,
+        [name]: { value, error },
+      }));
+    },
+    [validationSchema]
+  )
   
   //Used to handle submit (with state showing submitting (true||false))
   const handleOnSubmit = useCallback(
@@ -95,7 +127,7 @@ function useForm(stateSchema, validationSchema = {}, callback) {
     }
   )
   
-  return Object.assign([hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial], { hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial })
+  return Object.assign([hasError, isDirty, state, handleOnChange, handleOnValueChange, handleOnSubmit, submitting, setInitial], { hasError, isDirty, state, handleOnChange, handleOnValueChange, handleOnSubmit, submitting, setInitial })
 }
 
 export default useForm;

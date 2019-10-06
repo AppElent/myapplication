@@ -9,7 +9,7 @@ import fetchBackend from 'helpers/fetchBackend';
 
 const OauthReceiver = ({code, exchangeUrl, saveFunction}) => {
   const {user} = useSession();
-  const [loadingToken, setLoadingToken] = useState(false);
+  const [loadingToken, setLoadingToken] = useState(true);
   
   useEffect(() => {
     let isMounted = true;
@@ -18,8 +18,9 @@ const OauthReceiver = ({code, exchangeUrl, saveFunction}) => {
         setLoadingToken(true);
         const body = {code}
         const accesstoken = await fetchBackend(exchangeUrl, {method: 'POST', body, user}).catch(err => { console.log(err); });
+        console.log(88888888888, accesstoken);
         if(accesstoken === undefined) return setLoadingToken(false);
-        console.log(accesstoken);
+        
         if(accesstoken.success){
           await saveFunction(accesstoken);
         }

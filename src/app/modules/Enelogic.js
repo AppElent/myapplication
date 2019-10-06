@@ -12,7 +12,7 @@ export default class Enelogic {
       const response = await fetch(url, options);
       if(response.status !== 200) {
           console.log(response);
-          throw ("Error fetching enelogic data from URL " + url + ": " + response.status + " - " + response.statusText);
+          throw new Error("Error fetching enelogic data from URL " + url + ": " + response.status + " - " + response.statusText);
       }
       const data = await response.json();
       return data;
@@ -40,7 +40,7 @@ export default class Enelogic {
         if(index === -1){
             results.push(obj);
         }else{
-            results[index][line.rate] = parseFloat(line.quantity)*1000
+            results[index][line.rate] = Math.round(parseFloat(line.quantity)*1000)
         }
     }
     return results;
@@ -115,11 +115,15 @@ export default class Enelogic {
   
   getFormattedData = async (datefrom, dateto, period, options) => {
     let results = []  
+    const enelogicperiod = (period === 'YEAR' ? 'MONTH' : period)
     const momentdateto = (period === 'QUARTER_OF_AN_HOUR' ? moment(datefrom).add(1, 'days') : moment(dateto))
-    const data = await this.getData(datefrom, momentdateto.format('YYYY-MM-DD'), period, options);
+    let data = await this.getData(datefrom, momentdateto.format('YYYY-MM-DD'), enelogicperiod, options);
+    console.log(data);
     if(period === 'QUARTER_OF_AN_HOUR'){
         const daydata = await this.getData(datefrom, momentdateto.format('YYYY-MM-DD'), 'DAY', options);
         results = this.formatData(results, daydata, 'date');
+    }else if(period === 'YEAR'){
+      data = await data.filter(result => moment(result.date).format('MM-DD') === '01-01')
     }
     results = this.formatData(results, data, (period === 'QUARTER_OF_AN_HOUR' ? 'datetime' : 'date'));
     results.sort((a,b) => (a.datetime > b.datetime) ? 1 : -1); 

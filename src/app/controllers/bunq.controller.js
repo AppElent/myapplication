@@ -54,7 +54,7 @@ const exchangeOAuthTokens = async (req, res) => {
 			) 
 			console.log(authorizationCode);
 			const entry = await saveBunqSettings(req.uid, authorizationCode, encryption.generateRandomKey(32), 'PRODUCTION');
-			await bunq.load(req.uid, req.uid, authorizationCode, entry.encryption_key, {}); 
+			await bunq.load(req.uid, req.uid, authorizationCode, entry.encryption_key, 'PRODUCTION', {}); 
 			return res.send({success: true});
 		}catch(error){
 			console.log(error);
