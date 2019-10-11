@@ -6,8 +6,8 @@ import {
   Card
 } from '@material-ui/core';
 import fetchBackend from 'helpers/fetchBackend';
-import useSession from 'hooks/useSession';
 
+import { useSession } from 'hooks';
 
 const RekeningTable = ({data}) => {
   const {user} = useSession();

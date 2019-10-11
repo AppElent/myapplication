@@ -13,7 +13,7 @@ import {
 } from '@material-ui/core';
 
 import {checkPreconditions, runSalarisVerdelenScript } from 'helpers/bunq-functions';
-import useForm from 'hooks/useForm';
+import { useForm } from 'hooks';
 import {ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem} from 'components'
 
 

@@ -3,8 +3,7 @@ import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import MaterialTable from 'material-table';
 
-import {useFirestoreCollectionData} from 'hooks/useFirestore';
-import useSession from 'hooks/useSession';
+import { useFirestoreCollectionData, useSession } from 'hooks';
 import {addData, updateData, deleteData} from 'helpers/material-table-editable-functions';
 
 const useStyles = makeStyles(theme => ({

@@ -10,9 +10,8 @@ import { Grid,
   TextField, 
   Typography
 } from '@material-ui/core';
-import useForm from 'hooks/useForm';
-import useSession from 'hooks/useSession';
 
+import { useForm, useSession } from 'hooks';
 import {saveSolarEdgeSettings, deleteSolarEdgeSettings} from 'helpers/SolarEdge';
 import {deleteEnelogicSettings} from 'helpers/Enelogic';
 import { LoadingButton, OauthAuthorize } from 'components';

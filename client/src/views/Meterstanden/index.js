@@ -4,9 +4,8 @@ import queryString from 'query-string';
 import { makeStyles } from '@material-ui/styles';
 import {AppBar, Tab, Tabs} from '@material-ui/core'
 
-import {OauthReceiver, TabPanel} from 'components';
-import useSession from 'hooks/useSession';
-import useTabs from 'hooks/useTabs';
+import { OauthReceiver, TabPanel } from 'components';
+import { useSession, useTabs } from 'hooks';
 import Overzicht from './components/Overzicht';
 import Settings from './components/Settings';
 import {saveEnelogicSettings} from 'helpers/Enelogic';

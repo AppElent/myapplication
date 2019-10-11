@@ -11,7 +11,7 @@ import { Grid,
   Divider,
   Typography
 } from '@material-ui/core';
-import useSession from 'hooks/useSession';
+import { useSession } from 'hooks';
 
 import { LoadingButton, OauthAuthorize } from 'components';
 import { deleteBunqSettings } from 'helpers/Bunq';

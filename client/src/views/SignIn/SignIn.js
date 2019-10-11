@@ -7,9 +7,11 @@ import {
   IconButton,
   Typography
 } from '@material-ui/core';
-import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import useSession from '../../hooks/useSession';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+
+import { useSession } from 'hooks';
+
 
 
 const useStyles = makeStyles(theme => ({
