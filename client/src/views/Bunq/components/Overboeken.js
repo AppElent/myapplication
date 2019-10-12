@@ -58,7 +58,7 @@ const Overboeken = ({accounts, accountsRequest, user}) => {
     amount: {
       type: 'string',
       format: {
-        pattern: /^\d+.?\d*$/
+        pattern: /[0-9]+(\.[0-9][0-9])?/
       },
       presence: {allowEmpty: false}
     }
