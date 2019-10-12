@@ -12,14 +12,6 @@ const useStyles = makeStyles(theme => ({
   }
 }))
 
-/*
-const SpinnerAdornment = withStyles(styles)(props => (
-  <CircularProgress
-    className={props.classes.spinner}
-    size={20}
-  />
-))
-*/
 const LoadingButton = (props) => {
   const classes = useStyles();
   const {

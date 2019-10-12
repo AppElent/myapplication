@@ -42,7 +42,6 @@ const TestPage = () => {
           <span>User info: {JSON.stringify(authData.userInfo)}</span>
           {value && <span>User1 data: {JSON.stringify(value.data())}</span>}
           {error && <span>User1 data: {JSON.stringify(error)}</span>}
-          <LoadingButton loading={true}>Testje</LoadingButton>
         </Grid>
         <Grid
           item

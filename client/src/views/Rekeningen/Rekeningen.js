@@ -1,10 +1,10 @@
 // ./src/car/car.component.jsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
-import MaterialTable from 'material-table';
 
-import { useFirestoreCollectionData, useSession } from 'hooks';
-import {addData, updateData, deleteData} from 'helpers/material-table-editable-functions';
+import { useFirestoreCollectionData, useSession, useFetch } from 'hooks';
+import { Table } from 'components';
+import {addData, updateData, deleteData} from 'modules/MaterialTable';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -17,53 +17,66 @@ const useStyles = makeStyles(theme => ({
 
 const Rekeningen = () => {
   const classes = useStyles();
-  const {ref} = useSession();
-  //const [data, setData, loading, error] = useFetch('/api/rekeningen', {onMount: true})
+  const {userData, ref} = useSession();
   const {data, loading, error, ref: collectionRef} = useFirestoreCollectionData(ref.collection('rekeningen'));
-  
+  const {data: accountdata, loading: accountsloading, error: accountserror, request} = useFetch('/api/bunq/accounts', {});
+
+  useEffect(() => {
+    if(userData.bunq.success) request.get();
+  }, [])
+  console.log(accountdata);
+
   var columns = [{
     title: 'Naam',
     field: 'naam',
-    editable: 'onAdd'
+    editable: 'onAdd',
+    required: true
   },{
     title: 'Dag vd maand',
     field: 'dag',
-    type: 'numeric'
+    type: 'numeric',
+    initialEditValue: 1
   }, {
     title: 'Type',
-    field: 'type'
-  }, {
-    title: 'Rekening',
-    field: 'rekening'
+    field: 'type',
+    initialEditValue: 'Rekening',
+    lookup: {
+      'Rekening': 'Rekening',
+      'Sparen': 'Sparen',
+      'Apart zetten': 'Apart zetten',
+      'Onregelmatige uitgaven': 'Onregelmatige uitgaven'
+    }
   }]
+  if(userData.bunq.success) {
+    const accountObject = {}
+    accountdata.filter(account => account.status === 'ACTIVE').forEach(account => {
+      accountObject[account.description] = account.description
+    })
+    console.log(accountObject);
+    columns.push({
+      title: 'Rekening',
+      field: 'rekening',
+      lookup: accountObject
+    })
+  }
   const months = [ 'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni', 'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December' ];
   for(var i = 1; i < 13; i++){
     columns.push({
       title: months[i-1],
       field: 'month_'+i,
-      type: 'numeric'
+      type: 'numeric',
+      initialEditValue: 1,
+      required: true
     });
-  }
-
-  function pushToArray(arr, obj) {
-    const index = arr.findIndex((e) => e.id === obj.id);
-
-    if (index === -1) {
-      arr.push(obj);
-    } else {
-      arr[index] = obj;
-    }
   }
 
   return (
     <div className={classes.root}>
       <div className={classes.content}>
-        <MaterialTable 
+        <Table 
           columns={columns}
           data={data}
           editable={{
-            //isEditable: rowData => rowData.name === "a", // only name(a) rows would be editable
-            //isDeletable: rowData => rowData.name === "b", // only name(a) rows would be deletable
             onRowAdd: addData(ref.collection('rekeningen'), 'naam', columns),
             onRowUpdate: updateData(ref.collection('rekeningen'), 'naam', columns),
             onRowDelete: deleteData(ref.collection('rekeningen'), 'naam', columns)
@@ -71,10 +84,7 @@ const Rekeningen = () => {
           options={{
             exportAllData: true,
             exportButton: true,
-            exportFilename: 'Rekeningen.csv',
-            exportDelimiter: ';',
-            pageSize: 10,
-            padding: 'dense'
+            exportFilename: 'Rekeningen.csv'
           }}
           title="Rekeningen"
         />

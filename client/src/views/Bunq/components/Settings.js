@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 import { Grid,
-  Button,
   CircularProgress,
   Card,
   CardHeader,
@@ -13,9 +12,9 @@ import { Grid,
 } from '@material-ui/core';
 import { useSession } from 'hooks';
 
-import { LoadingButton, OauthAuthorize } from 'components';
-import { deleteBunqSettings } from 'helpers/Bunq';
-import fetchBackend from 'helpers/fetchBackend';
+import { Button, OauthAuthorize } from 'components';
+import { deleteBunqSettings } from 'modules/Bunq';
+import { fetchBackend } from 'helpers';
 
 
 const useStyles = makeStyles(theme => ({
@@ -77,13 +76,13 @@ const Settings = ({}) => {
               >
                 Connect bunq sandbox
               </Button>
-              <LoadingButton
+              <Button
                 className={classes.deleteButton}
                 onClick={() => {deleteBunqSettings(userDataRef.doc('enelogic'))}}
                 variant="outlined"
               >
                     Delete
-              </LoadingButton>
+              </Button>
             </CardActions>
           </Card>
         </Grid>

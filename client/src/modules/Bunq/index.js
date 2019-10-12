@@ -81,3 +81,9 @@ export const runSalarisVerdelenScript = async (rekeningen, options = {}) => {
   //-----setPreconditions(initialPreconditions)
   //-----setScriptRunning(false);
 }
+
+
+
+export const deleteBunqSettings = () => {
+    
+}

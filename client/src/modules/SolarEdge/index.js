@@ -1,5 +1,6 @@
-import fetchBackend from 'helpers/fetchBackend';
+import { fetchBackend } from 'helpers';
 import moment from 'moment';
+import { Alert } from 'components';
 
 const getEnelogicData = async (user, url, config) => {
   url +='?access_token=' + config.token.access_token;
@@ -30,7 +31,7 @@ export const saveSolarEdgeSettings = (user, ref) => async (state) => {
   }catch(err){
     console.log(err);
     config = {success: false}
-    alert('Onjuiste api-key')
+    alert('API key is onjuist');
   }
   await ref.set(config);
 }

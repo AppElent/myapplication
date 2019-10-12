@@ -8,7 +8,7 @@ import { OauthReceiver, TabPanel } from 'components';
 import { useSession, useTabs } from 'hooks';
 import Overzicht from './components/Overzicht';
 import Settings from './components/Settings';
-import {saveEnelogicSettings} from 'helpers/Enelogic';
+import { saveEnelogicSettings } from 'modules/Enelogic';
 
 
 

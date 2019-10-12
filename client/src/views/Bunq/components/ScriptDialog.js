@@ -12,7 +12,7 @@ import {
   FormHelperText
 } from '@material-ui/core';
 
-import {checkPreconditions, runSalarisVerdelenScript } from 'helpers/bunq-functions';
+import {checkPreconditions, runSalarisVerdelenScript } from 'modules/Bunq';
 import { useForm } from 'hooks';
 import {ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem} from 'components'
 

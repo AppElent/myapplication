@@ -1,10 +1,11 @@
+const router = require('express').Router();
+
 const fetch = require("node-fetch");
 const fetching = require('../utils/fetching');
 
 
 const home = '113447';
 
-//https://shkspr.mobi/blog/2019/02/tado-api-guide-updated-for-2019/
 
 // Set the configuration settings
 const credentials = {
@@ -53,7 +54,7 @@ async function refreshAccessToken(){
 var accessToken = "";
 //getAccessToken(tado_oauth, tokenConfig).then(data => {accessToken = data;});
 
-exports.test = async (req, res) => {
+const test = async (req, res) => {
 	const url = 'https://my.tado.com/api/v1/me';
 	await refreshAccessToken();
 	var data = await fetching.makeAPICall(url, 'GET', null, accessToken.token.access_token);
@@ -61,7 +62,7 @@ exports.test = async (req, res) => {
 	res.send({data, accessToken});
 }
 
-exports.homes = async (req, res) => {
+const homes = async (req, res) => {
 	const url = 'https://my.tado.com/api/v2/homes/' + home;
 	await refreshAccessToken();
 	var data = await fetching.makeAPICall(url, 'GET', null, accessToken.token.access_token);
@@ -69,7 +70,7 @@ exports.homes = async (req, res) => {
 	res.send({data});
 }
 
-exports.zones = async (req, res) => {
+const zones = async (req, res) => {
 	const url = 'https://my.tado.com/api/v2/homes/' + home + '/zones';
 	await refreshAccessToken();
 	var data = await fetching.makeAPICall(url, 'GET', null, accessToken.token.access_token);
@@ -77,7 +78,7 @@ exports.zones = async (req, res) => {
 	res.send({data});
 }
 
-exports.state = async (req, res) => {
+const state = async (req, res) => {
 	const url = 'https://my.tado.com/api/v2/homes/' + home + '/zones/' + req.params.zone + '/state';
 	await refreshAccessToken();
 	var data = await fetching.makeAPICall(url, 'GET', null, accessToken.token.access_token);
@@ -85,7 +86,7 @@ exports.state = async (req, res) => {
 	res.send({data});
 }
 
-exports.report = async (req, res) => {
+const report = async (req, res) => {
 	const url = 'https://my.tado.com/api/v2/homes/' + home + '/zones/' + req.params.zone + '/dayReport/?date=' + req.params.date;
 	await refreshAccessToken();
 	var data = await fetching.makeAPICall(url, 'GET', null, accessToken.token.access_token);
@@ -94,6 +95,10 @@ exports.report = async (req, res) => {
 }
 
 
+router.get('/test', test);
+router.get('/homes', homes);
+router.get('/zones', zones);
+router.get('/report/:zone/:date', report);
+router.get('/state/:zone/', state);
 
-
-
+module.exports = router;

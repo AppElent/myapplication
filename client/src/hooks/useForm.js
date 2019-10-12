@@ -22,8 +22,6 @@ function useForm(stateSchema, validationSchema = {}, callback) {
   const [isDirty, setIsDirty] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  console.log(state);
-
   // Disable button in initial render.
   /*
   useEffect(() => {
@@ -75,11 +73,10 @@ function useForm(stateSchema, validationSchema = {}, callback) {
       if(validateErrors){
         error = validateErrors[name];
       }
-      console.log(999, error, name, value);
 
       setState(prevState => ({
         ...prevState,
-        [name]: { value, error },
+        [name]: { value, error, touched: true },
       }));
     },
     [validationSchema]

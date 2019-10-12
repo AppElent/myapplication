@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import MaterialTable from 'material-table';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
 
 
 import ScriptDialog from './ScriptDialog';
+import { Table } from 'components';
 
 
 const useStyles = makeStyles(theme => ({
@@ -65,6 +65,8 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
     }
   }
 
+  console.log(rekeningen);
+
   return (  
     <div className={classes.content}>
       <ScriptDialog 
@@ -74,13 +76,12 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
         rekeningen={rekeningen}
         user={user}
       />
-      <MaterialTable 
+      <Table 
         columns={getRekeningColumns()}
         data={rekeningen}
         options={{
           paging: false,
-          padding: 'dense'
-          
+         
         }}
         title="Rekeningen gegroepeerd"
       />

@@ -3,14 +3,11 @@ const router = require('express').Router();
 
 const bunqstate = 'skjdhfkasjhbvckahsdjfhagdbjfhgmnfadnfbsmdafbe'
 
-//const BunqWrapper = require('../modules/BunqWrapper')
-//const bunq = new BunqWrapper();
-//bunq.startup();
 
-import {oauthproviders} from '../modules/application_cache';
-import {bunq} from '../modules/Bunq';
-import {encryption} from '../modules/Encryption';
-import {basicAuthentication} from '../middleware/authentication';
+import { oauthproviders } from '../modules/application_cache';
+import { bunq } from '../modules/Bunq';
+import { encryption } from '../modules/Encryption';
+import { basicAuthentication } from '../middleware/authentication';
 
 const saveBunqSettings = async (user, authorizationCode, encryptionKey, environment = 'PRODUCTION') => {
 	const conditions = {where: {userId: user}};
@@ -29,16 +26,6 @@ const saveBunqSettings = async (user, authorizationCode, encryptionKey, environm
 	return entry;
 }
 
-/*
-exports.formatOAuthUrl = async (req, res) => {	
-	let url = await bunq.getGenericClient().formatOAuthAuthorizationRequestUrl(
-		process.env.BUNQ_CLIENT_ID, 
-		'https://ericjansen.dynu.net/bunq/oauth', 
-		bunqstate
-	);   
-	res.status(200).send(url);
-};
-*/
 
 const exchangeOAuthTokens = async (req, res) => {	
 	if(req.body.code === null){
