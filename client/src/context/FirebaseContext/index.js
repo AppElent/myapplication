@@ -1,6 +1,6 @@
 // @flow
 import * as React from 'react';
-import Firebase from '../../helpers/Firebase';
+import Firebase from 'modules/Firebase';
 
 
 export const FirebaseContext = React.createContext(null);

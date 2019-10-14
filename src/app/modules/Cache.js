@@ -1,6 +1,6 @@
 const NodeCache = require('node-cache');
 
-module.exports = class Cache {
+export default class Cache {
 
   constructor(ttlSeconds = null) {
     if(ttlSeconds === null) ttlSeconds = 9999999;

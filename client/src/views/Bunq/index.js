@@ -4,17 +4,13 @@ import { AppBar, Tabs, Tab } from '@material-ui/core';
 import queryString from 'query-string';
 
 
-import useSession from 'hooks/useSession';
-import useFetch from 'hooks/useFetch';
-import useTabs from 'hooks/useTabs';
-import fetchBackend from 'helpers/fetchBackend';
-import {useFirestoreCollectionDataOnce} from 'hooks/useFirestore';
-import {OauthReceiver, TabPanel} from 'components';
+import { useSession, useFetch, useTabs, useFirestoreCollectionDataOnce } from 'hooks';
+import { fetchBackend, groupData } from 'helpers';
+import { OauthReceiver, TabPanel } from 'components';
 import AccountsPage from './components/AccountsPage';
 import SalarisVerdelen from './components/SalarisVerdelen';
 import Overboeken from './components/Overboeken';
 import Settings from './components/Settings';
-import groupData from 'helpers/groupData';
 
 
 const useStyles = makeStyles(theme => ({
@@ -111,7 +107,7 @@ const Bunq = ({match}) => {
           <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={rekeningenLoading ? undefined : groupData('rekening')(rekeningen)} user={user}/>
         </TabPanel>
         <TabPanel visible={tab === 'overboeken'} tab="overboeken">
-          <Overboeken />
+          <Overboeken accounts={accountdata} accountsRequest={request} user={user} />
         </TabPanel>
         <TabPanel visible={tab === 'settings'} tab="settings">
           <Settings />

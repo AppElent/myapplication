@@ -12,8 +12,8 @@ import {
   FormHelperText
 } from '@material-ui/core';
 
-import {checkPreconditions, runSalarisVerdelenScript } from 'helpers/bunq-functions';
-import useForm from 'hooks/useForm';
+import {checkPreconditions, runSalarisVerdelenScript } from 'modules/Bunq';
+import { useForm } from 'hooks';
 import {ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem} from 'components'
 
 
@@ -21,25 +21,19 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
   
   const [running, setRunning] = useState(false);
   const initialState = {
-    from_account: {
-      value: '',
-      error: ''
-    }, keep: {
-      value: 0,
-      error: ''
-    }, move_rest: {
-      value: false,
-      error: ''
-    }, savings_account: {
-      value: '',
-      error: ''
-    }
+    from_account: '',
+    keep: 0, 
+    move_rest: false, 
+    savings_account: ''
   }
   const validationSchema = {
     from_account: {
       type: 'string'
     },
     sparen: {
+      type: 'number'
+    },
+    keep: {
       type: 'number'
     }
   }

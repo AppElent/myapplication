@@ -1,7 +1,7 @@
-var moment = require('moment');
-const fetch = require("node-fetch");
 
-const Cache = require('./Cache');
+import fetch from 'node-fetch';
+import moment from 'moment';
+import Cache from './Cache';
 const defaultCache = new Cache(60*60*1);
 
 const getOptions = (options) => {

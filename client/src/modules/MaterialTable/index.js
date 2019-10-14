@@ -1,3 +1,5 @@
+import React from 'react';
+import { MTableEditField } from 'material-table';
 
 const getDataObject = (data, columns) => {
   if(columns !== undefined){
@@ -14,14 +16,27 @@ const getDataObject = (data, columns) => {
   return data;
 }
 
+const checkDataObject = (data, columns) => {
+  if(columns !== undefined){
+    columns.forEach(column => {
+      if(column.required && column.required === true && !data[column.field]){
+        console.log('Column ' + column.field + ' is mandatory', data)
+        throw ('Column ' + column.field + ' is mandatory')
+      }
+    })
+  }
+}
+
 export const addData = (ref, prop, columns) => async (data) => {
   data = getDataObject(data, columns);
+  checkDataObject(data, columns);
   console.log(data);
   await ref.doc(data[prop]).set(data);
 }
 
 export const updateData = (ref, prop, columns) => async (data) => {
   data = getDataObject(data, columns);
+  checkDataObject(data, columns);
   console.log(data);
   await ref.doc(data[prop]).set(data);
 }
@@ -30,5 +45,15 @@ export const deleteData = (ref, prop, columns) => async (data) => {
   data = getDataObject(data, columns);
   console.log(data);
   await ref.doc(data[prop]).delete();
+}
+
+export const RequiredField = (props) => {
+  if (props.columnDef.required && (props.value === undefined)) {
+    return (<MTableEditField {...props} />);
+  }
+  if (props.columnDef.required && props.value.length === 0) {
+    return (<MTableEditField {...props} error label="Required" />);
+  }
+  return (<MTableEditField {...props} />);
 }
 

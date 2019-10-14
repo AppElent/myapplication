@@ -10,12 +10,11 @@ import { Grid,
   TextField, 
   Typography
 } from '@material-ui/core';
-import useForm from 'hooks/useForm';
-import useSession from 'hooks/useSession';
 
-import {saveSolarEdgeSettings, deleteSolarEdgeSettings} from 'helpers/SolarEdge';
-import {deleteEnelogicSettings} from 'helpers/Enelogic';
-import { LoadingButton, OauthAuthorize } from 'components';
+import { useForm, useSession } from 'hooks';
+import { saveSolarEdgeSettings, deleteSolarEdgeSettings } from 'modules/SolarEdge';
+import { deleteEnelogicSettings } from 'modules/Enelogic';
+import { Alert, Button, OauthAuthorize } from 'components';
 
 
 const useStyles = makeStyles(theme => ({
@@ -59,13 +58,13 @@ const Settings = ({}) => {
                 formatUrl="/api/oauth/formaturl/enelogic"
                 title="Connect Enelogic"
               />
-              <LoadingButton
+              <Button
                 className={classes.deleteButton}
                 onClick={() => {deleteEnelogicSettings(userDataRef.doc('enelogic'))}}
                 variant="outlined"
               >
                     Delete
-              </LoadingButton>
+              </Button>
             </CardActions>
           </Card>
         </Grid>
@@ -95,7 +94,7 @@ const Settings = ({}) => {
 
             <Divider />
             <CardActions>
-              <LoadingButton
+              <Button
                 color="primary"
                 disabled={!isDirty}
                 loading={submitting}
@@ -103,14 +102,14 @@ const Settings = ({}) => {
                 variant="contained"
               >
                     Save
-              </LoadingButton>
-              <LoadingButton
+              </Button>
+              <Button
                 className={classes.deleteButton}
                 onClick={() => {deleteSolarEdgeSettings(userDataRef.doc('solaredge')); setInitial()}}
                 variant="outlined"
               >
                     Delete
-              </LoadingButton>
+              </Button>
             </CardActions>
           </Card>
         </Grid>

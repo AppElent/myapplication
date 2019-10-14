@@ -6,12 +6,10 @@ import { makeStyles } from '@material-ui/styles';
 import { MuiPickersUtilsProvider, KeyboardDatePicker } from '@material-ui/pickers';
 import DateFnsUtils from '@date-io/date-fns';
 
-import { LoadingButton } from 'components';
-import MaterialTable from 'material-table';
-import {refresh} from 'helpers/Oauth';
-import {updateEnelogicSettings, getData} from 'helpers/Enelogic';
-import useForm from 'hooks/useForm';
-import useSession from 'hooks/useSession';
+import { Button, Table } from 'components';
+import { refresh } from 'modules/Oauth';
+import { updateEnelogicSettings, getData } from 'modules/Enelogic';
+import { useForm, useSession } from 'hooks';
 
 
 
@@ -50,12 +48,16 @@ const Overzicht = () => {
 
   const haalDataOp = async () => {
     console.log(userData.enelogic);
-    const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userData.enelogic.token)
-    console.log(refreshedtoken);
-    if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, userData.enelogic)
-    let data = await getData(user, state.datefrom.value, state.dateto.value, userData.enelogic, userData.solaredge);
-    console.log(data);
-    setData(data);
+    try{
+      const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userData.enelogic.token)
+      console.log(refreshedtoken);
+      if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, userData.enelogic, refreshedtoken);
+      let data = await getData(user, state.datefrom.value, state.dateto.value, userData.enelogic, userData.solaredge);
+      console.log(data);
+      setData(data);
+    }catch(err){
+      console.log(err);
+    }
   }
 
   const datefrom = (moment().date() < 3 ? moment().startOf('month').add(-1, 'month') : moment().startOf('month')).toDate()//
@@ -94,13 +96,19 @@ const Overzicht = () => {
     title: 'Teruglevering totaal',
     field: '280',
     render: rowData => (rowData['280'] + ' (' + rowData['280_diff'] + ')')
+  }, {
+    title: 'Netto laag',
+    field: 'netto_laag'
+  },{
+    title: 'Netto hoog',
+    field: 'netto_hoog'
+  },{
+    title: 'Netto totaal',
+    field: 'netto'
   }]
   if(userData.solaredge.success) columns.push({
     title: 'Opwekking',
     field: 'opwekking'
-  }, {
-    title: 'Netto',
-    field: 'netto'
   }, {
     title: 'Bruto',
     field: 'bruto'
@@ -111,6 +119,7 @@ const Overzicht = () => {
       <div className={classes.row}>
         <MuiPickersUtilsProvider utils={DateFnsUtils}>
           <KeyboardDatePicker
+            autoOk
             disableToolbar
             format="yyyy-MM-dd"
             id="date-picker-datefrom"
@@ -125,6 +134,7 @@ const Overzicht = () => {
             variant="inline"
           />
           <KeyboardDatePicker
+            autoOk
             disableToolbar
             format="yyyy-MM-dd"
             id="date-picker-dateto"
@@ -138,12 +148,12 @@ const Overzicht = () => {
             variant="inline"
           />
         </MuiPickersUtilsProvider>
-        <LoadingButton variant="contained" color="primary" className={classes.button} onClick={handleOnSubmit} loading={submitting}>
+        <Button variant="contained" color="primary" className={classes.button} onClick={handleOnSubmit} loading={submitting}>
             Haal op
-        </LoadingButton>
+        </Button> 
       </div>
       <div className={classes.content}>
-        <MaterialTable 
+        <Table 
           columns={columns}
           data={data}
           title="Meterstanden"

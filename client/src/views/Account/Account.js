@@ -1,9 +1,9 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
-
 import { AccountProfile, AccountDetails } from './components';
-import useSession from '../../hooks/useSession';
+
+import { useSession } from 'hooks';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
 
 const Account = () => {
   const classes = useStyles();
-  const {firebase, user} = useSession();
+  const {firebase} = useSession();
 
   return (
     <div className={classes.root}>

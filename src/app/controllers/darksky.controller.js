@@ -1,4 +1,5 @@
-const path = require("path");
+
+const router = require('express').Router();
 
 const fetch = require("node-fetch");
 
@@ -8,17 +9,22 @@ const darksky_host = 'https://api.darksky.net';
 const darksky_region_settings = '?units=auto&lang=nl';
 
 
-exports.getCurrentData = async (req, res) => {
+const getCurrentData = async (req, res) => {
 	var url = darksky_host + '/forecast/' + darksky_api_key + '/' + darksky_location + darksky_region_settings;
 	console.log(url);
 	var data = await fetch(url);
 	res.send(await data.json());
 }
 
-exports.getDateData = async (req, res) => {
+const getDateData = async (req, res) => {
 	var date = moment(req.params.date);
 	var url = darksky_host + '/forecast/' + darksky_api_key + '/' + darksky_location + ', ' + date/1000 + darksky_region_settings;
 	console.log(url);
 	var data = await fetch(url);
 	res.send(await data.json());
 }
+
+router.get('/current', getCurrentData);
+router.get('/:date', getDateData);
+
+module.exports = router;

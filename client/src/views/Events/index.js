@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import Moment from 'react-moment';
-import MaterialTable from 'material-table';
 
 import EventsToolbar from './components/EventsToolbar';
-import useSession from 'hooks/useSession';
-import useFetch from 'hooks/useFetch';
+import { useFetch, useSession } from 'hooks';
+import { Table } from 'components';
 
 
 const useStyles = makeStyles(theme => ({
@@ -33,8 +32,8 @@ const Events = () => {
 
   const columns = [{
     title: 'Datum/tijd',
-    field: 'datetime'
-    //render: rowData => <Moment date={rowData.datetime} format="YYYY-MM-DD HH:mm" tz="Europe/Amsterdam"/>
+    field: 'datetime',
+    render: rowData => <Moment date={rowData.datetime} format="YYYY-MM-DD HH:mm"/>
   }, {
     title: 'Event',
     field: 'value',
@@ -47,7 +46,7 @@ const Events = () => {
         setAll={setAll}
       />
       <div className={classes.content}>
-        <MaterialTable 
+        <Table 
           columns={columns}
           data={data}
           title="Events"

@@ -1,5 +1,8 @@
 
-exports.redirectCall = async (req, res) => {
+const router = require('express').Router();
+import { basicAuthentication } from '../middleware/authentication';
+
+export const redirectCall = async (req, res) => {
 	
   const body = req.body.body === null ? undefined : req.body.body;
   const headers = req.body.headers === null ? undefined : req.body.headers;
@@ -17,4 +20,5 @@ exports.redirectCall = async (req, res) => {
 	
 }
 
-
+router.post('/redirectcall', basicAuthentication, redirectCall);
+module.exports = router;

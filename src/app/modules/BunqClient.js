@@ -1,7 +1,7 @@
-const Cache = require('./Cache');
-const BunqJSClient = require("@bunq-community/bunq-js-client").default;
-const customStore = require( "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore").default;
-const Encryption = require('./Encryption')
+import Cache from './Cache';
+import BunqJSClient from "@bunq-community/bunq-js-client";
+import JSONFileStore from "@bunq-community/bunq-js-client/dist/Stores/JSONFileStore";
+import Encryption from './Encryption';
 const path = require("path");
 const _ = require('lodash');
 
@@ -44,7 +44,7 @@ export default class BunqClient {
       this.status = 'STARTING';
       
       //bunqclient zetten
-      const filestore = customStore(path.resolve(__dirname, "../../../config/bunq/" + filename + '.json' ));
+      const filestore = JSONFileStore(path.resolve(__dirname, "../../../config/bunq/" + filename + '.json' ));
       this.bunqJSClient = new BunqJSClient(filestore);
       
       // load and refresh bunq client

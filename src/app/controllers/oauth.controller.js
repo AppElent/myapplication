@@ -1,62 +1,19 @@
-//
-const db = require('../models/index.js');
-const MeterstandElektra = db.meterstanden;
-var moment = require('moment');
-const path = require("path");
 
-var request = require('request'); 
-const fetch = require("node-fetch");
-var JSONStore = require('json-store');
-
-const arrays = require('../utils/arrays');
 
 import {oauthproviders} from '../modules/application_cache';
+import fetch from 'node-fetch';
+import moment from 'moment';
+import asyncHandler from 'express-async-handler';
+import { basicAuthentication } from '../middleware/authentication';
+import cache from '../middleware/cacheMiddleware';
+import Cache from '../modules/Cache';
+const oauthCache = new Cache();
 
+const router = require('express').Router();
 
-
-const oauth_credentials = {}
-
-/*
- * Enelogic OAUTH
- * 
- */
-
-// Set the configuration settings
-/*
-const enelogic_credentials = {
-  client: {
-    id: process.env.ENELOGIC_CLIENT_ID,
-    secret: process.env.ENELOGIC_CLIENT_SECRET
-  },
-  auth: {
-    tokenHost: 'https://enelogic.com',
-    tokenPath: '/oauth/v2/token',
-    authorizePath: '/oauth/v2/auth'
-  }
-};
-const enelogic_oauth = require('simple-oauth2').create(enelogic_credentials);
-oauth_credentials['enelogic'] = {
-	redirect_uri: 'https://ericjansen.dynu.net/enelogic/oauth', 
-	object: enelogic_oauth,
-	scope: 'account',
-	type: 'authorization_code_flow'
-};
-* */
-
-/*
-// Initialize the OAuth2 Library
-const enelogic_oauth = require('simple-oauth2').create(credentials);
-
-//Initialize JSON store for oauth keys
-const enelogic_store = JSONStore(`${__dirname}${path.sep}enelogic.json`);
-
-// Enelogic oauth object maken
-//var accessToken = '';
-//oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic').then(token => {accessToken = token});
-* */
-
-exports.format = () => (req, res) => {
+const formatUrl = (req, res) => {
 	const oauthobject = oauthproviders[req.params.application];
+	console.log(999, oauthobject);
 	// Authorization oauth2 URI
 	//const protocol = (req.params.application.toLowerCase() === 'bunq' ? 'https' : req.protocol);
 	//const redirecthost = protocol + '://' + req.get('host');
@@ -66,7 +23,7 @@ exports.format = () => (req, res) => {
 	return res.send(authorizationUri);
 }
 
-exports.exchange = () => async (req, res) => {
+const exchange = async (req, res) => {
 	const oauthobject = oauthproviders[req.params.application];
 	
 	// Save the access token
@@ -90,7 +47,7 @@ exports.exchange = () => async (req, res) => {
 
 
 
-exports.refresh = () => async (req, res) => {
+const refresh = async (req, res) => {
 	try{
 		const oauthobject = oauthproviders[req.params.application];
 
@@ -110,4 +67,8 @@ exports.refresh = () => async (req, res) => {
 
 }
 
+router.get('/formatUrl/:application', basicAuthentication, cache(oauthCache), asyncHandler(formatUrl));
+router.get('/exchange/:application', basicAuthentication, asyncHandler(exchange));
+router.get('/refresh/:application', basicAuthentication, asyncHandler(refresh));
 
+module.exports = router;

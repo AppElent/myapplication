@@ -1,6 +1,6 @@
 
 
-const cache = (cache, userSpecific = true) => async (req, res, next) => {
+const cacheMiddleware = (cache, userSpecific = true) => async (req, res, next) => {
     let key = req.originalUrl || req.url;
     if(userSpecific) key = req.uid + '_' + key;
     const cachedata = await cache.simpleGet(key);
@@ -16,4 +16,4 @@ const cache = (cache, userSpecific = true) => async (req, res, next) => {
     }
 }
 
- export default cache;
+ export default cacheMiddleware;
