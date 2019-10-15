@@ -12,7 +12,7 @@ import { oauthproviders, bunqclients } from './app/modules/application_cache';
 import OAuth from './app/modules/Oauth';
 import { bunq } from './app/modules/Bunq';
 import { request } from 'https';
-
+ 
 //Load firebase
 import firebase, {db as firebaseDB} from './app/modules/Firebase';
 
