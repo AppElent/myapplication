@@ -68,7 +68,7 @@ const refresh = async (req, res) => {
 }
 
 router.get('/formatUrl/:application', basicAuthentication, cache(oauthCache), asyncHandler(formatUrl));
-router.get('/exchange/:application', basicAuthentication, asyncHandler(exchange));
-router.get('/refresh/:application', basicAuthentication, asyncHandler(refresh));
+router.post('/exchange/:application', basicAuthentication, asyncHandler(exchange));
+router.post('/refresh/:application', basicAuthentication, asyncHandler(refresh));
 
 module.exports = router;
