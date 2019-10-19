@@ -30,7 +30,7 @@ const Settings = ({}) => {
   const classes = useStyles();
   const {user, ref, userData, userDataRef} = useSession();
 
-  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm({api_key: userData.solaredge.access_token}, {}, saveSolarEdgeSettings(user, userDataRef.doc('solaredge')));
+  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm({api_key: userData.solaredge.access_token || ''}, {}, saveSolarEdgeSettings(user, userDataRef.doc('solaredge')));
 
   return (
     <div className={classes.root}>
