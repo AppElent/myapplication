@@ -26,6 +26,9 @@ validate.validators = {
 };
 
 const App = () => {
+  
+  if (window.location.protocol != 'https:' && process.env.NODE_ENV !== 'development') window.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+  
   const firebase = new Firebase();
   const [authData, setAuthData] = useState({firebase, user: undefined, isInitializing: true, ref: null, userDataRef: null});
   

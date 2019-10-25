@@ -9,6 +9,7 @@
     "start": "nodemon --exec babel-node ./src/server",
     "start:trace": "nodemon --trace-warnings --exec babel-node ./src/server",
     "start:client": "cd client && react-scripts start",
+    "start:test": "cross-env NODE_ENV=TEST nodemon --exec babel-node ./src/server",
     "start:production": "cross-env NODE_ENV=PRODUCTION nodemon --exec babel-node ./src/server",
     "serve:dev": "cross-env NODE_ENV=PRODUCTION node ./dist/server",
     "serve:prod": "cross-env NODE_ENV=PRODUCTION node ./dist/server",

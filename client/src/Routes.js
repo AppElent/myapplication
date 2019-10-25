@@ -36,7 +36,7 @@ const Routes = () => {
       <Redirect
         exact
         from="/"
-        to="/home"
+        to="/account"
       />
       <RouteWithLayout 
         component={Home}
