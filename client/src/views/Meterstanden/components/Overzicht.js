@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import moment from 'moment';
 import 'moment-timezone';
 import { makeStyles } from '@material-ui/styles';
@@ -44,15 +44,17 @@ const useStyles = makeStyles(theme => ({
 
 const Overzicht = () => {
   const classes = useStyles();
-  const {user, userData, userDataRef} = useSession();
+  const {user, userInfo, ref} = useSession();
+  const userInfoRef = useRef();
+  userInfoRef.current = userInfo;
 
   const haalDataOp = async () => {
-    console.log(userData.enelogic);
+    console.log(userInfo.enelogic);
     try{
-      const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userData.enelogic.token)
+      const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userInfoRef.current.enelogic.token)
       console.log(refreshedtoken);
-      if(refreshedtoken !== null) updateEnelogicSettings(userDataRef, userData.enelogic, refreshedtoken);
-      let data = await getData(user, state.datefrom.value, state.dateto.value, userData.enelogic, userData.solaredge);
+      if(refreshedtoken !== null) updateEnelogicSettings(ref, userInfoRef.current.enelogic, refreshedtoken);
+      let data = await getData(user, state.datefrom.value, state.dateto.value, userInfoRef.current);
       console.log(data);
       setData(data);
     }catch(err){
@@ -66,7 +68,7 @@ const Overzicht = () => {
   const {state, handleOnValueChange, handleOnSubmit, submitting} = useForm({datefrom, dateto}, {}, haalDataOp);
   const [data, setData] = useState([]);
 
-  if(!userData.enelogic.success) return <div></div>
+  if(!userInfo.enelogic || !userInfo.enelogic.success) return <div></div>
 
 
   var columns = [{
@@ -106,7 +108,7 @@ const Overzicht = () => {
     title: 'Netto totaal',
     field: 'netto'
   }]
-  if(userData.solaredge.success) columns.push({
+  if(userInfo.solaredge.success) columns.push({
     title: 'Opwekking',
     field: 'opwekking'
   }, {
@@ -128,7 +130,7 @@ const Overzicht = () => {
             }}
             label="Datum vanaf"
             margin="normal"
-            minDate={new Date(userData.enelogic.measuringpoints.electra.dayMin)}
+            minDate={new Date(userInfo.enelogic.measuringpoints.electra.dayMin)}
             onChange={handleOnValueChange('datefrom')}
             value={state.datefrom.value}
             variant="inline"

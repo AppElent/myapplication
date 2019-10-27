@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Router } from 'react-router-dom';
 import { createBrowserHistory } from 'history';
 import { Chart } from 'react-chartjs-2';
@@ -13,6 +13,7 @@ import validators from './common/validators';
 import Routes from './Routes';
 
 import Firebase, {FirebaseContext} from './context/FirebaseContext';
+import { CacheContext } from './context/CacheContext';
 
 const browserHistory = createBrowserHistory();
 
@@ -26,9 +27,32 @@ validate.validators = {
 };
 
 const App = () => {
+  
+  if (window.location.protocol != 'https:' && process.env.NODE_ENV !== 'development') window.location.href = 'https:' + window.location.href.substring(window.location.protocol.length);
+  
   const firebase = new Firebase();
   const [authData, setAuthData] = useState({firebase, user: undefined, isInitializing: true, ref: null, userDataRef: null});
-  
+  const [cacheData, setCacheData] = useState({});
+  const getCache = useCallback((cacheData) => (key) => {
+    console.log('Getting value from cache with key ' + key, cacheData);
+    return cacheData[key];
+  })
+  const setCache = useCallback((setFunction) => (key, data) => {
+    try{
+      console.log(cacheData);
+    
+      console.log('Setting value to cache with key ' + key, data);
+      let dataCopy = JSON.parse(JSON.stringify(cacheData));
+      dataCopy[key] = data;
+      console.log(dataCopy, cacheData);
+      setFunction(dataCopy); 
+      console.log('jaja');
+    }catch(err){
+      console.log(err);
+    }
+  })
+
+ 
   
   useEffect(() => {
     // listen for auth state changes
@@ -40,7 +64,6 @@ const App = () => {
         ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + returnedUser.uid);
         userDataRef = ref.collection('config');
       } 
-
       setAuthData({...authData, user: returnedUser, isInitializing: false, ref, userDataRef})
     })
     // unsubscribe to the listener when unmounting
@@ -52,8 +75,15 @@ const App = () => {
   useEffect(() => {
     if (authData.isInitializing || authData.user === null) return;
     const ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid);
-    return ref.onSnapshot(doc => {
-      setUserInfo(doc.data());
+    return ref.onSnapshot(async doc => {
+      const userInfoData = doc.data();
+      let changed = false;
+      if(!userInfoData.bunq) {changed = true; userInfoData.bunq = {success: false}}
+      if(!userInfoData.enelogic) {changed = true; userInfoData.enelogic = {success: false}}//await ref.doc('enelogic').set({success: false});
+      if(!userInfoData.solaredge) {changed = true; userInfoData.solaredge = {success: false}}//await ref.doc('solaredge').set({success: false});
+      if(changed) ref.set(userInfoData);
+      console.log('UserInfo wijziging', userInfoData);
+      setUserInfo(userInfoData);
     });
   }, [authData.isInitializing, authData.user]);
 
@@ -80,11 +110,13 @@ const App = () => {
 
   return (
     <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, ref: authData.ref, userDataRef: authData.userDataRef}}>
-      <ThemeProvider theme={theme}>
-        <Router history={browserHistory}>
-          <Routes />
-        </Router>
-      </ThemeProvider>
+      <CacheContext.Provider value={{data: cacheData, get: getCache(cacheData), set: setCache(setCacheData)}}>
+        <ThemeProvider theme={theme}>
+          <Router history={browserHistory}>
+            <Routes />
+          </Router>
+        </ThemeProvider>
+      </CacheContext.Provider>
     </FirebaseContext.Provider>
   );
 }

@@ -36,20 +36,12 @@ const databases = {
     password: null,
     dialect: "sqlite",
     storage: './database.sqlite',
-  }, "heroku_dev": {
-    ssl: true,
-    use_env_variable: 'DATABASE_URL_DEV',
-    dialect: "postgres",
-    dialectOptions: {
-      ssl: true
-    }
-  }, "heroku_staging": {
-    ssl: true,
-    use_env_variable: 'DATABASE_URL_STAGING',
-    dialect: "postgres",
-    dialectOptions: {
-      ssl: true
-    }
+  }, "test": {
+    database: 'mainDB',
+    username: null,
+    password: null,
+    dialect: "sqlite",
+    storage: './database_test.sqlite',
   }, "production": {
     ssl: true,
     use_env_variable: 'DATABASE_URL',

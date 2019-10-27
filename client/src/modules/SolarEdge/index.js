@@ -33,11 +33,11 @@ export const saveSolarEdgeSettings = (user, ref) => async (state) => {
     config = {success: false}
     alert('API key is onjuist');
   }
-  await ref.set(config);
+  await ref.update({solaredge: config});
 }
 
 export const deleteSolarEdgeSettings = async (ref) => {
-  await ref.set({success: false})
+  await ref.update({solaredge: {success: false}})
 }
 
 export const getMeasuringPoints = async () => {

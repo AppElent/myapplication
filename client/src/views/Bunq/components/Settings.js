@@ -28,14 +28,14 @@ const useStyles = makeStyles(theme => ({
 
 const Settings = ({}) => {
   const classes = useStyles();
-  const {user, ref, userData, userDataRef} = useSession();
+  const {user, userInfo, ref} = useSession();
   const [loadingToken, setLoadingToken] = useState(false);
 
   const createBunqSandbox = async () => {
     setLoadingToken(true);
     const data = await fetchBackend('/api/bunq/sandbox', {user});
     console.log(data);
-    await userDataRef.doc('bunq').set({'success': true, 'environment': 'SANDBOX', sparen: 0, eigen: 0})
+    await ref.update({bunq: {'success': true, 'environment': 'SANDBOX'}})
     setLoadingToken(false);
   }
 
@@ -60,7 +60,7 @@ const Settings = ({}) => {
             />
             <Divider />
             <CardContent>
-              <Typography>{userData.bunq.success ? 'Connectie succesvol' : 'Bunq connectie is niet gemaakt. Deze is nodig om de data op te kunnen halen.'}</Typography>
+              <Typography>{userInfo.bunq.success ? 'Connectie succesvol' : 'Bunq connectie is niet gemaakt. Deze is nodig om de data op te kunnen halen.'}</Typography>
             </CardContent>
             <Divider />
             <CardActions>
@@ -78,7 +78,7 @@ const Settings = ({}) => {
               </Button>
               <Button
                 className={classes.deleteButton}
-                onClick={() => {deleteBunqSettings(userDataRef.doc('enelogic'))}}
+                onClick={() => {deleteBunqSettings(ref)}}
                 variant="outlined"
               >
                     Delete

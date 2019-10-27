@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import { 
-  Button,
   Checkbox,
   DialogContent,
   DialogContentText,
@@ -9,17 +8,21 @@ import {
   FormControlLabel,
   FormControl,
   InputLabel,
-  FormHelperText
+  FormHelperText,
+  List,
+  ListItem,
+  ListItemText
 } from '@material-ui/core';
+import { useArray } from 'react-hanger';
 
-import {checkPreconditions, runSalarisVerdelenScript } from 'modules/Bunq';
+import { checkPreconditions, runSalarisVerdelenScript } from 'modules/Bunq';
 import { useForm } from 'hooks';
-import {ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem} from 'components'
+import { Button, ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem } from 'components'
 
 
 const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user}) => {
-  
-  const [running, setRunning] = useState(false);
+  const logging = useArray([]);
+
   const initialState = {
     from_account: '',
     keep: 0, 
@@ -37,7 +40,23 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
       type: 'number'
     }
   }
-  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialState, validationSchema, () => {});
+  const submitFunction = async () => {
+    const options = {
+      move_rest: state.move_rest.value,
+      from_account: state.from_account.value,
+      savings_account: state.savings_account.value,
+      keep: state.keep.value,
+      income: 10000,
+      sparen: preconditions.sparen,
+      logger: logging.push,
+      user
+    }
+    logging.clear();
+    await runSalarisVerdelenScript(rekeningen, options);
+    accountsRequest.get();
+  }
+  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialState, validationSchema, submitFunction);
+
 
   const options = {
     from_account: state.from_account.value,
@@ -135,7 +154,10 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
           </ResponsiveSelect>
           <FormHelperText>Vul hier de spaarrekening</FormHelperText>
         </FormControl>}
-
+        <List>
+          {logging.value.map((item, index) => <ListItem key={index}><ListItemText>{item}</ListItemText></ListItem>)}  
+        </List>
+        
       </DialogContent>
       <DialogActions>
         <Button
@@ -147,21 +169,9 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
         <Button 
           color="primary" 
           disabled={hasError || preconditions.accountsExist.length > 0 || (preconditions.maandtotaal > preconditions.balance)}
-          onClick={async () => {
-            setRunning(true);
-            const options = {
-              move_rest: state.move_rest.value,
-              from_account: state.from_account.value,
-              savings_account: state.savings_account.value,
-              keep: state.keep.value,
-              income: 10000,
-              sparen: preconditions.sparen,
-              user
-            }
-            runSalarisVerdelenScript(rekeningen, options);
-            accountsRequest.get();
-            setRunning(false);
-          }}
+          loading={submitting}
+          onClick={handleOnSubmit}
+          variant="contained"
         >
             Run
         </Button>

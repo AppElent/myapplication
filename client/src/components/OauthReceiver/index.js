@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import useSession from 'hooks/useSession';
 import fetchBackend from 'helpers/fetchBackend';
 
-const OauthReceiver = ({code, exchangeUrl, saveFunction}) => {
+const OauthReceiver = ({code, exchangeUrl, saveFunction, redirectUrl = null}) => {
   const {user} = useSession();
   const [loadingToken, setLoadingToken] = useState(true);
   
@@ -35,6 +35,8 @@ const OauthReceiver = ({code, exchangeUrl, saveFunction}) => {
 
   if(loadingToken) return <CircularProgress />
 
+  if(redirectUrl !== null) return <Redirect to={redirectUrl} />
+
   return (
     <Redirect to={window.location.pathname} />
   )
@@ -43,6 +45,7 @@ const OauthReceiver = ({code, exchangeUrl, saveFunction}) => {
 OauthReceiver.propTypes = {
   code: PropTypes.string,
   exchangeUrl: PropTypes.string,
+  redirectUrl: PropTypes.string,
   saveFunction: PropTypes.func
 }
 

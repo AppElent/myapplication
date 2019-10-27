@@ -28,9 +28,9 @@ const useStyles = makeStyles(theme => ({
 
 const Settings = ({}) => {
   const classes = useStyles();
-  const {user, ref, userData, userDataRef} = useSession();
+  const {user, userInfo, ref} = useSession();
 
-  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm({api_key: userData.solaredge.access_token || ''}, {}, saveSolarEdgeSettings(user, userDataRef.doc('solaredge')));
+  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm({api_key: userInfo.solaredge.access_token || ''}, {}, saveSolarEdgeSettings(user, ref));
 
   return (
     <div className={classes.root}>
@@ -50,7 +50,7 @@ const Settings = ({}) => {
             />
             <Divider />
             <CardContent>
-              <Typography>{userData.enelogic.success ? `Registratie vanaf: ${userData.enelogic.measuringpoints.electra.dayMin}` : 'Enelogic connectie is niet gemaakt. Deze is nodig om de meterstanden op te kunnen halen.'}</Typography>
+              <Typography>{userInfo.enelogic.success ? `Registratie vanaf: ${userInfo.enelogic.measuringpoints.electra.dayMin}` : 'Enelogic connectie is niet gemaakt. Deze is nodig om de meterstanden op te kunnen halen.'}</Typography>
             </CardContent>
             <Divider />
             <CardActions>
@@ -60,7 +60,7 @@ const Settings = ({}) => {
               />
               <Button
                 className={classes.deleteButton}
-                onClick={() => {deleteEnelogicSettings(userDataRef.doc('enelogic'))}}
+                onClick={() => {deleteEnelogicSettings(ref)}}
                 variant="outlined"
               >
                     Delete
@@ -82,7 +82,7 @@ const Settings = ({}) => {
             <CardContent>
               <TextField
                 fullWidth
-                helperText={userData.solaredge.success ? 'Configuratie is succesvol' : ''}
+                helperText={userInfo.solaredge.success ? 'Configuratie is succesvol' : ''}
                 label="API Key"
                 name="api_key"
                 onChange={handleOnChange}
@@ -105,7 +105,7 @@ const Settings = ({}) => {
               </Button>
               <Button
                 className={classes.deleteButton}
-                onClick={() => {deleteSolarEdgeSettings(userDataRef.doc('solaredge')); setInitial()}}
+                onClick={() => {deleteSolarEdgeSettings(ref); setInitial()}}
                 variant="outlined"
               >
                     Delete

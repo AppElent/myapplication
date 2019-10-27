@@ -1,3 +1,4 @@
+export { default as useCache } from './useCache';
 export { default as useCustomMediaQuery } from './useCustomMediaQuery';
 export { default as useFetch } from './useFetch';
 export { 

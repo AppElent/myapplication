@@ -47,6 +47,11 @@ const Sidebar = props => {
 
   const pages = [
     {
+      title: 'Account',
+      href: '/account',
+      icon: <AccountBoxIcon />
+    },
+    {
       title: 'Meterstanden',
       href: '/meterstanden',
       icon: <DashboardIcon />
@@ -65,11 +70,6 @@ const Sidebar = props => {
       title: 'Events',
       href: '/events',
       icon: <DashboardIcon />
-    },
-    {
-      title: 'Account',
-      href: '/account',
-      icon: <AccountBoxIcon />
     }
   ];
 

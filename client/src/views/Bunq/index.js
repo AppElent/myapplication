@@ -36,7 +36,7 @@ const useStyles = makeStyles(theme => ({
 
 const Bunq = ({match}) => {
 
-  const {user, ref, userData, userDataRef} = useSession();
+  const {user, userInfo, ref} = useSession();
   const classes = useStyles();
   const {data: accountdata, loading, error, request} = useFetch('/api/bunq/accounts', {});
 
@@ -45,12 +45,12 @@ const Bunq = ({match}) => {
   const [tab, handleTabChange] = useTabs('overzicht');
 
   useEffect(() => {
-    if(userData.bunq !== undefined && userData.bunq.success){
+    if(userInfo.bunq !== undefined && userInfo.bunq.success){
       setLoadBunqData(true);
     }else{
       setLoadBunqData(false);
     }
-  }, [userData.bunq])
+  }, [userInfo.bunq])
 
   useEffect(() => {
     if(loadBunqData){
@@ -62,24 +62,20 @@ const Bunq = ({match}) => {
 
   const saveBunqSettings = (ref, bunqConfig) => async (accesstoken) => {
     if(bunqConfig === undefined) bunqConfig = {}
+    bunqConfig['success'] = accesstoken.success;
+    bunqConfig['environment'] = 'PRODUCTION';
+    ref.update({bunq: bunqConfig});
     if(accesstoken.success){
-      bunqConfig['success'] = true;
-      bunqConfig['environment'] = 'PRODUCTION';
-      ref.set(bunqConfig);
       setLoadBunqData(true);
-    }else{
-      bunqConfig['success'] = false;
-      bunqConfig['environment'] = 'PRODUCTION';
-      ref.set(bunqConfig);
     }
   }
 
   //if there is a query-param named code, the OauthReceiver is returned
   const code = queryString.parse(window.location.search).code;
-  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/bunq/oauth/exchange" saveFunction={saveBunqSettings(userDataRef.doc('bunq'), userData.bunq)} />
+  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/bunq/oauth/exchange" saveFunction={saveBunqSettings(ref, userInfo.bunq)} />
 
 
-  if((userData.bunq !== undefined && !userData.bunq.success)){
+  if((!userInfo.bunq.success)){
     if(tab !== 'settings') handleTabChange(null, 'settings')
   }
 
@@ -101,7 +97,7 @@ const Bunq = ({match}) => {
           </Tabs>
         </AppBar>
         <TabPanel visible={tab === 'overzicht'} tab="overzicht">
-          {tab === 'overzicht' && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={userData.bunq !== undefined && userData.bunq.environment === 'SANDBOX'} />}
+          {tab === 'overzicht' && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={userInfo.bunq.environment === 'SANDBOX'} />}
         </TabPanel>
         <TabPanel visible={tab === 'verdelen'} tab="verdelen">
           <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={rekeningenLoading ? undefined : groupData('rekening')(rekeningen)} user={user}/>

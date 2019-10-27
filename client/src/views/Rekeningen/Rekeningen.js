@@ -17,12 +17,12 @@ const useStyles = makeStyles(theme => ({
 
 const Rekeningen = () => {
   const classes = useStyles();
-  const {userData, ref} = useSession();
+  const {user, userInfo, ref} = useSession();
   const {data, loading, error, ref: collectionRef} = useFirestoreCollectionData(ref.collection('rekeningen'));
-  const {data: accountdata, loading: accountsloading, error: accountserror, request} = useFetch('/api/bunq/accounts', {});
+  const {data: accountdata, loading: accountsloading, error: accountserror, request} = useFetch('/api/bunq/accounts', {user});
 
   useEffect(() => {
-    if(userData.bunq.success) request.get();
+    if(userInfo.bunq.success) request.get();
   }, [])
   console.log(accountdata);
 
@@ -47,7 +47,7 @@ const Rekeningen = () => {
       'Onregelmatige uitgaven': 'Onregelmatige uitgaven'
     }
   }]
-  if(userData.bunq.success) {
+  if(userInfo.bunq.success) {
     const accountObject = {}
     accountdata.filter(account => account.status === 'ACTIVE').forEach(account => {
       accountObject[account.description] = account.description
