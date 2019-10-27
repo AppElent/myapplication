@@ -8,17 +8,8 @@ import { Table } from 'components';
 
 
 const useStyles = makeStyles(theme => ({
-  row: {
-    height: '42px',
-    display: 'flex',
-    alignItems: 'center',
-    marginTop: theme.spacing(1)
-  },
-  spacer: {
-    flexGrow: 1
-  },
-  refreshButton: {
-    marginRight: theme.spacing(2)
+  button: {
+    marginBottom: theme.spacing(2)
   },
   content: {
     marginTop: theme.spacing(2),
@@ -69,14 +60,18 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
 
   return (  
     <div className={classes.content}>
-      <ScriptDialog 
-        accounts={accounts}
-        accountsRequest={accountsRequest}
-        bunqSettings={bunqSettings}
-        rekeningen={rekeningen}
-        user={user}
-      />
+      <div className={classes.button}>
+        <ScriptDialog 
+          accounts={accounts}
+          accountsRequest={accountsRequest}
+          bunqSettings={bunqSettings}
+          classname={classes.button}
+          rekeningen={rekeningen}
+          user={user}
+        />
+      </div>
       <Table 
+        className={classes.table}
         columns={getRekeningColumns()}
         data={rekeningen}
         options={{

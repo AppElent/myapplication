@@ -2,10 +2,10 @@ import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
 
-import { useFirestoreDocumentDataOnce} from '../../hooks/useFirestore';
-import useSession from '../../hooks/useSession';
+import { useFirestoreDocumentDataOnce} from 'hooks/useFirestore';
+import useSession from 'hooks/useSession';
 
-import {OauthAuthorize, OAuthToken, LoadingButton} from '../../components';
+import {OauthAuthorize, OAuthToken} from 'components';
 
 const useStyles = makeStyles(theme => ({
   root: {

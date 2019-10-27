@@ -21,15 +21,15 @@ const useStyles = makeStyles(theme => ({
 
 const Meterstanden = () => {
   const classes = useStyles();
-  const {user, ref, userData, userDataRef} = useSession();
+  const {user, userInfo, ref} = useSession();
 
   const [tab, handleTabChange] = useTabs('overzicht');
 
   //if there is a query-param named code, the OauthReceiver is returned
   const code = queryString.parse(window.location.search).code;
-  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/oauth/exchange/enelogic" saveFunction={saveEnelogicSettings(user, userDataRef.doc('enelogic'), userData.enelogic)} />
+  if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/oauth/exchange/enelogic" saveFunction={saveEnelogicSettings(user, ref, userInfo.enelogic)} />
 
-  if((userData.enelogic !== undefined && !userData.enelogic.success)){
+  if((!userInfo.enelogic.success)){
     if(tab !== 'settings') handleTabChange(null, 'settings')
   }
 
@@ -44,7 +44,7 @@ const Meterstanden = () => {
             value={tab}
             variant="scrollable"
           >
-            <Tab label="Overzicht" value="overzicht" disabled={!userData.enelogic.success} />
+            <Tab label="Overzicht" value="overzicht" disabled={!userInfo.enelogic.success} />
             <Tab label="Instellingen" value="settings" />
           </Tabs>
         </AppBar>

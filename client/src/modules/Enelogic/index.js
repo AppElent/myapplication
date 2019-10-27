@@ -92,7 +92,7 @@ const addBruto = async (data) => {
   return data;
 }
 
-export const getData = async (user, datefrom, dateto, enelogicConfig, solarEdgeConfig) => {
+export const getData = async (user, datefrom, dateto, config) => {
   const momentdatefrom = moment(datefrom);
   let momentdateto = moment(dateto);
   if(momentdateto.isBefore(momentdatefrom)) throw 'Date to is before date from.';
@@ -115,12 +115,12 @@ export const getData = async (user, datefrom, dateto, enelogicConfig, solarEdgeC
     dataUrl = '/api/enelogic/data/year/' + momentdatefrom.clone().subtract(1, 'year').format('YYYY-MM-DD') + '/' + momentdateto.clone().add(1, 'days').format('YYYY-MM-DD')
   }
   console.log(dataUrl);
-  let data = await getEnelogicData(user, dataUrl, enelogicConfig);
+  let data = await getEnelogicData(user, dataUrl, config.enelogic);
   data = await getDifferenceArray(data, 'datetime', ['180', '181', '182', '280', '281', '282']);
   data = await setVerbruikDates(data, timeframe);
   data = await addNetto(data);
-  if(solarEdgeConfig.success){
-    data = await addSolarEdgeData(data, momentdatefrom.format('YYYY-MM-DD'), momentdateto.format('YYYY-MM-DD'), timeframe, solarEdgeConfig, user);
+  if(config.solaredge.success){
+    data = await addSolarEdgeData(data, momentdatefrom.format('YYYY-MM-DD'), momentdateto.format('YYYY-MM-DD'), timeframe, config.solaredge, user);
     data = await addBruto(data);
   }
 
@@ -131,7 +131,7 @@ export const saveEnelogicSettings = (user, ref, enelogicConfig) => async (access
   if(enelogicConfig === undefined) enelogicConfig = {}
   if(!accesstoken.success){
     enelogicConfig.success = false
-    await ref.set(enelogicConfig);
+    await ref.update({enelogic: enelogicConfig});
     return;
   }
   enelogicConfig['token'] = accesstoken.data;
@@ -146,23 +146,23 @@ export const saveEnelogicSettings = (user, ref, enelogicConfig) => async (access
   }catch(err){
     enelogicConfig.success = false;
   }
-  await ref.set(enelogicConfig);
+  await ref.update({enelogic: enelogicConfig});
 }
 
 export const updateEnelogicSettings = async (ref, enelogicConfig, accesstoken) => {
   if(enelogicConfig === undefined) enelogicConfig = {}
   if(!accesstoken.success){
     enelogicConfig.success = false
-    await ref.set(enelogicConfig);
+    await ref.update({enelogic: enelogicConfig});
     return;
   }
   enelogicConfig['token'] = accesstoken.data;
   enelogicConfig['success'] = true;
-  await ref.set(enelogicConfig);
+  await ref.update({enelogic: enelogicConfig});
 }
 
 export const deleteEnelogicSettings = async (ref) => {
-  await ref.set({success: false})
+  await ref.update({enelogic: {success: false}})
 }
 
 export const getMeasuringPoints = async () => {

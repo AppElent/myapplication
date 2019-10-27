@@ -1,12 +1,13 @@
 //import 'idempotent-babel-polyfill' // so async await works ;)
 import { useEffect, useState, useCallback } from 'react';
 //import {auth} from '../helpers/Firebase';
-import useSession from './useSession';
+import { useSession, useCache } from 'hooks';
 
 const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]'
 
 export function useFetch(arg1, arg2) {
   const {user} = useSession();
+  const cache = useCache();
 
   let url = null
   let options = {}
@@ -45,6 +46,11 @@ export function useFetch(arg1, arg2) {
   const fetchData = useCallback(method => async (fArg1, fArg2) => {
     let query = ''
     method = method.toLowerCase();
+
+    if(method === 'get'){
+      const returnFromCache = cache.get('test');
+      console.log('getting value from cache', returnFromCache);
+    }
       
     const fetchOptions = {}
     if(method === 'POST'){
@@ -90,6 +96,9 @@ export function useFetch(arg1, arg2) {
           let realdata = responsedata.data;
           if (arg2.postProcess !== undefined) {realdata = await arg2.postProcess(realdata);}
           setData(realdata)
+          cache.set('test', realdata);
+          cache.set('test123', {hi: 'doei'});
+          console.log(cache);
         }
       }
 

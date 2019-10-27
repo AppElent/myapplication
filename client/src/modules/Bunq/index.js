@@ -62,6 +62,11 @@ export const runSalarisVerdelenScript = async (rekeningen, options = {}) => {
     logger('Naar rekening ' + rekening.rekening + ' moet ' + rekening['month_' + maandnummer] + ' euro worden overgemaakt.');
     if(rekening['month_' + maandnummer] > 0){
       let overboeking = await fetchBackend('/api/bunq/payment', {user, method: 'POST', body: {from: {type: 'description', value: options.from_account}, to: {type: 'description', value: rekening.rekening}, description: 'Geld apart zetten', amount: rekening['month_' + maandnummer].toString() + '.00'}});
+      if(overboeking.success) {
+        logger('----> Succesvol');
+      }else{
+        logger('----> Error: ' + overboeking.message);
+      }
       console.log(overboeking);
     }
   }
@@ -70,12 +75,17 @@ export const runSalarisVerdelenScript = async (rekeningen, options = {}) => {
     const sparen = Math.round(options.sparen);
     logger('Naar de spaarrekening wordt ' + sparen + ' overgemaakt');
     let overboeking = await fetchBackend('/api/bunq/payment', {user, method: 'POST', body: {from: {type: 'description', value: options.from_account}, to: {type: 'description', value: options.savings_account}, description: 'Geld sparen', amount: sparen.toString() + '.00'}});
+    if(overboeking.success) {
+      logger('----> Succesvol');
+    }else{
+      logger('----> Error: ' + overboeking.message);
+    }
     console.log(overboeking); 
   }
 }
 
 
 
-export const deleteBunqSettings = () => {
-    
+export const deleteBunqSettings = async (ref) => {
+  await ref.update({bunq: {success: false}});
 }

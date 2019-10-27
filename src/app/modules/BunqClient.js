@@ -131,6 +131,11 @@ export default class BunqClient {
       const bunqmetab = await this.bunqJSClient.api.bunqMeTabs.post(this.user.id, from_account.id, description, amount, options).catch(this.defaultErrorLogger);
       return bunqmetab;
   }
+
+  async createAccount(name, options = {currency: 'EUR', dailyLimit: '1000.00', color: '#ff9500'}){
+    const account = await this.bunqJSClient.api.monetaryAccountBank.post(this.user.id, options.currency, name, options.dailyLimit, options.color);
+    return account;
+  }
   
   async getEvents(options = {}, forceUpdate = false){
       const cachekey = 'allevents';
@@ -146,11 +151,11 @@ export default class BunqClient {
       const to_account = accounts.find(account => account[from.type] === to.value)
       if (from_account == null) {
           console.log ("Van account bestaat niet: ", from);
-          return false;
+          return {success: false, message: 'Van account bestaat niet (' + from.value + ')'};
       }
       if (to_account == null) {
           console.log ("To account bestaat niet: ", to);
-          return false;
+          return {success: false, message: 'Naar account bestaat niet (' + to.value + ')'};
       }
       
       const counterpartyAlias = to_account.alias.find(alias => alias.type === 'IBAN');//this.getAliasByType(to_account, "IBAN");
@@ -163,7 +168,7 @@ export default class BunqClient {
       ).catch(this.returnErrorLogger);
       
       // iets met paymentResponse doen hier
-      return paymentResponse;
+      return {success: true, paymentResponse};
   }
   
   async makeDraftPayment(from, to, description, amount) {
@@ -182,7 +187,7 @@ export default class BunqClient {
           { value: amount, currency: "EUR" },
           to
       ).catch(this.returnErrorLogger);
-      return paymentResponse
+      return {success: true, paymentResponse};
   }
 
   

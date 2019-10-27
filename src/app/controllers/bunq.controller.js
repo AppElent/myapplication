@@ -71,6 +71,7 @@ const doRequestSandboxMoney = async (uid) => {
 		})
 }
 
+
 const createSandboxAPIKey = async (req, res) => {
 	const key = await bunq.getGenericClient().api.sandboxUser.post();
 	const userentry = await saveBunqSettings(req.uid, key, encryption.generateRandomKey(32), 'SANDBOX');
@@ -83,6 +84,11 @@ const createSandboxAPIKey = async (req, res) => {
 	}catch(err){
 		return res.status(400).send({success: false, message: err});
 	}
+	const accounts = await client.getAccounts();
+	await client.getBunqJSClient().api.monetaryAccountBank.put(client.getUser().id, accounts[0].id, {description: 'Algemeen'});
+	const account1 = await client.createAccount('Spaarrekening');
+	const account2 = await client.createAccount('Afschrijvingen');
+	const account3 = await client.createAccount('Vrije tijd');
 	return res.send({success: true, data: {users}});
 }
 

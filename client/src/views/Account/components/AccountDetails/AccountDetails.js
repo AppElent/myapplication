@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
@@ -9,9 +9,11 @@ import {
   CardActions,
   Divider,
   Grid,
-  Button,
   TextField
 } from '@material-ui/core';
+
+import { useSession, useForm } from 'hooks';
+import { Button } from 'components';
 
 const useStyles = makeStyles(() => ({
   root: {}
@@ -20,38 +22,23 @@ const useStyles = makeStyles(() => ({
 const AccountDetails = props => {
   const { className, ...rest } = props;
 
+  const {user, firebase} = useSession();
+
   const classes = useStyles();
 
-  const [values, setValues] = useState({
-    firstName: 'Shen',
-    lastName: 'Zhi',
-    email: 'shen.zhi@devias.io',
-    phone: '',
-    state: 'Alabama',
-    country: 'USA'
-  });
+  const saveUserInfo = (user) => async (state) => {
+    console.log(user, state);
+    await user.updateProfile({
+      displayName: state.name.value,
+      email: state.email.value,
+      phoneNumber: state.phone.value
+    })
+    return;
+  }
 
-  const handleChange = event => {
-    setValues({
-      ...values,
-      [event.target.name]: event.target.value
-    });
-  };
+  const {isDirty, state, submitting, handleOnChange, handleOnSubmit} = useForm({name: user.displayName, email: user.email, phone: user.phoneNumber}, {}, saveUserInfo(user));
 
-  const states = [
-    {
-      value: 'alabama',
-      label: 'Alabama'
-    },
-    {
-      value: 'new-york',
-      label: 'New York'
-    },
-    {
-      value: 'san-francisco',
-      label: 'San Francisco'
-    }
-  ];
+
 
   return (
     <Card
@@ -70,7 +57,7 @@ const AccountDetails = props => {
         <CardContent>
           <Grid
             container
-            spacing={3}
+            spacing={1}
           >
             <Grid
               item
@@ -79,29 +66,13 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                helperText="Please specify the first name"
-                label="First name"
+                helperText="Please specify the name"
+                label="Name"
                 margin="dense"
-                name="firstName"
-                onChange={handleChange}
+                name="name"
+                onChange={handleOnChange}
                 required
-                value={values.firstName}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Last name"
-                margin="dense"
-                name="lastName"
-                onChange={handleChange}
-                required
-                value={values.lastName}
+                value={state.name.value}
                 variant="outlined"
               />
             </Grid>
@@ -115,9 +86,9 @@ const AccountDetails = props => {
                 label="Email Address"
                 margin="dense"
                 name="email"
-                onChange={handleChange}
+                onChange={handleOnChange}
                 required
-                value={values.email}
+                value={state.email.value}
                 variant="outlined"
               />
             </Grid>
@@ -131,53 +102,9 @@ const AccountDetails = props => {
                 label="Phone Number"
                 margin="dense"
                 name="phone"
-                onChange={handleChange}
-                type="number"
-                value={values.phone}
-                variant="outlined"
-              />
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Select State"
-                margin="dense"
-                name="state"
-                onChange={handleChange}
-                required
-                select
-                // eslint-disable-next-line react/jsx-sort-props
-                SelectProps={{ native: true }}
-                value={values.state}
-                variant="outlined"
-              >
-                {states.map(option => (
-                  <option
-                    key={option.value}
-                    value={option.value}
-                  >
-                    {option.label}
-                  </option>
-                ))}
-              </TextField>
-            </Grid>
-            <Grid
-              item
-              md={6}
-              xs={12}
-            >
-              <TextField
-                fullWidth
-                label="Country"
-                margin="dense"
-                name="country"
-                onChange={handleChange}
-                required
-                value={values.country}
+                onChange={handleOnChange}
+                type="text"
+                value={state.phone.value || ''}
                 variant="outlined"
               />
             </Grid>
@@ -187,9 +114,19 @@ const AccountDetails = props => {
         <CardActions>
           <Button
             color="primary"
+            disabled={!isDirty}
+            loading={submitting}
+            onClick={handleOnSubmit}
             variant="contained"
           >
             Save details
+          </Button>
+          <Button
+            color="primary"
+            onClick={() => firebase.auth.signOut()}
+            variant="contained"
+          >
+            Logout
           </Button>
         </CardActions>
       </form>
