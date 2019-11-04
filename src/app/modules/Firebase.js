@@ -14,4 +14,25 @@ admin.initializeApp({
 export default admin;
 export const db = admin.firestore();
 export const auth = admin.auth();
+
+export class FirebaseClass {
+    constructor(path){
+      this.path = path;
+    }
+
+    async get(key){
+      const data = db.doc(path).get();
+      console.log
+    }
+
+    async set(key, data){
+
+    }
+
+    async remove(key){
+
+    }
+}
+
+
 //auth.getUserByEmail('ericjansen@live.nl').then(user => {console.log(user.toJSON())})
