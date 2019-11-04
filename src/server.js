@@ -12,10 +12,19 @@ if(!config){
 
 process.env.NODE_ENV = node_env;
 
+const http_port = process.env.PORT ? process.env.PORT : (process.env.HTTP_PORT || 3001);
+const https_port = process.env.HTTPS_PORT || 3002;
+const http_redirect = node_env === 'production' ? true : false;
+
+console.log('HTTP Poort: ' + http_port);
+console.log('HTTPS Poort: ' + https_port);
+console.log('HTTP redirect: ' + http_redirect);
+
 
 /**
  * Settings
  */
+/*
 const all_settings = {
   "HEROKU": {
     http_redirect: true,
@@ -41,7 +50,7 @@ const all_settings = {
 const settings = all_settings[process.env.SETTING];
 
 if(settings === undefined) throw "You have to provide a config."
-
+*/
 
 /**
  * Module dependencies.
@@ -60,15 +69,16 @@ var https = require('https');
 //var http_port = normalizePort(process.env.PORT || '3001');
 //var https_port    =   process.env.PORT_HTTPS || 3002; 
 var options = {}
+/*
 if(settings.load_certs){
   options = {
     key  : fs.readFileSync(settings.cert_key_path),
     cert : fs.readFileSync(settings.cert_cert_path)
   };
 }
+*/
 
-
-app.set("port",settings.https_port);
+app.set("port",https_port);
 
 /**
  * Create HTTP server.
@@ -80,7 +90,7 @@ var server = https.createServer(options, app);
  * Listen on provided port, on all network interfaces.
  */
 
-server.listen(settings.https_port);
+server.listen(https_port);
 server.on('error', onError);
 server.on('listening', onListening);
 
@@ -114,8 +124,8 @@ function onError(error) {
   }
 
   var bind = typeof http_port === 'string'
-    ? 'Pipe ' + settings.http_port
-    : 'Port ' + settings.http_port;
+    ? 'Pipe ' + http_port
+    : 'Port ' + http_port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
@@ -144,7 +154,7 @@ function onListening() {
   debug('Listening on ' + bind);
 }
 
-if(settings.http_redirect) {
+if(http_redirect) {
   app.use((req, res, next) => {
     console.log(req.header);
     if (req.header('x-forwarded-proto') !== 'https'){
@@ -157,7 +167,7 @@ if(settings.http_redirect) {
   })
 }
 
-app.listen(settings.http_port);
+app.listen(http_port);
 
 /*
 // Redirect from http port to https

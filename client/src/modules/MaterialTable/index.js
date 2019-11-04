@@ -19,9 +19,10 @@ const getDataObject = (data, columns) => {
 const checkDataObject = (data, columns) => {
   if(columns !== undefined){
     columns.forEach(column => {
-      if(column.required && column.required === true && !data[column.field]){
-        console.log('Column ' + column.field + ' is mandatory', data)
-        throw ('Column ' + column.field + ' is mandatory')
+      if(column.required && column.required === true && !data[column.field] && data[column.field] !== 0){
+        console.log('Column ' + column.field + ' is mandatory', data[column.field], data)
+        alert('Column "' + column.title + '" is verplicht')
+        throw ('Column ' + column.field + ' is mandatory');
       }
     })
   }

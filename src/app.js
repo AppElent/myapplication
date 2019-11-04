@@ -4,14 +4,9 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyParser = require("body-parser");
-var epilogue = require("epilogue");
-var httpProxy = require('http-proxy');
-var apiProxy = httpProxy.createProxyServer();
-var fs = require('fs');
-import { oauthproviders, bunqclients } from './app/modules/application_cache';
+import { oauthproviders } from './app/modules/application_cache';
 import OAuth from './app/modules/Oauth';
 import { bunq } from './app/modules/Bunq';
-import { request } from 'https';
  
 //Load firebase
 import firebase, {db as firebaseDB} from './app/modules/Firebase';
@@ -20,25 +15,11 @@ import firebase, {db as firebaseDB} from './app/modules/Firebase';
 const db = require('./app/models'); 
  
 // force: true will drop the table if it already exists
-//const forceUpdate = (process.env.ENV === 'DEV' && process.env.DB === 'DEV');
-db.sequelize.sync({ force: false }).then(async () => {
-  console.log('Drop and Resync with { force: false }');
-
-  //Laden van OAUTH configuratie
-  /*
-  (async () => {
-    const allproviders = await db.oauthproviders.findAll();
-    allproviders.forEach(provider => {
-      const oauthprovider = new OAuth(provider.client_id, provider.client_secret, provider.tokenHost, provider);
-      oauthproviders[provider.id] = oauthprovider
-      //setData('oauthproviders', provider.id, oauthprovider);
-    })
-  })()
-  */
-
+const forceUpdate = (process.env.NODE_ENV.toLowerCase() === 'test');
+db.sequelize.sync({ force: forceUpdate }).then(async () => {
+  console.log('Drop and Resync with { force: ' + forceUpdate + ' }');
 
   //laden van de BUNQ clients
-  
   const bunqclients = (async () => {
     //alle clients laden
     const allclients = await db.bunq.findAll();

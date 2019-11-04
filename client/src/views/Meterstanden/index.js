@@ -7,6 +7,7 @@ import {AppBar, Tab, Tabs} from '@material-ui/core'
 import { OauthReceiver, TabPanel } from 'components';
 import { useSession, useTabs } from 'hooks';
 import Overzicht from './components/Overzicht';
+import KostenOverzicht from './components/KostenOverzicht';
 import Settings from './components/Settings';
 import { saveEnelogicSettings } from 'modules/Enelogic';
 
@@ -45,11 +46,15 @@ const Meterstanden = () => {
             variant="scrollable"
           >
             <Tab label="Overzicht" value="overzicht" disabled={!userInfo.enelogic.success} />
+            <Tab label="Kosten overzicht" value="kostenoverzicht" />
             <Tab label="Instellingen" value="settings" />
           </Tabs>
         </AppBar>
         <TabPanel visible={tab === 'overzicht'} tab="overzicht">
           <Overzicht />
+        </TabPanel>
+        <TabPanel visible={tab === 'kostenoverzicht'} tab="kostenoverzicht">
+          <KostenOverzicht />
         </TabPanel>
         <TabPanel visible={tab === 'settings'} tab="settings">
           <Settings />
