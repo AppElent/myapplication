@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import validate from 'validate.js';
 import _ from 'lodash';
+import ls from 'modules/LocalStorage';
 
-function useForm(stateSchema, validationSchema = {}, callback) {
+function useForm(stateSchema, validationSchema = {}, callback, options = {}) {
   
   const formatStateSchema = (schema) => {
     let newSchema = {};
@@ -17,7 +18,24 @@ function useForm(stateSchema, validationSchema = {}, callback) {
     return newSchema;
   }
 
+  const formatStateDate = (data) => {
+    let newSchema = {};
+    const keys = Object.keys(data);
+    for(var key of keys){
+      newSchema[key] = data[key].value
+    }
+    return newSchema;
+  }
+
   const [state, setState] = useState(formatStateSchema(stateSchema));
+
+  useEffect(() => {
+    if(options.localStorage){
+      const lsdata = ls.get(options.localStorage);
+      if(lsdata) setState(formatStateSchema(lsdata));
+    }
+  }, [])
+
   const [hasError, setHasError] = useState(false);
   const [isDirty, setIsDirty] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -73,7 +91,7 @@ function useForm(stateSchema, validationSchema = {}, callback) {
       if(validateErrors){
         error = validateErrors[name];
       }
-
+      if(options.localStorage) ls.set(options.localStorage, formatStateDate({...state, [name]: {value}}));
       setState(prevState => ({
         ...prevState,
         [name]: { value, error, touched: true },
@@ -92,10 +110,10 @@ function useForm(stateSchema, validationSchema = {}, callback) {
         error = validateErrors[name];
       }
       console.log(999, error, name, value);
-
+      if(options.localStorage) ls.set(options.localStorage, formatStateDate({...state, [name]: {value}}));
       setState(prevState => ({
         ...prevState,
-        [name]: { value, error },
+        [name]: { value, error, touched: true },
       }));
     },
     [validationSchema]
