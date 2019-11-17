@@ -12,8 +12,10 @@ import { Grid,
 } from '@material-ui/core';
 
 import { useForm, useSession, useFirestoreCollectionData } from 'hooks';
-import { Table } from 'components';
+import { Table, Button } from 'components';
 import {addData, updateData, deleteData} from 'modules/MaterialTable';
+import { refresh } from 'modules/Oauth';
+import { updateEnelogicSettings, getEnelogicData } from 'modules/Enelogic';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -22,15 +24,18 @@ const useStyles = makeStyles(theme => ({
   textfields: {
     marginRight: theme.spacing(1),
     marginBottom: theme.spacing(1)
+  },
+  button: {
+    marginTop: theme.spacing(1)
   }
 }));
 
 const KostenOverzicht = ({}) => {
   const classes = useStyles();
   const {user, userInfo, ref} = useSession();
-  const {data, loading, error, ref: collectionRef} = useFirestoreCollectionData(ref.collection('energiekosten'));
+  const {data} = useFirestoreCollectionData(ref.collection('energiekosten'));
 
-  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm({dal: 1000, normaal: 1000, gas: 0, netbeheer: 0, verlaging_energiebelasting: 0}, {}, () => {}, {localStorage: 'energiekosten'});
+  const {state, handleOnChange, setFormValue} = useForm({dal: 1000, normaal: 1000, gas: 0, netbeheer: 0, verlaging_energiebelasting: 0}, {}, () => {}, {localStorage: 'energiekosten'});
 
   const columns = [{
     title: 'Leverancier',
@@ -91,6 +96,20 @@ const KostenOverzicht = ({}) => {
     editable: 'never'
   }]
 
+  const getYearConsumption = async () => {
+    console.log(userInfo.enelogic);
+    try{
+      await refresh(user, '/api/oauth/refresh/enelogic', userInfo.enelogic.token, updateEnelogicSettings(ref, userInfo.enelogic))
+      let data = await getEnelogicData(user, '/api/enelogic/consumption', userInfo.enelogic);
+      const dal = Math.round(data.consumption_181 - data.consumption_281);
+      const normaal = Math.round(data.consumption_182 - data.consumption_282);
+      console.log('Jaardata', data);
+      setFormValue({dal, normaal})
+    }catch(err){
+      console.log(err);
+    }
+  }
+
   return (
     <div className={classes.root}>
       <div className={classes.row}>
@@ -134,6 +153,7 @@ const KostenOverzicht = ({}) => {
           type="number"
           value={state.verlaging_energiebelasting.value || 0}
         />
+        {userInfo.enelogic.success && <Button className={classes.button} variant="contained" color="primary" onClick={getYearConsumption}>Haal jaarinfo op</Button>}
       </div>
       <Table 
         columns={columns}

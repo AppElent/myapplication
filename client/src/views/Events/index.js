@@ -25,17 +25,13 @@ const useStyles = makeStyles(theme => ({
 
 const Events = () => {
 
-  const {user} = useSession();
   const classes = useStyles();
-  const {data, loading, error, request} = useFetch('/api/events', {user})
   const [all, setAll] = useState(false)
-    
+  const {data, loading, error, request} = useFetch('/api/events', {cacheKey: 'events_' + (all ? 'all' : 'lastweek')})
+  
   useEffect(() => {
-    const queryparams = (all ? '' : '?scope=last_week')
-    request.get('/api/events', queryparams)
+    request.get(false, {query: (all ? '' : '?scope=last_week')})
   }, [all]);
-
-
 
   const columns = [{
     title: 'Datum/tijd',
@@ -50,8 +46,8 @@ const Events = () => {
   }, {
     title: 'Event',
     field: 'value',
-  }]     
-
+  }]    
+  
   return (
     <div className={classes.root}>
       <div className={classes.row}>
@@ -65,9 +61,11 @@ const Events = () => {
         </Button>
       </div>
       <div className={classes.content}>
+        {error && JSON.stringify(error)}
         <Table 
           columns={columns}
           data={data}
+          isLoading={loading}
           title="Events"
         /> 
       </div>

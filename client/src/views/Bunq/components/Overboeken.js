@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/styles';
 import { Card, CardHeader, Divider, CardActions, CardContent, Typography, FormControl, InputLabel, FormHelperText, FormControlLabel, Checkbox, TextField } from '@material-ui/core';
 import PropTypes from 'prop-types';
 
-import { useForm } from 'hooks';
+import { useForm, useSession, useFetch } from 'hooks';
 import { fetchBackend } from 'helpers';
 import { Button, ResponsiveSelect, ResponsiveSelectItem } from 'components';
 
@@ -30,8 +30,11 @@ const useStyles = makeStyles(theme => ({
 
 
 
-const Overboeken = ({accounts, accountsRequest, user}) => {
+const Overboeken = () => {
   const classes = useStyles();
+  const { user, userInfo } = useSession();
+  const {data, loading, error, request} = useFetch('/api/bunq/accounts', {cacheKey: 'bunq_accounts', onMount: (userInfo.bunq.success)});
+
   const initialValues = {description: '', amount: '0', from_account: '', to_account: '', internal: true, name: '', iban: '', errormessage: {}, successmessage: ''}
   const makePayment = (user) => async (state) => {
     let body;
@@ -89,7 +92,7 @@ const Overboeken = ({accounts, accountsRequest, user}) => {
               onChange={handleOnChange}
               value={state.from_account.value}
             >
-              {accounts.filter(account => account.status === 'ACTIVE').map(account => <ResponsiveSelectItem key={account.id} value={account.description}>{account.description}</ResponsiveSelectItem>)}
+              {data.filter(account => account.status === 'ACTIVE').map(account => <ResponsiveSelectItem key={account.id} value={account.description}>{account.description}</ResponsiveSelectItem>)}
             </ResponsiveSelect>
           </FormControl>
           <FormControlLabel
@@ -121,7 +124,7 @@ const Overboeken = ({accounts, accountsRequest, user}) => {
                 onChange={handleOnChange}
                 value={state.to_account.value}
               >
-                {accounts.filter(account => account.status === 'ACTIVE').map(account => <ResponsiveSelectItem key={account.id} value={account.description}>{account.description}</ResponsiveSelectItem>)}
+                {data.filter(account => account.status === 'ACTIVE').map(account => <ResponsiveSelectItem key={account.id} value={account.description}>{account.description}</ResponsiveSelectItem>)}
               </ResponsiveSelect>
             </FormControl>
           }

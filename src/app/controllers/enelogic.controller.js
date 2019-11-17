@@ -36,9 +36,20 @@ const getData = async (req, res) => {
 	return res.send(data);
 }
 
+const getYearConsumption = async (req, res) => {
+	if(req.query.access_token === undefined) return res.send({success: false, message: 'No query param access_token present'});
+	const enelogic = new Enelogic(req.query.access_token);
+	const options = {
+		mpointelectra: req.query.mpointelectra
+	}
+	const data = await enelogic.getYearConsumption(options);
+	return res.send(data);
+}
+
 router.get('/data/:period/:start/:end', basicAuthentication, cache(enelogicCache), asyncHandler(getData));
 router.get('/test', basicAuthentication, asyncHandler(test));
 router.get('/measuringpoints', basicAuthentication, asyncHandler(getMeasuringPoints));
+router.get('/consumption', basicAuthentication, asyncHandler(getYearConsumption));
 
 
 module.exports = router;

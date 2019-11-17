@@ -1,11 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
 
 import { useFirestoreDocumentDataOnce} from 'hooks/useFirestore';
-import useSession from 'hooks/useSession';
+import {useSession, useCache, useFetch} from 'hooks';
 
-import {OauthAuthorize, OAuthToken} from 'components';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -15,14 +14,22 @@ const useStyles = makeStyles(theme => ({
 
 const TestPage = () => {
   const classes = useStyles();
-  const authData = useSession();
-  console.log(authData);
-  const {value, loading, error} = useFirestoreDocumentDataOnce('users/<dummy>');
-  const [een, twee, drie] = useFirestoreDocumentDataOnce('users/' + authData.user.uid);
-  console.log(value, loading, error);
-  console.log(een, twee, drie);
+  const { userInfo } = useSession();
+  const {data, loading, error, request} = useFetch('/api/events', {})
 
-  
+  console.log(data, loading, error)
+
+  const cache = useCache();
+
+
+  useEffect(() => {
+    request.get();
+  }, [])
+
+  const haalDataOp = () => {
+    console.log(userInfo);
+  }
+
 
   return (
     <div className={classes.root}>
@@ -35,13 +42,10 @@ const TestPage = () => {
           md={7}
           xs={12}
         > 
-          <OauthAuthorize title="Enelogic" formatUrl='/api/oauth/formaturl/enelogic' />
-          <OAuthToken />
-          <p>Omgeving is {process.env.REACT_APP_FIRESTORE_ENVIRONMENT}</p>
-          <span>User data: {JSON.stringify(authData.userData)}</span>
-          <span>User info: {JSON.stringify(authData.userInfo)}</span>
-          {value && <span>User1 data: {JSON.stringify(value.data())}</span>}
-          {error && <span>User1 data: {JSON.stringify(error)}</span>}
+          <button onClick={() => {request.get()}}>Get data</button>
+          <button onClick={() => {request.post({value: 'test123'})}}>Post data</button>
+          <button onClick={() => {request.put(2, {value: 'test1234'})}}>Put data</button>
+          <button onClick={() => {request.destroy(3)}}>Delete data</button>
         </Grid>
         <Grid
           item

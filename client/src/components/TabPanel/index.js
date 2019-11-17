@@ -2,8 +2,10 @@ import React from 'react';
 import {Typography} from '@material-ui/core';
 
 function TabPanel(props) {
-  const { children, visible, tab, ...other } = props;
+  const { children, visible, tab, lazyLoad, ...other } = props;
   
+  const loadTab = lazyLoad && !visible ? false : true;
+
   return (
     <Typography
       component="div"
@@ -12,7 +14,7 @@ function TabPanel(props) {
       role="tabpanel"
       {...other}
     >
-      {children}
+      {loadTab && children}
     </Typography>
   );
 }

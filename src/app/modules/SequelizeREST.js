@@ -131,12 +131,12 @@ export const createOrUpdate = (model, options) => async (req, res) => {
 
 }
 
-export const deleteRecord = (model, options) => async (req, res) => {
+export const destroy = (model, options) => async (req, res) => {
     //If no UID property on request object then return with forbidden error
     if(req.uid === undefined) return res.status(401).send({success: false, message: 'No token given'})
     
     options = getOptions(options);
     model.destroy({ where: { [options.idColumnName]: req.params[options.idColumnName]  } })
-    .then(success => res.status(200).end())
+    .then(success => res.send({success: true}))
     .catch(err => res.status(500).send({success: false, message: err}))
 }

@@ -38,12 +38,13 @@ const Bunq = ({match}) => {
 
   const {user, userInfo, ref} = useSession();
   const classes = useStyles();
-  const {data: accountdata, loading, error, request} = useFetch('/api/bunq/accounts', {});
+  //const {data: accountdata, loading, error, request} = useFetch('/api/bunq/accounts', {cacheKey: 'bunq_accounts'});
 
   const [rekeningen, rekeningenLoading, rekeningenError, rekeningenRef] = useFirestoreCollectionDataOnce(ref.collection('rekeningen'));
-  const [loadBunqData, setLoadBunqData] = useState(undefined);
+  //const [loadBunqData, setLoadBunqData] = useState(undefined);
   const [tab, handleTabChange] = useTabs('overzicht');
 
+  /*
   useEffect(() => {
     if(userInfo.bunq !== undefined && userInfo.bunq.success){
       setLoadBunqData(true);
@@ -58,7 +59,7 @@ const Bunq = ({match}) => {
     }
   }, [loadBunqData])
 
-  
+  */
 
   const saveBunqSettings = (ref, bunqConfig) => async (accesstoken) => {
     if(bunqConfig === undefined) bunqConfig = {}
@@ -66,7 +67,7 @@ const Bunq = ({match}) => {
     bunqConfig['environment'] = 'PRODUCTION';
     ref.update({bunq: bunqConfig});
     if(accesstoken.success){
-      setLoadBunqData(true);
+      //setLoadBunqData(true);
     }
   }
 
@@ -90,22 +91,22 @@ const Bunq = ({match}) => {
             value={tab}
             variant="scrollable"
           >
-            <Tab label="Rekening overzicht" value="overzicht" disabled={loading} />
-            <Tab label="Salaris verdelen" value="verdelen" disabled={loading} />
-            <Tab label="Overboeken" value="overboeken" disabled={loading} />
+            <Tab label="Rekening overzicht" value="overzicht" />
+            <Tab label="Salaris verdelen" value="verdelen" />
+            <Tab label="Overboeken" value="overboeken" />
             <Tab label="Instellingen" value="settings" />
           </Tabs>
         </AppBar>
-        <TabPanel visible={tab === 'overzicht'} tab="overzicht">
-          {tab === 'overzicht' && <AccountsPage accountdata={accountdata} refreshAccounts={() => {request.get('/api/bunq/accounts', '?forceUpdate=true')}} requestMoney={() => {fetchBackend('/api/bunq/sandbox/request', {user})}} sandbox={userInfo.bunq.environment === 'SANDBOX'} />}
+        <TabPanel lazyLoad={true} visible={tab === 'overzicht'} tab="overzicht">
+          {tab === 'overzicht' && <AccountsPage />}
         </TabPanel>
-        <TabPanel visible={tab === 'verdelen'} tab="verdelen">
-          <SalarisVerdelen accounts={accountdata} accountsRequest={request} rekeningen={rekeningenLoading ? undefined : groupData('rekening')(rekeningen)} user={user}/>
+        <TabPanel lazyLoad={true} visible={tab === 'verdelen'} tab="verdelen">
+          <SalarisVerdelen rekeningen={rekeningenLoading ? undefined : groupData('rekening')(rekeningen)}/>
         </TabPanel>
-        <TabPanel visible={tab === 'overboeken'} tab="overboeken">
-          <Overboeken accounts={accountdata} accountsRequest={request} user={user} />
+        <TabPanel lazyLoad={true} visible={tab === 'overboeken'} tab="overboeken">
+          <Overboeken />
         </TabPanel>
-        <TabPanel visible={tab === 'settings'} tab="settings">
+        <TabPanel lazyLoad={true} visible={tab === 'settings'} tab="settings">
           <Settings />
         </TabPanel>
       </div>

@@ -5,6 +5,7 @@ import { useSession, useCache } from 'hooks';
 
 const isObject = obj => Object.prototype.toString.call(obj) === '[object Object]'
 
+
 export function useFetch(arg1, arg2) {
   const {user} = useSession();
   const cache = useCache();
@@ -14,6 +15,7 @@ export function useFetch(arg1, arg2) {
   let onMount = false
   let baseUrl = ''
   let method = 'GET'
+  let cacheKey = '';
 
  
   if (arg2.defaultData === undefined) arg2.defaultData = []
@@ -30,6 +32,7 @@ export function useFetch(arg1, arg2) {
     if (opts.onMount) onMount = opts.onMount
     if (opts.method) method = opts.method
     if (opts.baseUrl) baseUrl = opts.baseUrl
+    if (opts.cacheKey) cacheKey = opts.cacheKey
   }
 
   if (typeof arg1 === 'string') {
@@ -40,36 +43,78 @@ export function useFetch(arg1, arg2) {
   }
 
   const [data, setData] = useState(arg2.defaultData)
-  const [loading, setLoading] = useState(onMount)
+  const [loading, setLoading] = useState(onMount);
   const [error, setError] = useState(null)
 
   const fetchData = useCallback(method => async (fArg1, fArg2) => {
-    let query = ''
     method = method.toLowerCase();
+    let newUrl = url;
 
-    if(method === 'get'){
-      const returnFromCache = cache.get('test');
-      console.log('getting value from cache', returnFromCache);
-    }
-      
     const fetchOptions = {}
-    if(method === 'POST'){
+    if(method === 'post'){
       fetchOptions.body = JSON.stringify(fArg1);
-    } else if (isObject(fArg1) && method !== 'get') {
-      fetchOptions.body = JSON.stringify(fArg1)
-    } else if (baseUrl && typeof fArg1 === 'string') {
-      url = baseUrl + fArg1
-      if (isObject(fArg2)) fetchOptions.body = JSON.stringify(fArg2)
-    } else if ( typeof fArg1 === 'string'){
-      url = fArg1
-      if (isObject(fArg2)) fetchOptions.body = JSON.stringify(fArg2)
+    }else if(method === 'put' || method === 'patch'){
+      newUrl = url + '/' + fArg1;
+      fetchOptions.body = JSON.stringify(fArg2);
+    }else if(method === 'delete'){
+      newUrl = url + '/' + fArg1;
     }
-    if (typeof fArg1 === 'string' && typeof fArg2 === 'string') query = fArg2
       
     try {
       setLoading(true)
       let token = await user.getIdToken(true);
-      console.log('Making ' + method + ' request to ' + url + query);
+      console.log('Making ' + method + ' request to ' + newUrl);
+      var response = await fetch(newUrl, {
+        method,
+        ...options,
+        ...fetchOptions,
+        headers: {
+          Authorization: 'Firebase ' + token,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+      })
+      if(!response.ok){
+        console.log('error request', await response.json());
+        throw (response.status + ' - ' + response.statusText);
+      }else{
+        let responsedata = await response.clone().json().catch(() => response.text())
+        console.log('Response data', responsedata);
+        return responsedata;
+      }
+
+    } catch (err) {
+      console.log('Error with method ' + method + ': ', err);
+      throw err;
+    } finally {
+      setLoading(false)
+    }
+  },
+  [url]
+  )
+
+  const get = async (forceUpdate = false, options = {}) => {
+    //
+    let query = options.query || '';
+
+    if(!forceUpdate){
+      const data = cache.get(cacheKey);
+      if(data){
+        setData(data);
+        if(error) setError(null);
+        setLoading(false);
+        return;
+      }
+    }else{
+      query = options.query || '?forceUpdate=true';
+    }
+
+    const fetchOptions = {}
+
+    try {
+      setLoading(true)
+      let token = await user.getIdToken(true);
+      console.log('Making GET request to ' + url + query);
       var response = await fetch(url + query, {
         method,
         ...options,
@@ -80,44 +125,33 @@ export function useFetch(arg1, arg2) {
           'Content-Type': 'application/json'
         },
       })
-      console.log(response);
       if(!response.ok){
-        console.log('error request');
+        console.log('error request', await response.json());
         throw (response.status + ' - ' + response.statusText);
       }else{
-        let responsedata = null;
-        try {
-          responsedata = await response.json()
-        } catch (err) {
-          responsedata = await response.text()
-        }
+        let responsedata = await response.clone().json().catch(() => response.text())
         console.log('Response data', responsedata);
-        if(method.toLowerCase() === 'get'){
-          let realdata = responsedata.data;
-          if (arg2.postProcess !== undefined) {realdata = await arg2.postProcess(realdata);}
-          setData(realdata)
-          cache.set('test', realdata);
-          cache.set('test123', {hi: 'doei'});
-          console.log(cache);
-        }
+        let realdata = responsedata.data || responsedata;
+        if (arg2.postProcess !== undefined) {realdata = await arg2.postProcess(realdata);}
+        setData(realdata)
+        cache.set(cacheKey, realdata);
       }
 
     } catch (err) {
+      console.log('error request', err, await response)
       setError(err)
     } finally {
       setLoading(false)
     }
-  },
-  [url]
-  )
+  }
 
-  const get = useCallback(fetchData('GET'))
+  //const get = useCallback(fetchData('GET'))
   const post = useCallback(fetchData('POST'))
   const patch = useCallback(fetchData('PATCH'))
   const put = useCallback(fetchData('PUT'))
-  const del = useCallback(fetchData('DELETE'))
+  const destroy = useCallback(fetchData('DELETE'))
 
-  const request = { get, post, patch, put, del, delete: del }
+  const request = { get, post, patch, put, destroy }
 
   useEffect(() => {
     if (onMount) request[method.toLowerCase()]()

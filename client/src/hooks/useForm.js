@@ -118,6 +118,29 @@ function useForm(stateSchema, validationSchema = {}, callback, options = {}) {
     },
     [validationSchema]
   )
+
+  const setFormValue = useCallback(
+    (object) => {
+      if(isDirty === false) setIsDirty(true);
+      let savedNewState = {...state}
+      let error = '';
+      for(var name of Object.keys(object)){
+        const value = object[name];
+        const validateErrors = validate({[name]: value}, validationSchema);
+        if(validateErrors){
+          error = validateErrors[name];
+        }
+        console.log(999, error, name, value);
+        savedNewState = {...savedNewState, [name]: {value}}
+        if(options.localStorage) ls.set(options.localStorage, formatStateDate(savedNewState));
+        setState(prevState => ({
+          ...prevState,
+          [name]: { value, error, touched: true },
+        }));
+      }
+    },
+    [validationSchema]
+  )
   
   //Used to handle submit (with state showing submitting (true||false))
   const handleOnSubmit = useCallback(
@@ -142,7 +165,7 @@ function useForm(stateSchema, validationSchema = {}, callback, options = {}) {
     }
   )
   
-  return Object.assign([hasError, isDirty, state, handleOnChange, handleOnValueChange, handleOnSubmit, submitting, setInitial], { hasError, isDirty, state, handleOnChange, handleOnValueChange, handleOnSubmit, submitting, setInitial })
+  return Object.assign([hasError, isDirty, state, handleOnChange, handleOnValueChange, setFormValue, handleOnSubmit, submitting, setInitial], { hasError, isDirty, state, handleOnChange, handleOnValueChange, setFormValue, handleOnSubmit, submitting, setInitial })
 }
 
 export default useForm;

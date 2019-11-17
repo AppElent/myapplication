@@ -13,7 +13,7 @@ import validators from './common/validators';
 import Routes from './Routes';
 
 import Firebase, {FirebaseContext} from './context/FirebaseContext';
-import { CacheContext } from './context/CacheContext';
+import { CacheContext, getCache, setCache, clearCache, clearKey } from './context/CacheContext';
 
 const browserHistory = createBrowserHistory();
 
@@ -33,25 +33,6 @@ const App = () => {
   const firebase = new Firebase();
   const [authData, setAuthData] = useState({firebase, user: undefined, isInitializing: true, ref: null, userDataRef: null});
   const [cacheData, setCacheData] = useState({});
-  const getCache = useCallback((cacheData) => (key) => {
-    console.log('Getting value from cache with key ' + key, cacheData);
-    return cacheData[key];
-  })
-  const setCache = useCallback((setFunction) => (key, data) => {
-    try{
-      console.log(cacheData);
-    
-      console.log('Setting value to cache with key ' + key, data);
-      let dataCopy = JSON.parse(JSON.stringify(cacheData));
-      dataCopy[key] = data;
-      console.log(dataCopy, cacheData);
-      setFunction(dataCopy); 
-      console.log('jaja');
-    }catch(err){
-      console.log(err);
-    }
-  })
-
  
   
   useEffect(() => {
@@ -87,6 +68,7 @@ const App = () => {
     });
   }, [authData.isInitializing, authData.user]);
 
+  /*
   const [userData, setUserData] = useState(undefined);
 
   useEffect(() => {
@@ -103,14 +85,15 @@ const App = () => {
       setUserData(userdata);
     })
   }, [authData.isInitializing, authData.user]);
+  */
 
-  if(authData.isInitializing || (authData.user !== null && userInfo === undefined) || (authData.user !== null && userData === undefined)){
+  if(authData.isInitializing || (authData.user !== null && userInfo === undefined)){
     return <div>Loading</div>
   }
 
   return (
-    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, userData, ref: authData.ref, userDataRef: authData.userDataRef}}>
-      <CacheContext.Provider value={{data: cacheData, get: getCache(cacheData), set: setCache(setCacheData)}}>
+    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, ref: authData.ref, userDataRef: authData.userDataRef}}>
+      <CacheContext.Provider value={{data: cacheData, get: getCache(cacheData), set: setCache(setCacheData), clear: clearCache(setCacheData), clearKey: clearKey(setCacheData)}}>
         <ThemeProvider theme={theme}>
           <Router history={browserHistory}>
             <Routes />

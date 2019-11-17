@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import MaterialTable from 'material-table';
 import { makeStyles } from '@material-ui/styles';
-import { Button } from '@material-ui/core'
+import { Button } from 'components'
 import PropTypes from 'prop-types';
+
+import { fetchBackend } from 'helpers';
+import { useSession, useSimpleFetch, useFetch } from 'hooks';
 
 
 const useStyles = makeStyles(theme => ({
@@ -25,9 +28,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const AccountsPage = (props) => {
+
+
+const AccountsPage = () => {
   const classes = useStyles();
-  
+  const { user, userInfo } = useSession();
+  const [ requestLoading , requestExecute ] = useSimpleFetch('/api/bunq/sandbox/request', {user});
+  const {data, loading, error, request} = useFetch('/api/bunq/accounts', {cacheKey: 'bunq_accounts'});
+
   const columns = [{
     title: 'Account',
     field: 'description'
@@ -52,32 +60,42 @@ const AccountsPage = (props) => {
     }
   }]  
 
+  useEffect(() => {
+    if(userInfo.bunq.success){
+      request.get();
+    }
+  }, [userInfo.bunq])
+
   return (  
-      <><div className={classes.row}>
-        <span className={classes.spacer} />
-        {props.sandbox && <Button 
-          className={classes.refreshButton} 
-          color="primary" 
-          onClick={props.requestMoney} 
-          variant="contained"
-        >
+    <><div className={classes.row}>
+      <span className={classes.spacer} />
+      {userInfo.bunq.environment === 'SANDBOX' && <Button 
+        className={classes.refreshButton} 
+        color="primary" 
+        loading={requestLoading}
+        onClick={requestExecute} 
+        variant="contained"
+      >
           Request money
-        </Button>}
-        <Button
-          className={classes.refreshButton}
-          color="primary"
-          onClick={props.refreshAccounts}
-          variant="contained"
-        >
+      </Button>}
+      <Button
+        className={classes.refreshButton}
+        color="primary"
+        loading={loading}
+        onClick={() => {request.get(true)}}
+        variant="contained"
+      >
           Force account refresh
-        </Button>
-      </div>
+      </Button>
+    </div>
     <div className={classes.content}>
+      {error && <p>{error}</p>}
       <MaterialTable 
         columns={columns}
-        data={props.accountdata}
+        data={data}
+        isLoading={loading}
         options={{
-          pageSize: 15,
+          pageSize: 20,
           padding: 'dense'
         }}
         title="Bunq accounts"

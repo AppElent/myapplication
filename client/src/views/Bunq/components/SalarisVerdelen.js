@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 
 import ScriptDialog from './ScriptDialog';
 import { Table } from 'components';
+import { useFetch, useSession } from 'hooks';
 
 
 const useStyles = makeStyles(theme => ({
@@ -18,8 +19,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
+const SalarisVerdelen = ({rekeningen}) => {
   const classes = useStyles();
+  const { user, userInfo } = useSession();
+  const {data, loading, error, request} = useFetch('/api/bunq/accounts', {cacheKey: 'bunq_accounts', onMount: (userInfo.bunq.success)});
+
   const [bunqSettings, setBunqSettings] = useState({from: '', spaar: '', income: 3150, keep: 80})
 
   
@@ -33,7 +37,7 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
     },{
       title: 'Huidig saldo',
       field: 'rekening', // String-based value accessors!
-      render: rowData => {const account = accounts.find(account => account.description === rowData.rekening); return ('€' + (account === undefined ? '-' : account.balance.value))}
+      render: rowData => {const account = data.find(account => account.description === rowData.rekening); return ('€' + (account === undefined ? '-' : account.balance.value))}
     })
     for(var i = 1; i < 13; i++){
       rekeningColumns.push({
@@ -56,18 +60,16 @@ const SalarisVerdelen = ({accounts, accountsRequest, rekeningen, user}) => {
     }
   }
 
-  console.log(rekeningen);
 
   return (  
     <div className={classes.content}>
       <div className={classes.button}>
         <ScriptDialog 
-          accounts={accounts}
-          accountsRequest={accountsRequest}
+          accounts={data}
+          accountsRequest={request}
           bunqSettings={bunqSettings}
           classname={classes.button}
           rekeningen={rekeningen}
-          user={user}
         />
       </div>
       <Table 

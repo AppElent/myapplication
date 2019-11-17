@@ -1,7 +1,7 @@
 import fetchBackend from 'helpers/fetchBackend';
 import moment from 'moment';
 
-const getEnelogicData = async (user, url, config) => {
+export const getEnelogicData = async (user, url, config) => {
   url +='?access_token=' + config.token.access_token;
   if(!config.measuringpoints) throw Error('Geen measuringpoints');
   if(config.measuringpoints.electra){
@@ -149,7 +149,7 @@ export const saveEnelogicSettings = (user, ref, enelogicConfig) => async (access
   await ref.update({enelogic: enelogicConfig});
 }
 
-export const updateEnelogicSettings = async (ref, enelogicConfig, accesstoken) => {
+export const updateEnelogicSettings = (ref, enelogicConfig) => async (accesstoken) => {
   if(enelogicConfig === undefined) enelogicConfig = {}
   if(!accesstoken.success){
     enelogicConfig.success = false
