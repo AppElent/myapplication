@@ -6,11 +6,9 @@ import fetchBackend from 'helpers/fetchBackend';
 import { useSession, useFetch } from 'hooks';
 
 const OauthAuthorize = ({title, formatUrl}) => {
-  //const [url, setUrl] = useState('');
   const {user} = useSession();
   const {data: url, error, request} = useFetch(formatUrl, {cacheKey: ('oauthUrl_' + title.replace(' ', '_'))});
   
-  console.log(error, url);
   useEffect(() => {
     request.get();
   }, [formatUrl, user])
