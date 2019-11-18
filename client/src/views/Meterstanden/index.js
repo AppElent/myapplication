@@ -31,7 +31,7 @@ const Meterstanden = () => {
   if(code !== undefined) return <OauthReceiver code={code} exchangeUrl="/api/oauth/exchange/enelogic" saveFunction={saveEnelogicSettings(user, ref, userInfo.enelogic)} />
 
   if((!userInfo.enelogic.success)){
-    if(tab !== 'settings') handleTabChange(null, 'settings')
+    if(tab !== 'settings' && tab !== 'kostenoverzicht') handleTabChange(null, 'settings')
   }
 
   return (

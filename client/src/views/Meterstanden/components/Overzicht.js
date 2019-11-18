@@ -51,9 +51,8 @@ const Overzicht = () => {
   const haalDataOp = async () => {
     console.log(userInfo.enelogic);
     try{
-      const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userInfoRef.current.enelogic.token)
+      const refreshedtoken = await refresh(user, '/api/oauth/refresh/enelogic', userInfoRef.current.enelogic.token, updateEnelogicSettings(ref, userInfoRef.current.enelogic))
       console.log(refreshedtoken);
-      if(refreshedtoken !== null) updateEnelogicSettings(ref, userInfoRef.current.enelogic, refreshedtoken);
       let data = await getData(user, state.datefrom.value, state.dateto.value, userInfoRef.current);
       console.log(data);
       setData(data);

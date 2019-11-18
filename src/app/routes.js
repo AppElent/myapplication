@@ -2,7 +2,7 @@ const path = require('path');
 const db = require('./models');
 import {basicAuthentication, adminAuthentication} from './middleware/authentication';
 
-import {get, find, list, create, update, deleteRecord} from './modules/SequelizeREST';
+import {get, find, list, create, update, destroy} from './modules/SequelizeREST';
 import Cache from './modules/Cache';
 
 module.exports = async function(app) {
@@ -30,7 +30,7 @@ module.exports = async function(app) {
 	app.get('/api/rekeningen/:column/:value', basicAuthentication, find(db.rekeningen));
 	app.post('/api/rekeningen', basicAuthentication, create(db.rekeningen))
 	app.put('/api/rekeningen/:id', basicAuthentication, update(db.rekeningen))
-	app.delete('/api/rekeningen/:id', basicAuthentication, deleteRecord(db.rekeningen))
+	app.delete('/api/rekeningen/:id', basicAuthentication, destroy(db.rekeningen))
 	
 	//Meterstanden
 	const meterstandCache = new Cache(300);
@@ -45,6 +45,8 @@ module.exports = async function(app) {
 	app.get('/api/events', basicAuthentication, list(db.events));
 	app.get('/api/events/:column/:value', basicAuthentication, find(db.events));
 	app.post('/api/events', basicAuthentication, create(db.events))
+	app.put('/api/events/:id', basicAuthentication, update(db.events))
+	app.delete('/api/events/:id', basicAuthentication, destroy(db.events))
 	
 	//OAuth routes
 	app.use('/api/oauth', require('./controllers/oauth.controller'))

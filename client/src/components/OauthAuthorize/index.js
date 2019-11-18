@@ -3,14 +3,16 @@ import React, { useState, useEffect } from 'react';
 import Button from '@material-ui/core/Button';
 
 import fetchBackend from 'helpers/fetchBackend';
-import useSession from 'hooks/useSession';
+import { useSession, useFetch } from 'hooks';
 
 const OauthAuthorize = ({title, formatUrl}) => {
-  const [url, setUrl] = useState('');
+  //const [url, setUrl] = useState('');
   const {user} = useSession();
+  const {data: url, error, request} = useFetch(formatUrl, {cacheKey: ('oauthUrl_' + title.replace(' ', '_'))});
   
+  console.log(error, url);
   useEffect(() => {
-    fetchBackend(formatUrl, {user}).then(url => setUrl(url))
+    request.get();
   }, [formatUrl, user])
     
   return (

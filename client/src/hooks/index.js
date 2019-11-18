@@ -14,5 +14,6 @@ export {
 export { default as useForm } from './useForm';
 export { default as useLocalStorage } from './useLocalStorage';
 export { default as useSession } from './useSession';
+export { default as useSimpleFetch } from './useSimpleFetch';
 export { default as useStateExtended } from './useStateExtended';
 export { default as useTabs } from './useTabs';

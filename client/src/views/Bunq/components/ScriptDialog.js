@@ -16,12 +16,13 @@ import {
 import { useArray } from 'react-hanger';
 
 import { checkPreconditions, runSalarisVerdelenScript } from 'modules/Bunq';
-import { useForm } from 'hooks';
+import { useForm, useSession, useFetch } from 'hooks';
 import { Button, ResponsiveDialog, ResponsiveSelect, ResponsiveSelectItem } from 'components'
 
 
-const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user}) => {
+const ScriptDialog = ({accounts, rekeningen, accountsRequest}) => {
   const logging = useArray([]);
+  const { user, userInfo } = useSession();
 
   const initialState = {
     from_account: '',
@@ -53,10 +54,9 @@ const ScriptDialog = ({accounts, accountsRequest, rekeningen, bunqSettings, user
     }
     logging.clear();
     await runSalarisVerdelenScript(rekeningen, options);
-    accountsRequest.get();
+    accountsRequest.get(true);
   }
-  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialState, validationSchema, submitFunction);
-
+  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialState, validationSchema, submitFunction, {localStorage: 'bunq'});
 
   const options = {
     from_account: state.from_account.value,

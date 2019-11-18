@@ -131,6 +131,24 @@ export default class Enelogic {
     return results;
   }
 
+  getYearConsumption = async (options) => {
+    const datapointUrl = this.host +'/measuringpoints/' + options.mpointelectra + '/datapoint/days/'+moment().add(-1, 'years').format('YYYY-MM-DD')+'/'+moment().format('YYYY-MM-DD')+'?access_token='+this.api_key;
+    const data = await this.fetchEnelogic(datapointUrl);
+    const beginstanden = data.slice(0, 4);
+    const eindstanden = data.slice(Math.max(data.length - 4, 1))
+    const returnObject = {}
+    beginstanden.forEach(stand => {
+      returnObject['start_' + stand.rate] = stand.quantity;
+    })
+    eindstanden.forEach(stand => {
+      returnObject['end_' + stand.rate] = stand.quantity;
+      returnObject['consumption_' + stand.rate] = stand.quantity - returnObject['start_' + stand.rate];
+    })
+    returnObject.consumption_180 = returnObject.consumption_181 + returnObject.consumption_182;
+    returnObject.consumption_280 = returnObject.consumption_281 + returnObject.consumption_282;
+    return returnObject;
+  }
+
   
 }
 
