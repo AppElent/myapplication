@@ -7,7 +7,7 @@ import { useSession, useFetch } from 'hooks';
 
 const OauthAuthorize = ({title, formatUrl}) => {
   const {user} = useSession();
-  const {data: url, error, request} = useFetch(formatUrl, {cacheKey: ('oauthUrl_' + title.replace(' ', '_'))});
+  const {data: url, error, request} = useFetch(formatUrl, {cacheKey: ('oauthUrl_' + title.replace(' ', '_')), initialData: ''});
   
   useEffect(() => {
     request.get();

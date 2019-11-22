@@ -56,7 +56,7 @@ const ScriptDialog = ({accounts, rekeningen, accountsRequest}) => {
     await runSalarisVerdelenScript(rekeningen, options);
     accountsRequest.get(true);
   }
-  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm(initialState, validationSchema, submitFunction, {localStorage: 'bunq'});
+  const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting} = useForm(initialState, validationSchema, submitFunction, {localStorage: user.uid + '_bunq'});
 
   const options = {
     from_account: state.from_account.value,

@@ -27,15 +27,27 @@ db.sequelize.sync({ force: forceUpdate }).then(async () => {
     //eerste client laden
     const client1 = allclients.shift();
     console.log('Eerste client laden', client1.userId);
-    await bunq.load(client1.userId, client1.userId, client1.access_token, client1.encryption_key, client1.environment, {});
-    const requestLimiter = bunq.getClient(client1.userId).getBunqJSClient().ApiAdapter.RequestLimitFactory;
+    try{
+      await bunq.load(client1.userId, client1.userId, client1.access_token, client1.encryption_key, client1.environment, {});
+      const requestLimiter = bunq.getClient(client1.userId).getBunqJSClient().ApiAdapter.RequestLimitFactory;
+    }catch(err){
+      await client1.destroy();
+      console.log('Error loading client ' + client1.userId);
+    }
+
 
     //rest laden
     const result = await Promise.all(allclients.map(async (clientsetting) => {
       console.log('loading client ' + clientsetting.userId)
-      await bunq.load(clientsetting.userId, clientsetting.userId, clientsetting.access_token, clientsetting.encryption_key, clientsetting.environment, {  });
-      //await bunq.load(clientsetting.userId, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
-      console.log('client loaded ' + clientsetting.userId)
+      try{
+        await bunq.load(clientsetting.userId, clientsetting.userId, clientsetting.access_token, clientsetting.encryption_key, clientsetting.environment, {  });
+        //await bunq.load(clientsetting.userId, clientsetting.data1, clientsetting.access_token, clientsetting.refresh_token, { environment: 'PRODUCTION', requestLimiter: requestLimiter });
+        console.log('client loaded ' + clientsetting.userId)
+      }catch(err){
+        await clientsetting.destroy();
+        console.log('Error loading client ' + clientsetting.userId);
+      }
+
     }))
   })()
   
@@ -96,7 +108,8 @@ app.use(function (err, req, res, next) {
   // render the error page
   res.status(err.status || 500);
   //res.render('error');
-  return res.json({success: false, message: err.message, test: true})
+  const errormessage = (err.message ? err.message : err)
+  return res.json({success: false, message: errormessage})
 });
 
 

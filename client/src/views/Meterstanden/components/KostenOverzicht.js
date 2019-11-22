@@ -35,7 +35,7 @@ const KostenOverzicht = ({}) => {
   const {user, userInfo, ref} = useSession();
   const {data} = useFirestoreCollectionData(ref.collection('energiekosten'));
 
-  const {state, handleOnChange, setFormValue} = useForm({dal: 1000, normaal: 1000, gas: 0, netbeheer: 0, verlaging_energiebelasting: 0}, {}, () => {}, {localStorage: 'energiekosten'});
+  const {state, handleOnChange, setFormValue} = useForm({dal: 1000, normaal: 1000, gas: 0, netbeheer: 0, verlaging_energiebelasting: 0}, {}, () => {}, {localStorage: user.uid + '_energiekosten'});
 
   const columns = [{
     title: 'Leverancier',
