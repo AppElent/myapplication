@@ -16,6 +16,7 @@ import {
   ThemeSignUp,
   ThemeSignIn,
   ThemeNotFound,
+  Demo,
   Home,
   SignIn,
   Account,
@@ -105,6 +106,13 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/testpage"
+        protectedRoute
+      />
+      <RouteWithLayout 
+        component={Demo}
+        exact
+        layout={MainLayout}
+        path="/demo"
         protectedRoute
       />
       <RouteWithLayout 

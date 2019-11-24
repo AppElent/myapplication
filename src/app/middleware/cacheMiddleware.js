@@ -16,4 +16,4 @@ const cacheMiddleware = (cache, userSpecific = true) => async (req, res, next) =
     }
 }
 
- export default cacheMiddleware;
+export default cacheMiddleware;

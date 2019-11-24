@@ -47,6 +47,14 @@ module.exports = async function(app) {
 	app.post('/api/events', basicAuthentication, create(db.events))
 	app.put('/api/events/:id', basicAuthentication, update(db.events))
 	app.delete('/api/events/:id', basicAuthentication, destroy(db.events))
+
+	//Events
+	app.get('/api/demo/:id', basicAuthentication, get(db.demo));
+	app.get('/api/demo', basicAuthentication, list(db.demo));
+	app.get('/api/demo/:column/:value', basicAuthentication, find(db.demo));
+	app.post('/api/demo', basicAuthentication, create(db.demo))
+	app.put('/api/demo/:id', basicAuthentication, update(db.demo))
+	app.delete('/api/demo/:id', basicAuthentication, destroy(db.demo))
 	
 	//OAuth routes
 	app.use('/api/oauth', require('./controllers/oauth.controller'))

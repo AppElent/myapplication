@@ -8,6 +8,7 @@ export { default as ThemeSignIn } from './Theme/SignIn';
 export { default as ThemeSignUp } from './Theme/SignUp';
 export { default as ThemeTypography } from './Theme/Typography';
 export { default as ThemeUserList } from './Theme/UserList';
+export { default as Demo } from './Demo';
 export { default as SignIn } from './SignIn';
 export { default as Home } from './Home';
 export { default as Account } from './Account';
