@@ -11,9 +11,11 @@ import {
   Grid,
   TextField
 } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 import { useSession, useForm } from 'hooks';
 import { Button } from 'components';
+
 
 const useStyles = makeStyles(() => ({
   root: {}
@@ -23,6 +25,7 @@ const AccountDetails = props => {
   const { className, ...rest } = props;
 
   const {user, firebase} = useSession();
+  const {t, i18n} = useTranslation();
 
   const classes = useStyles();
 
@@ -50,8 +53,8 @@ const AccountDetails = props => {
         noValidate
       >
         <CardHeader
-          subheader="The information can be edited"
-          title="Profile"
+          subheader={t('greetName', {name: user.displayName})}
+          title={'Profile'}
         />
         <Divider />
         <CardContent>

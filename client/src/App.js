@@ -4,7 +4,9 @@ import { createBrowserHistory } from 'history';
 import { Chart } from 'react-chartjs-2';
 import { ThemeProvider } from '@material-ui/styles';
 import validate from 'validate.js';
+import { I18nextProvider } from "react-i18next";
 
+import i18n from './modules/I18NEXT';
 import { chartjs } from 'helpers';
 import theme from './theme';
 import 'react-perfect-scrollbar/dist/css/styles.css';
@@ -70,39 +72,23 @@ const App = () => {
     });
   }, [authData.isInitializing, authData.user]);
 
-  /*
-  const [userData, setUserData] = useState(undefined);
-
-  useEffect(() => {
-    if (authData.isInitializing || authData.user === null) return;
-    const ref = firebase.db.collection('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid + '/config');
-    return ref.onSnapshot(async collection => {
-      const userdata = {}
-      for(var doc of collection.docs){
-        userdata[doc.id] = doc.data();
-      }
-      //if(userdata.bunq === undefined) await ref.doc('bunq').set({success: false});
-      //if(userdata.enelogic === undefined) await ref.doc('enelogic').set({success: false});
-      //if(userdata.solaredge === undefined) await ref.doc('solaredge').set({success: false});
-      setUserData(userdata);
-    })
-  }, [authData.isInitializing, authData.user]);
-  */
-
   if(authData.isInitializing || (authData.user !== null && userInfo === undefined)){
     return <div>Loading</div>
   }
 
   return (
-    <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, ref: authData.ref, userDataRef: authData.userDataRef}}>
-      <CacheContext.Provider value={{data: cacheData, get: getCache(cacheData), set: setCache(setCacheData), clear: clearCache(setCacheData), clearKey: clearKey(setCacheData)}}>
-        <ThemeProvider theme={theme}>
-          <Router history={browserHistory}>
-            <Routes />
-          </Router>
-        </ThemeProvider>
-      </CacheContext.Provider>
-    </FirebaseContext.Provider>
+    <I18nextProvider i18n={i18n}>
+      <FirebaseContext.Provider value={{firebase: authData.firebase, user: authData.user, isInitializing: authData.isInitializing, userInfo, ref: authData.ref, userDataRef: authData.userDataRef}}>
+        <CacheContext.Provider value={{data: cacheData, get: getCache(cacheData), set: setCache(setCacheData), clear: clearCache(setCacheData), clearKey: clearKey(setCacheData)}}>
+          <ThemeProvider theme={theme}>
+            <Router history={browserHistory}>
+              <Routes />
+            </Router>
+          </ThemeProvider>
+        </CacheContext.Provider>
+      </FirebaseContext.Provider>
+    </I18nextProvider>
+
   );
 }
 

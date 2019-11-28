@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/styles';
 import { Grid } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 import { useFirestoreDocumentDataOnce} from 'hooks/useFirestore';
 import {useSession, useCache, useFetch} from 'hooks';
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -15,6 +17,7 @@ const useStyles = makeStyles(theme => ({
 const TestPage = () => {
   const classes = useStyles();
   const { userInfo } = useSession();
+  const {t, i18n} = useTranslation();
   const {data, loading, error, request} = useFetch('/api/events', {})
 
   console.log(data, loading, error)
@@ -42,6 +45,8 @@ const TestPage = () => {
           md={7}
           xs={12}
         > 
+          {t('greet')}
+          {t('greetName', {name: 'Eric'})}
           <button onClick={() => {request.get()}}>Get data</button>
           <button onClick={() => {request.post({value: 'test123'})}}>Post data</button>
           <button onClick={() => {request.put(2, {value: 'test1234'})}}>Put data</button>
