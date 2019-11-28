@@ -1,5 +1,6 @@
 const db = require('../models/index.js');
 const router = require('express').Router();
+import asyncHandler from 'express-async-handler';
 
 const bunqstate = 'skjdhfkasjhbvckahsdjfhagdbjfhgmnfadnfbsmdafbe'
 
@@ -8,6 +9,7 @@ import { oauthproviders } from '../modules/application_cache';
 import { bunq } from '../modules/Bunq';
 import { encryption } from '../modules/Encryption';
 import { basicAuthentication } from '../middleware/authentication';
+
 
 const saveBunqSettings = async (user, authorizationCode, encryptionKey, environment = 'PRODUCTION') => {
 	const conditions = {where: {userId: user}};
@@ -153,17 +155,17 @@ const test = async (req, res) => {
 }
 
 
-router.post('/oauth/exchange', basicAuthentication, exchangeOAuthTokens);
-router.get('/accounts', basicAuthentication, getMonetaryAccounts);
-router.get('/accounts/:name', basicAuthentication, getMonetaryAccountByName);
-router.get('/accounts', basicAuthentication, getMonetaryAccounts);
-router.post('/payment', basicAuthentication, postPaymentInternal);
-router.get('/events', basicAuthentication, getEvents);
-router.post('/draftpayment', basicAuthentication, postDraftPayment);
-router.get('/cards', basicAuthentication, getCards)
-router.get('/sandbox', basicAuthentication, createSandboxAPIKey);
-router.get('/sandbox/request', basicAuthentication, requestSandboxMoney);
-router.get('/test', basicAuthentication, test);
+router.post('/oauth/exchange', basicAuthentication, asyncHandler(exchangeOAuthTokens));
+router.get('/accounts', basicAuthentication, asyncHandler(getMonetaryAccounts));
+router.get('/accounts/:name', basicAuthentication, asyncHandler(getMonetaryAccountByName));
+router.get('/accounts', basicAuthentication, asyncHandler(getMonetaryAccounts));
+router.post('/payment', basicAuthentication, asyncHandler(postPaymentInternal));
+router.get('/events', basicAuthentication, asyncHandler(getEvents));
+router.post('/draftpayment', basicAuthentication, asyncHandler(postDraftPayment));
+router.get('/cards', basicAuthentication, asyncHandler(getCards))
+router.get('/sandbox', basicAuthentication, asyncHandler(createSandboxAPIKey));
+router.get('/sandbox/request', basicAuthentication, asyncHandler(requestSandboxMoney));
+router.get('/test', basicAuthentication, asyncHandler(test));
 
 
 module.exports = router;

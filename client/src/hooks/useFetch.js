@@ -42,8 +42,9 @@ export function useFetch(arg1, arg2) {
     handleOptions(arg1)
   }
 
-  const [data, setData] = useState(arg2.defaultData)
+  const [data, setData] = useState(arg2.initialData)
   const [loading, setLoading] = useState(onMount);
+  const [methodLoading, setMethodLoading] = useState(false);
   const [error, setError] = useState(null)
 
   const fetchData = useCallback(method => async (fArg1, fArg2) => {
@@ -52,16 +53,18 @@ export function useFetch(arg1, arg2) {
 
     const fetchOptions = {}
     if(method === 'post'){
-      fetchOptions.body = JSON.stringify(fArg1);
+      newUrl = (typeof fArg1 === 'string') ? fArg1 : newUrl;
+      fetchOptions.body = (typeof fArg1 === 'string') ? JSON.stringify(fArg2) : JSON.stringify(fArg1);
     }else if(method === 'put' || method === 'patch'){
-      newUrl = url + '/' + fArg1;
+      newUrl = Number.isInteger(fArg1) ? (url + '/' + fArg1) : (fArg1);
       fetchOptions.body = JSON.stringify(fArg2);
     }else if(method === 'delete'){
-      newUrl = url + '/' + fArg1;
+      newUrl = Number.isInteger(fArg1) ? (url + '/' + fArg1) : (fArg1);
     }
-      
+    
+    let responsedata
     try {
-      setLoading(true)
+      setMethodLoading(true)
       let token = await user.getIdToken(true);
       console.log('Making ' + method + ' request to ' + newUrl);
       var response = await fetch(newUrl, {
@@ -75,20 +78,20 @@ export function useFetch(arg1, arg2) {
         },
       })
       if(!response.ok){
-        console.log('error request', await response.json());
+        responsedata = await response.clone().json().catch(() => response.text())
+        console.log('error request', responsedata);
         throw (response.status + ' - ' + response.statusText);
       }else{
-        let responsedata = await response.clone().json().catch(() => response.text())
+        responsedata = await response.clone().json().catch(() => response.text())
         console.log('Response data', responsedata);
-        return responsedata;
       }
-
     } catch (err) {
-      console.log('Error with method ' + method + ': ', err);
+      console.log('Error with method ' + method + ': ', err, {data: responsedata});
       throw err;
     } finally {
-      setLoading(false)
+      setMethodLoading(false)
     }
+    return responsedata;
   },
   [url]
   )
@@ -96,6 +99,7 @@ export function useFetch(arg1, arg2) {
   const get = async (forceUpdate = false, options = {}) => {
     //
     let query = options.query || '';
+
 
     if(!forceUpdate){
       const data = cache.get(cacheKey);
@@ -111,6 +115,9 @@ export function useFetch(arg1, arg2) {
 
     const fetchOptions = {}
 
+    let responsedata;
+    let realdata = {}
+    let fError = {}
     try {
       setLoading(true)
       let token = await user.getIdToken(true);
@@ -126,23 +133,27 @@ export function useFetch(arg1, arg2) {
         },
       })
       if(!response.ok){
-        console.log('error request', await response.json());
+        responsedata = await response.clone().json().catch(() => response.text())
+        console.log('error request', responsedata);
         throw (response.status + ' - ' + response.statusText);
       }else{
-        let responsedata = await response.clone().json().catch(() => response.text())
+        responsedata = await response.clone().json().catch(() => response.text())
         console.log('Response data', responsedata);
-        let realdata = responsedata.data || responsedata;
+        realdata = responsedata.data || responsedata;
         if (arg2.postProcess !== undefined) {realdata = await arg2.postProcess(realdata);}
         setData(realdata)
         cache.set(cacheKey, realdata);
       }
 
     } catch (err) {
-      console.log('error request', err, await response)
-      setError(err)
+      console.log('error request', err, responsedata)
+      fError = err;
+      setError({error: err, responsedata})
     } finally {
       setLoading(false)
     }
+
+    return {data: realdata, error: fError}
   }
 
   //const get = useCallback(fetchData('GET'))
@@ -157,7 +168,7 @@ export function useFetch(arg1, arg2) {
     if (onMount) request[method.toLowerCase()]()
   }, [])
 
-  return Object.assign([data, setData, loading, error, request], { data, setData, loading, error, request, ...request })
+  return Object.assign([data, setData, loading, error, request, methodLoading], { data, setData, loading, error, request, ...request, methodLoading })
 }
 
 export default useFetch

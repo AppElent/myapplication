@@ -24,7 +24,7 @@ export default class BunqClient {
   };
 
   defaultErrorLogger(error){
-    console.log('bunq error', error)
+    //console.log('bunq error', error)
     if (error.response) {
       throw error.response.data;
     }

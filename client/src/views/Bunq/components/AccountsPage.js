@@ -89,7 +89,7 @@ const AccountsPage = () => {
       </Button>
     </div>
     <div className={classes.content}>
-      {error && <p>{error}</p>}
+      {error && <p>{JSON.stringify(error)}</p>}
       <MaterialTable 
         columns={columns}
         data={data}

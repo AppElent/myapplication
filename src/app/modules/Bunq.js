@@ -18,7 +18,7 @@ export class Bunq {
 
   async load(key, filename, access_token, encryption_key, environment, options){
     this.bunqClients[key] = new BunqClient();
-    await this.bunqClients[key].initialize(filename, access_token, encryption_key, environment, options);
+    await this.bunqClients[key].initialize(filename, access_token, encryption_key, environment, options)
   }
   
   getGenericClient(){
@@ -28,6 +28,7 @@ export class Bunq {
 
   
   getClient(identifier){
+    if(!this.bunqClients[identifier]) throw 'Cannot find bunq connection'
     //get client by identifier
     return this.bunqClients[identifier];
   }

@@ -50,7 +50,7 @@ const AccountDetails = props => {
         noValidate
       >
         <CardHeader
-          subheader="The information can be edited"
+          subheader="The information can be edited. Hoi Maikel"
           title="Profile"
         />
         <Divider />

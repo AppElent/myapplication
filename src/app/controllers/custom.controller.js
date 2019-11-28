@@ -1,6 +1,8 @@
 
 const router = require('express').Router();
+import asyncHandler from 'express-async-handler';
 import { basicAuthentication } from '../middleware/authentication';
+
 
 export const redirectCall = async (req, res) => {
 	
@@ -20,5 +22,5 @@ export const redirectCall = async (req, res) => {
 	
 }
 
-router.post('/redirectcall', basicAuthentication, redirectCall);
+router.post('/redirectcall', basicAuthentication, asyncHandler(redirectCall));
 module.exports = router;

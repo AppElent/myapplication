@@ -39,6 +39,7 @@ const App = () => {
     // listen for auth state changes
     const unsubscribe = firebase.auth.onAuthStateChanged(async (returnedUser) => {
       console.log(returnedUser);
+      clearCache(setCacheData);
       let ref = null;
       let userDataRef = null;
       if(returnedUser){
@@ -57,8 +58,9 @@ const App = () => {
     if (authData.isInitializing || authData.user === null) return;
     const ref = firebase.db.doc('/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/users/' + authData.user.uid);
     return ref.onSnapshot(async doc => {
-      const userInfoData = doc.data();
+      let userInfoData = doc.data();
       let changed = false;
+      if(!userInfoData){ userInfoData = {}; changed = true; }
       if(!userInfoData.bunq) {changed = true; userInfoData.bunq = {success: false}}
       if(!userInfoData.enelogic) {changed = true; userInfoData.enelogic = {success: false}}//await ref.doc('enelogic').set({success: false});
       if(!userInfoData.solaredge) {changed = true; userInfoData.solaredge = {success: false}}//await ref.doc('solaredge').set({success: false});
