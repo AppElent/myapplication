@@ -8,13 +8,27 @@ i18n.use(LanguageDetector).init({
     en: {
       translations: {
         'greet': 'Hello',
-        'greetName': 'Hello {{name}}'
+        'greetName': 'Hello {{name}}',
+        navigation: {
+          account: 'Account',
+          meterstanden: 'Meter readings',
+          rekeningen: 'Bills',
+          bunq: 'Bunq',
+          events: 'Events'
+        }
       }
     },
     nl: {
       translations: {
         'greet': 'Hallo',
-        'greetName': 'Hallo {{name}}'
+        'greetName': 'Hallo {{name}}',
+        navigation: {
+          account: 'Profiel',
+          meterstanden: 'Meterstanden',
+          rekeningen: 'Rekeningen',
+          bunq: 'Bunq',
+          events: 'Events'
+        }
       }
     }
   },
@@ -25,7 +39,7 @@ i18n.use(LanguageDetector).init({
   ns: ['translations'],
   defaultNS: 'translations',
 
-  keySeparator: false, // we use content as keys
+  //keySeparator: false, // we use content as keys
 
   interpolation: {
     escapeValue: false, // not needed for react!!

@@ -4,7 +4,7 @@ import { createBrowserHistory } from 'history';
 import { Chart } from 'react-chartjs-2';
 import { ThemeProvider } from '@material-ui/styles';
 import validate from 'validate.js';
-import { I18nextProvider } from "react-i18next";
+import { I18nextProvider, useTranslation } from 'react-i18next';
 
 import i18n from './modules/I18NEXT';
 import { chartjs } from 'helpers';
@@ -35,7 +35,7 @@ const App = () => {
   const firebase = new Firebase();
   const [authData, setAuthData] = useState({firebase, user: undefined, isInitializing: true, ref: null, userDataRef: null});
   const [cacheData, setCacheData] = useState({});
- 
+
   
   useEffect(() => {
     // listen for auth state changes

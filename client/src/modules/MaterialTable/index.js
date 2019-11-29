@@ -48,6 +48,26 @@ export const deleteData = (ref, prop, columns) => async (data) => {
   await ref.doc(data[prop]).delete();
 }
 
+export const addDataDoc = (ref, prop, columns) => async (data) => {
+  data = getDataObject(data, columns);
+  checkDataObject(data, columns);
+  console.log(data);
+  await ref.set(data);
+}
+
+export const updateDataDoc = (ref, prop, columns) => async (data) => {
+  data = getDataObject(data, columns);
+  checkDataObject(data, columns);
+  console.log(data);
+  await ref.doc(data[prop]).set(data);
+}
+
+export const deleteDataDoc = (ref, prop, columns) => async (data) => {
+  data = getDataObject(data, columns);
+  console.log(data);
+  await ref.doc(data[prop]).delete();
+}
+
 export const RequiredField = (props) => {
   if (props.columnDef.required && (props.value === undefined)) {
     return (<MTableEditField {...props} />);
