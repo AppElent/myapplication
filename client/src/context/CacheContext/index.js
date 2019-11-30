@@ -1,8 +1,11 @@
 // @flow
-import React from 'react';
+import React, { useContext } from 'react';
 
 
 export const CacheContext = React.createContext(null);
+
+
+export const useCache = () => useContext(CacheContext);
 
 export const getCache = (cacheData) => (key) => {
   console.log('Getting value from cache with key ' + key, cacheData);

@@ -15,6 +15,7 @@ import { useForm, useSession } from 'hooks';
 import { saveSolarEdgeSettings, deleteSolarEdgeSettings } from 'modules/SolarEdge';
 import { deleteEnelogicSettings } from 'modules/Enelogic';
 import { Alert, Button, OauthAuthorize } from 'components';
+import { SettingCardEnelogic } from 'statecomponents';
 
 
 const useStyles = makeStyles(theme => ({
@@ -43,30 +44,7 @@ const Settings = ({}) => {
           md={5}
           xs={12}
         >
-          <Card>
-            <CardHeader
-              subheader="Connect"
-              title="Enelogic"
-            />
-            <Divider />
-            <CardContent>
-              <Typography>{userInfo.enelogic.success ? `Registratie vanaf: ${userInfo.enelogic.measuringpoints.electra.dayMin}` : 'Enelogic connectie is niet gemaakt. Deze is nodig om de meterstanden op te kunnen halen.'}</Typography>
-            </CardContent>
-            <Divider />
-            <CardActions>
-              <OauthAuthorize
-                formatUrl="/api/oauth/formaturl/enelogic"
-                title="Connect Enelogic"
-              />
-              <Button
-                className={classes.deleteButton}
-                onClick={() => {deleteEnelogicSettings(ref)}}
-                variant="outlined"
-              >
-                    Delete
-              </Button>
-            </CardActions>
-          </Card>
+          <SettingCardEnelogic />
         </Grid>
         <Grid
           item

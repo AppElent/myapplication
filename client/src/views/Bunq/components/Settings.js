@@ -15,6 +15,7 @@ import { useSession } from 'hooks';
 import { Button, OauthAuthorize } from 'components';
 import { deleteBunqSettings } from 'modules/Bunq';
 import { fetchBackend } from 'helpers';
+import { SettingCardBunq } from 'statecomponents';
 
 
 const useStyles = makeStyles(theme => ({

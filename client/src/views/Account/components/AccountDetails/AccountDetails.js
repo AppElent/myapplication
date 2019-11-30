@@ -8,17 +8,23 @@ import {
   CardContent,
   CardActions,
   Divider,
+  InputLabel,
+  FormControl,
   Grid,
   TextField
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 
 import { useSession, useForm } from 'hooks';
-import { Button } from 'components';
+import { Button, ResponsiveSelect, ResponsiveSelectItem } from 'components';
 
 
-const useStyles = makeStyles(() => ({
-  root: {}
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
 const AccountDetails = props => {
@@ -110,6 +116,31 @@ const AccountDetails = props => {
                 value={state.phone.value || ''}
                 variant="outlined"
               />
+            </Grid>
+            <Grid
+              item
+              md={6}
+              xs={12}
+            >
+              <FormControl className={classes.formControl}>
+                <InputLabel
+                  htmlFor="from-account-placeholder"
+                  shrink
+                >
+                  {t('language')}
+                </InputLabel>
+                <ResponsiveSelect
+                  inputProps={{
+                    name: 'lng',
+                    id: 'lng',
+                  }}
+                  onChange={(e) => {i18n.changeLanguage(e.target.value)}}
+                  value={i18n.language}
+                >
+                  <ResponsiveSelectItem value="en">English</ResponsiveSelectItem>
+                  <ResponsiveSelectItem value="nl">Nederlands</ResponsiveSelectItem>
+                </ResponsiveSelect>
+              </FormControl>
             </Grid>
           </Grid>
         </CardContent>
