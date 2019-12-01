@@ -81,6 +81,7 @@ const Rekeningen = () => {
             onRowUpdate: updateData(ref.collection('rekeningen'), 'naam', columns),
             onRowDelete: deleteData(ref.collection('rekeningen'), 'naam', columns)
           }}
+          isLoading={loading}
           options={{
             exportAllData: true,
             exportButton: true,

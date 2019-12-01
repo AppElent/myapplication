@@ -10,11 +10,14 @@ import { Grid,
   TextField, 
   Typography
 } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 import { useForm, useSession } from 'hooks';
 import { saveSolarEdgeSettings, deleteSolarEdgeSettings } from 'modules/SolarEdge';
 import { deleteEnelogicSettings } from 'modules/Enelogic';
 import { Alert, Button, OauthAuthorize } from 'components';
+import { SettingCardEnelogic } from 'statecomponents';
+
 
 
 const useStyles = makeStyles(theme => ({
@@ -29,6 +32,7 @@ const useStyles = makeStyles(theme => ({
 const Settings = ({}) => {
   const classes = useStyles();
   const {user, userInfo, ref} = useSession();
+  const { t } = useTranslation();
 
   const {hasError, isDirty, state, handleOnChange, handleOnSubmit, submitting, setInitial} = useForm({api_key: userInfo.solaredge.access_token || ''}, {}, saveSolarEdgeSettings(user, ref));
 
@@ -43,30 +47,7 @@ const Settings = ({}) => {
           md={5}
           xs={12}
         >
-          <Card>
-            <CardHeader
-              subheader="Connect"
-              title="Enelogic"
-            />
-            <Divider />
-            <CardContent>
-              <Typography>{userInfo.enelogic.success ? `Registratie vanaf: ${userInfo.enelogic.measuringpoints.electra.dayMin}` : 'Enelogic connectie is niet gemaakt. Deze is nodig om de meterstanden op te kunnen halen.'}</Typography>
-            </CardContent>
-            <Divider />
-            <CardActions>
-              <OauthAuthorize
-                formatUrl="/api/oauth/formaturl/enelogic"
-                title="Connect Enelogic"
-              />
-              <Button
-                className={classes.deleteButton}
-                onClick={() => {deleteEnelogicSettings(ref)}}
-                variant="outlined"
-              >
-                    Delete
-              </Button>
-            </CardActions>
-          </Card>
+          <SettingCardEnelogic />
         </Grid>
         <Grid
           item
@@ -101,14 +82,14 @@ const Settings = ({}) => {
                 onClick={handleOnSubmit}
                 variant="contained"
               >
-                    Save
+                {t('buttons.save')}
               </Button>
               <Button
                 className={classes.deleteButton}
                 onClick={() => {deleteSolarEdgeSettings(ref); setInitial()}}
                 variant="outlined"
               >
-                    Delete
+                {t('buttons.delete')}
               </Button>
             </CardActions>
           </Card>

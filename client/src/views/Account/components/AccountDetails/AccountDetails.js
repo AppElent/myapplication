@@ -8,21 +8,30 @@ import {
   CardContent,
   CardActions,
   Divider,
+  InputLabel,
+  FormControl,
   Grid,
   TextField
 } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 import { useSession, useForm } from 'hooks';
-import { Button } from 'components';
+import { Button, ResponsiveSelect, ResponsiveSelectItem } from 'components';
 
-const useStyles = makeStyles(() => ({
-  root: {}
+
+const useStyles = makeStyles((theme) => ({
+  root: {},
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 120,
+  },
 }));
 
 const AccountDetails = props => {
   const { className, ...rest } = props;
 
   const {user, firebase} = useSession();
+  const {t, i18n} = useTranslation();
 
   const classes = useStyles();
 
@@ -50,8 +59,8 @@ const AccountDetails = props => {
         noValidate
       >
         <CardHeader
-          subheader="The information can be edited. Hoi Maikel"
-          title="Profile"
+          subheader={t('greetName', {name: user.displayName})}
+          title={'Profile'}
         />
         <Divider />
         <CardContent>
@@ -66,8 +75,7 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                helperText="Please specify the name"
-                label="Name"
+                label={t('profile.name')}
                 margin="dense"
                 name="name"
                 onChange={handleOnChange}
@@ -83,7 +91,7 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                label="Email Address"
+                label={t('profile.email')}
                 margin="dense"
                 name="email"
                 onChange={handleOnChange}
@@ -99,7 +107,7 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                label="Phone Number"
+                label={t('profile.phone')}
                 margin="dense"
                 name="phone"
                 onChange={handleOnChange}
@@ -107,6 +115,31 @@ const AccountDetails = props => {
                 value={state.phone.value || ''}
                 variant="outlined"
               />
+            </Grid>
+            <Grid
+              item
+              md={6}
+              xs={12}
+            >
+              <FormControl className={classes.formControl}>
+                <InputLabel
+                  htmlFor="from-account-placeholder"
+                  shrink
+                >
+                  {t('profile.language')}
+                </InputLabel>
+                <ResponsiveSelect
+                  inputProps={{
+                    name: 'lng',
+                    id: 'lng',
+                  }}
+                  onChange={(e) => {i18n.changeLanguage(e.target.value)}}
+                  value={i18n.language}
+                >
+                  <ResponsiveSelectItem value="en">English</ResponsiveSelectItem>
+                  <ResponsiveSelectItem value="nl">Nederlands</ResponsiveSelectItem>
+                </ResponsiveSelect>
+              </FormControl>
             </Grid>
           </Grid>
         </CardContent>
@@ -119,14 +152,14 @@ const AccountDetails = props => {
             onClick={handleOnSubmit}
             variant="contained"
           >
-            Save details
+            {t('buttons.save')}
           </Button>
           <Button
             color="primary"
             onClick={() => firebase.auth.signOut()}
             variant="contained"
           >
-            Logout
+            {t('buttons.logout')}
           </Button>
         </CardActions>
       </form>

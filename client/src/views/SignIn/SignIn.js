@@ -9,8 +9,10 @@ import {
 } from '@material-ui/core';
 import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import { useTranslation } from 'react-i18next';
 
 import { useSession } from 'hooks';
+
 
 
 
@@ -112,6 +114,7 @@ const SignIn = props => {
   const { history } = props;
 
   const classes = useStyles();
+  const { t } = useTranslation();
 
 
   const handleBack = () => {
@@ -158,9 +161,9 @@ const SignIn = props => {
                 className={classes.quoteText}
                 variant="h1"
               >
-                Hella narwhal Cosby sweater McSweeney's, salvia kitsch before
-                they sold out High Life.
+                {t('signin.text')}
               </Typography>
+              {/*}
               <div className={classes.person}>
                 <Typography
                   className={classes.name}
@@ -175,6 +178,7 @@ const SignIn = props => {
                   Manager at inVision
                 </Typography>
               </div>
+  */}
             </div>
           </div>
         </Grid>

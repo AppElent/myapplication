@@ -11,9 +11,11 @@ import ImageIcon from '@material-ui/icons/Image';
 import AccountBoxIcon from '@material-ui/icons/AccountBox';
 import SettingsIcon from '@material-ui/icons/Settings';
 import LockOpenIcon from '@material-ui/icons/LockOpen';
+import { useTranslation } from 'react-i18next';
 
 import { Profile, SidebarNav } from './components';
 import useSession from 'hooks/useSession';
+
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -44,30 +46,40 @@ const Sidebar = props => {
   const { open, variant, onClose, className, ...rest } = props;
 
   const classes = useStyles();
+  const {t} = useTranslation();
 
   const pages = [
     {
-      title: 'Account',
+      title: t('navigation.account'),
       href: '/account',
       icon: <AccountBoxIcon />
     },
     {
-      title: 'Meterstanden',
+      title: t('navigation.meterstanden'),
       href: '/meterstanden',
       icon: <DashboardIcon />
     },
     {
-      title: 'Rekeningen',
+      title: t('navigation.rekeningen'),
       href: '/rekeningen',
-      icon: <DashboardIcon />
+      icon: <DashboardIcon />,
+      children: [{
+        title: 'Rekeningen',
+        href: '/rekeningen',
+        icon: <DashboardIcon />
+      },{
+        title: 'Test 2',
+        href: '/rekeningen?tab=2',
+        icon: <DashboardIcon />
+      }]
     },
     {
-      title: 'Bunq',
+      title: t('navigation.bunq'),
       href: '/bunq',
       icon: <DashboardIcon />
     },
     {
-      title: 'Events',
+      title: t('navigation.events'),
       href: '/events',
       icon: <DashboardIcon />
     }

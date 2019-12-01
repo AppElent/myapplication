@@ -15,6 +15,8 @@ import { useSession } from 'hooks';
 import { Button, OauthAuthorize } from 'components';
 import { deleteBunqSettings } from 'modules/Bunq';
 import { fetchBackend } from 'helpers';
+import { SettingCardBunq } from 'statecomponents';
+import { useTranslation } from 'react-i18next';
 
 
 const useStyles = makeStyles(theme => ({
@@ -29,6 +31,7 @@ const useStyles = makeStyles(theme => ({
 const Settings = ({}) => {
   const classes = useStyles();
   const {user, userInfo, ref} = useSession();
+  const { t } = useTranslation();
   const [loadingToken, setLoadingToken] = useState(false);
 
   const createBunqSandbox = async () => {
@@ -66,7 +69,7 @@ const Settings = ({}) => {
             <CardActions>
               <OauthAuthorize
                 formatUrl="/api/oauth/formaturl/bunq"
-                title="Connect Bunq"
+                title={t('buttons.connect') + ' bunq'}
               />
               <Button
                 className={classes.button}
@@ -74,14 +77,14 @@ const Settings = ({}) => {
                 onClick={createBunqSandbox}
                 variant="contained"
               >
-                Connect bunq sandbox
+                {t('buttons.delete') + ' bunq sandbox'}
               </Button>
               <Button
                 className={classes.deleteButton}
                 onClick={() => {deleteBunqSettings(ref)}}
                 variant="outlined"
               >
-                    Delete
+                {t('buttons.delete')}
               </Button>
             </CardActions>
           </Card>

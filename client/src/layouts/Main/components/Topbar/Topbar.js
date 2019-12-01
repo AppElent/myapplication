@@ -3,13 +3,13 @@ import { Link as RouterLink } from 'react-router-dom';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
-import { AppBar, Toolbar, Badge, Hidden, IconButton } from '@material-ui/core';
+import { AppBar, Toolbar, Badge, Hidden, IconButton, Menu, MenuItem } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
 import AppTitle from 'components/AppTitle';
 
-import useSession from 'hooks/useSession';
+import { useMaterialUIMenu, useSession } from 'hooks';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -30,7 +30,8 @@ const Topbar = props => {
 
   const classes = useStyles();
 
-  const [notifications] = useState([]);
+  const [notifications] = useState(['Dit is een melding']);
+  const {anchorEl, open, handleOpen, handleClose} = useMaterialUIMenu();
 
   return (
     <AppBar
@@ -43,7 +44,7 @@ const Topbar = props => {
         </RouterLink>
         <div className={classes.flexGrow} />
         <Hidden mdDown>
-          <IconButton color="inherit">
+          <IconButton color="inherit" onClick={handleOpen}>
             <Badge
               badgeContent={notifications.length}
               color="primary"
@@ -52,6 +53,17 @@ const Topbar = props => {
               <NotificationsIcon />
             </Badge>
           </IconButton>
+          <Menu
+            anchorEl={anchorEl}
+            getContentAnchorEl={null}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            id="simple-menu"
+            keepMounted
+            open={open}
+            onClose={handleClose}
+          >
+            {notifications.map(notification => <MenuItem>{notification}</MenuItem>)}
+          </Menu>
           <IconButton
             className={classes.signOutButton}
             color="inherit"
