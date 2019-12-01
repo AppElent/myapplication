@@ -64,12 +64,12 @@ const Sidebar = props => {
       href: '/rekeningen',
       icon: <DashboardIcon />,
       children: [{
-        title: 'Test 1',
-        href: '/rekeningen/test1',
+        title: 'Rekeningen',
+        href: '/rekeningen',
         icon: <DashboardIcon />
       },{
         title: 'Test 2',
-        href: '/rekeningen/test2',
+        href: '/rekeningen?tab=2',
         icon: <DashboardIcon />
       }]
     },

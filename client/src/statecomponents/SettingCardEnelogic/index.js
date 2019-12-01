@@ -1,6 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
+import { useTranslation } from 'react-i18next';
 import { Card,
   CardHeader,
   CardContent,
@@ -14,6 +15,7 @@ import { deleteEnelogicSettings } from 'modules/Enelogic';
 import { Button, OauthAuthorize } from 'components';
 
 
+
 const useStyles = makeStyles(theme => ({
   deleteButton: {
     color: 'red'
@@ -23,6 +25,7 @@ const useStyles = makeStyles(theme => ({
 const SettingCardEnelogic = ({}) => {
   const classes = useStyles();
   const {userInfo, ref} = useSession();
+  const { t } = useTranslation();
 
   return (
     <Card>
@@ -38,14 +41,14 @@ const SettingCardEnelogic = ({}) => {
       <CardActions>
         <OauthAuthorize
           formatUrl="/api/oauth/formaturl/enelogic"
-          title="Connect Enelogic"
+          title={t('buttons.connect') + ' Enelogic'}
         />
         <Button
           className={classes.deleteButton}
           onClick={() => {deleteEnelogicSettings(ref)}}
           variant="outlined"
         >
-                    Delete
+          {t('buttons.delete')}
         </Button>
       </CardActions>
     </Card>

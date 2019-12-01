@@ -41,6 +41,9 @@ const useStyles = makeStyles(theme => ({
   },
   nested: {
     marginLeft: theme.spacing(2)
+  },
+  spacer: {
+    flexGrow: 1
   }
 }));
 
@@ -84,14 +87,15 @@ const SidebarNav = props => {
                 <Button
                   activeClassName={classes.active}
                   className={classes.button}
-                  component={CustomRouterLink}
+                  //component={CustomRouterLink}
                   onClick={handleClick(page.title)}
-                  to={page.href}
+                  //to={page.href}
                 >
                   <div className={classes.icon}>{page.icon}</div>
                   {page.title}
+                  <span className={classes.spacer} />
+                  {state[page.title] ? <ExpandLess /> : <ExpandMore />}
                 </Button>
-                {state[page.title] ? <ExpandLess /> : <ExpandMore />}
               </ListItem>
               <Collapse in={state[page.title] ? true : false} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>

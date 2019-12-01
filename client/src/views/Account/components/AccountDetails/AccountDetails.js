@@ -75,8 +75,7 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                helperText="Please specify the name"
-                label="Name"
+                label={t('profile.name')}
                 margin="dense"
                 name="name"
                 onChange={handleOnChange}
@@ -92,7 +91,7 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                label="Email Address"
+                label={t('profile.email')}
                 margin="dense"
                 name="email"
                 onChange={handleOnChange}
@@ -108,7 +107,7 @@ const AccountDetails = props => {
             >
               <TextField
                 fullWidth
-                label="Phone Number"
+                label={t('profile.phone')}
                 margin="dense"
                 name="phone"
                 onChange={handleOnChange}
@@ -127,7 +126,7 @@ const AccountDetails = props => {
                   htmlFor="from-account-placeholder"
                   shrink
                 >
-                  {t('language')}
+                  {t('profile.language')}
                 </InputLabel>
                 <ResponsiveSelect
                   inputProps={{
@@ -153,14 +152,14 @@ const AccountDetails = props => {
             onClick={handleOnSubmit}
             variant="contained"
           >
-            Save details
+            {t('buttons.save')}
           </Button>
           <Button
             color="primary"
             onClick={() => firebase.auth.signOut()}
             variant="contained"
           >
-            Logout
+            {t('buttons.logout')}
           </Button>
         </CardActions>
       </form>

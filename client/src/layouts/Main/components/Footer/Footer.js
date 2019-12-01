@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/styles';
 import { Typography, Link } from '@material-ui/core';
+import { useTranslation } from 'react-i18next';
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -14,6 +15,7 @@ const Footer = props => {
   const { className, ...rest } = props;
 
   const classes = useStyles();
+  const { t } = useTranslation();
 
   return (
     <div
@@ -24,16 +26,15 @@ const Footer = props => {
         &copy;{' '}
         <Link
           component="a"
-          href="https://devias.io/"
+          href="https://github.com/ericjansen1988"
           target="_blank"
         >
-          Devias IO
+          Eric Jansen
         </Link>
-        . 2019
+        {' '}{new Date().getFullYear()}
       </Typography>
       <Typography variant="caption">
-        Created with love for the environment. By designers and developers who
-        love to work together in offices!
+        {t('footertext')}
       </Typography>
     </div>
   );
