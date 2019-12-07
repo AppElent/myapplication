@@ -1,14 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-//import { Link } from 'react-router-dom';
-//import { Button } from 'react-bootstrap';
 import Button from '@material-ui/core/Button';
-import fetchBackend from '../../helpers/fetchBackend';
-import useSession from '../../hooks/useSession';
-//import {setLocalUserStorage} from '../utils/localstorage';
-//import {useFetch} from '../hooks/useFetch';
-
-//const queryString = require('query-string');
+import { fetchBackend } from 'helpers';
+import { useSession } from 'hooks';
 import queryString from 'query-string';
 
 const OAuthToken = ({url, redirectUrl, name}) => {

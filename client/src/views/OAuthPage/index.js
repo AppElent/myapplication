@@ -5,9 +5,9 @@ import Typography from '@material-ui/core/Typography';
 import queryString from 'query-string';
 import { Redirect } from 'react-router-dom';
 
-import fetchBackend from '../../helpers/fetchBackend';
-import useSession from '../../hooks/useSession';
-import {OauthAuthorize} from '../../components';
+import { fetchBackend } from 'helpers';
+import { useSession } from 'hooks';
+import { OauthAuthorize } from 'components';
 
 const config = {
   enelogic: {

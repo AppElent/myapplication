@@ -7,9 +7,13 @@ import { AppBar, Toolbar, Badge, Hidden, IconButton, Menu, MenuItem } from '@mat
 import MenuIcon from '@material-ui/icons/Menu';
 import NotificationsIcon from '@material-ui/icons/NotificationsOutlined';
 import InputIcon from '@material-ui/icons/Input';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom'
+
 import AppTitle from 'components/AppTitle';
 
 import { useMaterialUIMenu, useSession } from 'hooks';
+
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -29,9 +33,10 @@ const Topbar = props => {
   const { className, onSidebarOpen, ...rest } = props;
 
   const classes = useStyles();
-
-  const [notifications] = useState(['Dit is een melding']);
+  const { t } = useTranslation();
+  const [notifications, setNotifications] = useState([]);
   const {anchorEl, open, handleOpen, handleClose} = useMaterialUIMenu();
+  const {anchorEl: logoutAnchor, open: logoutOpen, handleOpen: logoutHandleOpen, handleClose: logoutHandleClose} = useMaterialUIMenu();
 
   return (
     <AppBar
@@ -47,8 +52,7 @@ const Topbar = props => {
           <IconButton color="inherit" onClick={handleOpen}>
             <Badge
               badgeContent={notifications.length}
-              color="primary"
-              variant="dot"
+              color="error"
             >
               <NotificationsIcon />
             </Badge>
@@ -63,16 +67,30 @@ const Topbar = props => {
             onClose={handleClose}
           >
             {notifications.map(notification => <MenuItem>{notification}</MenuItem>)}
+            {notifications.length === 0 && <MenuItem>{t('notifications.no_notifications')}</MenuItem>}
           </Menu>
           <IconButton
             className={classes.signOutButton}
             color="inherit"
-            onClick={() => {
-              firebase.auth.signOut();
-            }}
+            onClick={logoutHandleOpen}
+            //onClick={() => {
+              //firebase.auth.signOut();
+            //}}
           >
             <InputIcon />
           </IconButton>
+          <Menu
+            anchorEl={logoutAnchor}
+            getContentAnchorEl={null}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            id="simple-menu"
+            keepMounted
+            open={logoutOpen}
+            onClose={logoutHandleClose}
+          >
+            <MenuItem onClick={logoutHandleClose} component={Link} to="/account">{t('navigation.account')}</MenuItem>
+            <MenuItem onClick={() => {firebase.auth.signOut();logoutHandleClose();}}>{t('buttons.logout')}</MenuItem>
+          </Menu>
         </Hidden>
         <Hidden lgUp>
           <IconButton

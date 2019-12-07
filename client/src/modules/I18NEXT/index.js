@@ -34,6 +34,9 @@ i18n.use(LanguageDetector).init({
           email: 'E-mailaddress',
           phone: 'Phone number',
           language: 'Language'
+        },
+        notifications: {
+          no_notifications: 'There are no notifications'
         }
       }
     },
@@ -66,6 +69,9 @@ i18n.use(LanguageDetector).init({
           email: 'E-mailadres',
           phone: 'Telefoonnummer',
           language: 'Taal'
+        },
+        notifications: {
+          no_notifications: 'Er zijn geen meldingen'
         }
       }
     }

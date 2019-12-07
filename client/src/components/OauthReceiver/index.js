@@ -4,8 +4,8 @@ import { Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 
-import useSession from 'hooks/useSession';
-import fetchBackend from 'helpers/fetchBackend';
+import { useSession } from 'hooks';
+import { fetchBackend } from 'helpers';
 
 const OauthReceiver = ({code, exchangeUrl, saveFunction, redirectUrl = null}) => {
   const {user} = useSession();

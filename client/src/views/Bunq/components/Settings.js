@@ -1,93 +1,36 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/styles';
 import PropTypes from 'prop-types';
-import { Grid,
-  CircularProgress,
-  Card,
-  CardHeader,
-  CardContent,
-  CardActions,
-  Divider,
-  Typography
+import { Grid
 } from '@material-ui/core';
-import { useSession } from 'hooks';
 
-import { Button, OauthAuthorize } from 'components';
-import { deleteBunqSettings } from 'modules/Bunq';
-import { fetchBackend } from 'helpers';
 import { SettingCardBunq } from 'statecomponents';
-import { useTranslation } from 'react-i18next';
 
 
 const useStyles = makeStyles(theme => ({
   root: {
-    padding: theme.spacing(4)
+    padding: theme.spacing(2)
   },
   deleteButton: {
     color: 'red'
   }
 }));
 
-const Settings = ({}) => {
+const Settings = () => {
   const classes = useStyles();
-  const {user, userInfo, ref} = useSession();
-  const { t } = useTranslation();
-  const [loadingToken, setLoadingToken] = useState(false);
-
-  const createBunqSandbox = async () => {
-    setLoadingToken(true);
-    const data = await fetchBackend('/api/bunq/sandbox', {user});
-    console.log(data);
-    await ref.update({bunq: {'success': true, 'environment': 'SANDBOX'}})
-    setLoadingToken(false);
-  }
-
-  
-  if(loadingToken) return <CircularProgress className={classes.progress} />
 
   return (
     <div className={classes.root}>
       <Grid
         container
-        spacing={4}
+        spacing={2}
       >
         <Grid
           item
           md={7}
           xs={12}
         >
-          <Card>
-            <CardHeader
-              subheader="Connect"
-              title="Bunq"
-            />
-            <Divider />
-            <CardContent>
-              <Typography>{userInfo.bunq.success ? 'Connectie succesvol' : 'Bunq connectie is niet gemaakt. Deze is nodig om de data op te kunnen halen.'}</Typography>
-            </CardContent>
-            <Divider />
-            <CardActions>
-              <OauthAuthorize
-                formatUrl="/api/oauth/formaturl/bunq"
-                title={t('buttons.connect') + ' bunq'}
-              />
-              <Button
-                className={classes.button}
-                color ="primary"
-                onClick={createBunqSandbox}
-                variant="contained"
-              >
-                {t('buttons.delete') + ' bunq sandbox'}
-              </Button>
-              <Button
-                className={classes.deleteButton}
-                onClick={() => {deleteBunqSettings(ref)}}
-                variant="outlined"
-              >
-                {t('buttons.delete')}
-              </Button>
-            </CardActions>
-          </Card>
+          <SettingCardBunq />
         </Grid>
       </Grid>
     </div>
