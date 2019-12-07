@@ -95,14 +95,73 @@ const Sidebar = props => {
         title: t('navigation.events'),
         href: '/events',
         icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
       }
     ]
-  }
-  ]
-
-
-
-    
+  }]
 
 
   const avatar = user !== null ? (user.photoURL ? user.photoURL : 'https://media.npr.org/assets/img/2016/01/07/macaca_nigra_self-portrait_custom-a8e13582c9ca6f71f5cd62815b8bb5d6ff112dc2-s800-c15.jpg') : '';
