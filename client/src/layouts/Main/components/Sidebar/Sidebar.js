@@ -14,7 +14,7 @@ import LockOpenIcon from '@material-ui/icons/LockOpen';
 import { useTranslation } from 'react-i18next';
 
 import { Profile, SidebarNav } from './components';
-import useSession from 'hooks/useSession';
+import { useSession } from 'hooks';
 
 
 const useStyles = makeStyles(theme => ({
@@ -48,42 +48,121 @@ const Sidebar = props => {
   const classes = useStyles();
   const {t} = useTranslation();
 
-  const pages = [
-    {
-      title: t('navigation.account'),
-      href: '/account',
-      icon: <AccountBoxIcon />
-    },
-    {
-      title: t('navigation.meterstanden'),
-      href: '/meterstanden',
-      icon: <DashboardIcon />
-    },
-    {
-      title: t('navigation.rekeningen'),
-      href: '/rekeningen',
-      icon: <DashboardIcon />,
-      children: [{
-        title: 'Rekeningen',
+  const pages = [{
+    routes: [
+      {
+        title: t('navigation.account'),
+        href: '/account',
+        icon: <AccountBoxIcon />
+      }
+    ]
+  },{
+    groupname: 'Administratie',
+    routes: [
+      {
+        title: t('navigation.meterstanden'),
+        href: '/meterstanden',
+        icon: <DashboardIcon />
+      }
+    ]
+  }, {
+    groupname: 'Financieel',
+    routes: [
+      {
+        title: t('navigation.rekeningen'),
         href: '/rekeningen',
+        icon: <DashboardIcon />,
+        children: [{
+          title: t('navigation.rekeningen'),
+          href: '/rekeningen',
+          icon: <DashboardIcon />
+        },{
+          title: 'Test 2',
+          href: '/rekeningen?tab=2',
+          icon: <DashboardIcon />
+        }]
+      },
+      {
+        title: t('navigation.bunq'),
+        href: '/bunq',
+        icon: <DashboardIcon />
+      }
+    ]
+  }, {
+    groupname: 'Automation',
+    routes: [
+      {
+        title: t('navigation.events'),
+        href: '/events',
         icon: <DashboardIcon />
       },{
-        title: 'Test 2',
-        href: '/rekeningen?tab=2',
+        title: t('navigation.events'),
+        href: '/events',
         icon: <DashboardIcon />
-      }]
-    },
-    {
-      title: t('navigation.bunq'),
-      href: '/bunq',
-      icon: <DashboardIcon />
-    },
-    {
-      title: t('navigation.events'),
-      href: '/events',
-      icon: <DashboardIcon />
-    }
-  ];
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      },{
+        title: t('navigation.events'),
+        href: '/events',
+        icon: <DashboardIcon />
+      }
+    ]
+  }]
+
 
   const avatar = user !== null ? (user.photoURL ? user.photoURL : 'https://media.npr.org/assets/img/2016/01/07/macaca_nigra_self-portrait_custom-a8e13582c9ca6f71f5cd62815b8bb5d6ff112dc2-s800-c15.jpg') : '';
 

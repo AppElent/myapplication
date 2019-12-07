@@ -1,17 +1,12 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import useSession from '../../hooks/useSession';
-import SignIn from '../../views/SignIn';
-import { Minimal as MinimalLayout } from '../../layouts';
+import { useSession } from 'hooks';
+import SignIn from 'views/SignIn';
+import { Minimal as MinimalLayout } from 'layouts';
 
 const RouteWithLayout = props => {
   const {user} = useSession();
-  /*
-  if(isInitializing || (user !== null && userInfo === null)){
-    return <div>Loading</div>
-  }
-  */
   
   const { layout: Layout, component: Component, protectedRoute, ...rest } = props;
   const FinalComponent = user === null && protectedRoute ? SignIn : Component;

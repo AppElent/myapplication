@@ -11,7 +11,7 @@ import {
   useCollectionDataOnce} 
   from 'react-firebase-hooks/firestore';
 
-import useSession from './useSession';
+import { useSession } from 'hooks';
 
 const getPath = (path) => {
   return '/env/' + process.env.REACT_APP_FIRESTORE_ENVIRONMENT + '/' + path;
