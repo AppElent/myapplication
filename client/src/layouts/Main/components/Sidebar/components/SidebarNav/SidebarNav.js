@@ -52,7 +52,7 @@ const useStyles = makeStyles(theme => ({
   ul: {
     backgroundColor: 'inherit',
     padding: 0,
-  },
+  }
 }));
 
 const CustomRouterLink = forwardRef((props, ref) => (

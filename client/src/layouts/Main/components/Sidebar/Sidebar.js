@@ -57,7 +57,7 @@ const Sidebar = props => {
       }
     ]
   },{
-    groupname: 'Administratie',
+    groupname: t('navigation.groups.administration'),
     routes: [
       {
         title: t('navigation.meterstanden'),
@@ -66,7 +66,7 @@ const Sidebar = props => {
       }
     ]
   }, {
-    groupname: 'Financieel',
+    groupname: t('navigation.groups.financial'),
     routes: [
       {
         title: t('navigation.rekeningen'),
@@ -89,7 +89,7 @@ const Sidebar = props => {
       }
     ]
   }, {
-    groupname: 'Automation',
+    groupname: t('navigation.groups.automation'),
     routes: [
       {
         title: t('navigation.events'),

@@ -1,11 +1,12 @@
 //
 const router = require('express').Router();
+import Enelogic from 'node-enelogic';
 
 import {oauthproviders} from '../modules/application_cache';
 import {basicAuthentication} from '../middleware/authentication';
 import cache from '../middleware/cacheMiddleware';
 import Cache from '../modules/Cache';
-import Enelogic from '../modules/Enelogic';
+
 import asyncHandler from 'express-async-handler';
 
 const enelogicCache = new Cache();
