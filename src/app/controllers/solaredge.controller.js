@@ -1,12 +1,12 @@
 
 const router = require('express').Router();
 import SolarEdge from 'node-solaredge';
-
-//import SolarEdge from '../modules/SolarEdge';
-import {basicAuthentication} from '../middleware/authentication';
 import asyncHandler from 'express-async-handler';
+
+import {basicAuthentication} from '../middleware/authentication';
 import cache from '../middleware/cacheMiddleware';
 import Cache from '../modules/Cache';
+
 const solarEdgeCache = new Cache();
 
 const timeUnits = ['HOUR', 'DAY', 'MONTH', 'QUARTER_OF_AN_HOUR', 'YEAR']
