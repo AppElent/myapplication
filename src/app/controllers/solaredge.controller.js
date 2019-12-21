@@ -1,7 +1,8 @@
 
 const router = require('express').Router();
+import SolarEdge from 'node-solaredge';
 
-import SolarEdge from '../modules/SolarEdge';
+//import SolarEdge from '../modules/SolarEdge';
 import {basicAuthentication} from '../middleware/authentication';
 import asyncHandler from 'express-async-handler';
 import cache from '../middleware/cacheMiddleware';
