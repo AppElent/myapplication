@@ -1,5 +1,4 @@
-const forge = require("node-forge");
-
+const forge = require('node-forge');
 
 /* example
 	//encryption
@@ -25,11 +24,11 @@ const forge = require("node-forge");
  * @param string
  * @returns {hashedString}
  */
-exports.hashString = (string) => {
-    var md = forge.md.sha512.create();
+exports.hashString = string => {
+    const md = forge.md.sha512.create();
     md.update(string);
-    return (md.digest().toHex());
-}
+    return md.digest().toHex();
+};
 
 /**
  * Example on how to generate a random AES key and re-use it afterwards
@@ -62,7 +61,7 @@ exports.derivePassword = (password, keySize = 32, iv = false) => {
 
     return {
         key: encryptionKey,
-        iv: encryptionIv
+        iv: encryptionIv,
     };
 };
 
@@ -78,8 +77,6 @@ exports.generateRandomKey = keySize => {
     return forge.util.bytesToHex(key);
 };
 
-
-
 /**
  * Encrypt a string with a pre-defined encryption key
  * @param string
@@ -92,9 +89,9 @@ exports.encryptString = async (string, encryptionKey) => {
     // turn hex-encoded key into bytes
     const encryptionKeyBytes = forge.util.hexToBytes(encryptionKey);
     // create a new aes-cbc cipher with our key
-    const cipher = forge.cipher.createCipher("AES-CBC", encryptionKeyBytes);
+    const cipher = forge.cipher.createCipher('AES-CBC', encryptionKeyBytes);
     // turn our string into a buffer
-    const buffer = forge.util.createBuffer(string, "utf8");
+    const buffer = forge.util.createBuffer(string, 'utf8');
 
     cipher.start({ iv: iv });
     cipher.update(buffer);
@@ -103,7 +100,7 @@ exports.encryptString = async (string, encryptionKey) => {
     return {
         iv: forge.util.bytesToHex(iv),
         key: encryptionKey,
-        encryptedString: cipher.output.toHex()
+        encryptedString: cipher.output.toHex(),
     };
 };
 
@@ -118,26 +115,26 @@ exports.decryptString = async (encryptedString, key, iv) => {
     // get byte data from hex encoded strings
     const encrypedBytes = forge.util.hexToBytes(encryptedString);
     // create a new forge buffer using the bytes
-    const encryptedBuffer = forge.util.createBuffer(encrypedBytes, "raw");
+    const encryptedBuffer = forge.util.createBuffer(encrypedBytes, 'raw');
     const keyBytes = forge.util.hexToBytes(key);
     const ivBytes = forge.util.hexToBytes(iv);
 
     // create a new decipher with our key and iv
-    const decipher = forge.cipher.createDecipher("AES-CBC", keyBytes);
+    const decipher = forge.cipher.createDecipher('AES-CBC', keyBytes);
     decipher.start({ iv: ivBytes });
     decipher.update(encryptedBuffer);
 
     // check the decipher results
     const result = decipher.finish();
     if (!result) {
-        throw new Error("Failed to decrypt string, the encryption string might have changed");
+        throw new Error('Failed to decrypt string, the encryption string might have changed');
     }
     // get the raw bytes from the forge buffer
     const outputBytes = decipher.output.getBytes();
 
     // turn forge bytes into a regular buffer
-    const nodeBuffer = Buffer.from(outputBytes, "binary");
+    const nodeBuffer = Buffer.from(outputBytes, 'binary');
 
     // return the result as an utf8-encoded string
-    return nodeBuffer.toString("utf8");
+    return nodeBuffer.toString('utf8');
 };

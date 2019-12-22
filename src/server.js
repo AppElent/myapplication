@@ -1,25 +1,24 @@
 #!/usr/bin/env node
 require('dotenv').config();
-import '@babel/polyfill'
+import '@babel/polyfill';
 
 const node_env = (process.env.NODE_ENV || 'development').toLowerCase();
 
-console.log('Starting env ' + node_env)
+console.log('Starting env ' + node_env);
 const config = require('../config/database/config')[node_env];
-if(!config){
-  throw "No environment with name " + node_env + ' found';
+if (!config) {
+    throw 'No environment with name ' + node_env + ' found';
 }
 
 process.env.NODE_ENV = node_env;
 
-const http_port = process.env.PORT ? process.env.PORT : (process.env.HTTP_PORT || 3001);
+const http_port = process.env.PORT ? process.env.PORT : process.env.HTTP_PORT || 3001;
 const https_port = process.env.HTTPS_PORT || 3002;
 const http_redirect = node_env === 'production' ? true : false;
 
 console.log('HTTP Poort: ' + http_port);
 console.log('HTTPS Poort: ' + https_port);
 console.log('HTTP redirect: ' + http_redirect);
-
 
 /**
  * Settings
@@ -56,19 +55,19 @@ if(settings === undefined) throw "You have to provide a config."
  * Module dependencies.
  */
 
-var app = require('./app');
-var debug = require('debug')('backend:server');
-var http = require('http');
-var fs = require('fs');
-var https = require('https');
+const app = require('./app');
+const debug = require('debug')('backend:server');
+const http = require('http');
+const fs = require('fs');
+const https = require('https');
 
 /**
  * Get port from environment and store in Express.
- */  
+ */
 
 //var http_port = normalizePort(process.env.PORT || '3001');
-//var https_port    =   process.env.PORT_HTTPS || 3002; 
-var options = {}
+//var https_port    =   process.env.PORT_HTTPS || 3002;
+const options = {};
 /*
 if(settings.load_certs){
   options = {
@@ -78,13 +77,13 @@ if(settings.load_certs){
 }
 */
 
-app.set("port",https_port);
+app.set('port', https_port);
 
 /**
  * Create HTTP server.
  */
 
-var server = https.createServer(options, app);
+const server = https.createServer(options, app);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -99,19 +98,19 @@ server.on('listening', onListening);
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+    const port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -119,27 +118,25 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  var bind = typeof http_port === 'string'
-    ? 'Pipe ' + http_port
-    : 'Port ' + http_port;
+    const bind = typeof http_port === 'string' ? 'Pipe ' + http_port : 'Port ' + http_port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 /**
@@ -147,24 +144,20 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    const addr = server.address();
+    const bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+    debug('Listening on ' + bind);
 }
 
-if(http_redirect) {
-  app.use((req, res, next) => {
-    console.log(req.header);
-    if (req.header('x-forwarded-proto') !== 'https'){
-      
-      res.redirect(`https://${req.header('host')}${req.url}`)
-    }else{
-      next()
-    }
-      
-  })
+if (http_redirect) {
+    app.use((req, res, next) => {
+        console.log(req.header);
+        if (req.header('x-forwarded-proto') !== 'https') {
+            res.redirect(`https://${req.header('host')}${req.url}`);
+        } else {
+            next();
+        }
+    });
 }
 
 app.listen(http_port);
@@ -180,7 +173,3 @@ if(settings.http_redirect){
   app.listen(settings.http_port);
 }
 */
-
-
-
-
