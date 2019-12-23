@@ -1,24 +1,14 @@
-//
-const router = require('express').Router();
-import Enelogic from 'node-enelogic';
+import express from 'express';
+const router = express.Router();
+import Enelogic from 'enelogic';
 
-import { oauthproviders } from '../modules/application_cache';
 import { basicAuthentication } from '../middleware/authentication';
 import cache from '../middleware/cacheMiddleware';
-import Cache from '../modules/Cache';
+import Cache from 'simple-cache-js';
 
 import asyncHandler from 'express-async-handler';
 
 const enelogicCache = new Cache();
-
-const test = async (req, res) => {
-    const config = await db.apisettings.findOne({ where: { user: req.uid, name: 'enelogic' } });
-    console.log(config);
-    console.log(await oauthproviders['enelogic'].formatUrl());
-    //var accessToken = await oauth.retrieveAccessTokenObject(enelogic_oauth, enelogic_store, 'enelogic');
-    const accessTokenObject = await oauthproviders['enelogic'].refresh(config);
-    res.send(accessTokenObject);
-};
 
 const getMeasuringPoints = async (req, res) => {
     if (req.query.access_token === undefined)
@@ -56,7 +46,6 @@ const getYearConsumption = async (req, res) => {
 };
 
 router.get('/data/:period/:start/:end', basicAuthentication, cache(enelogicCache), asyncHandler(getData));
-router.get('/test', basicAuthentication, asyncHandler(test));
 router.get('/measuringpoints', basicAuthentication, asyncHandler(getMeasuringPoints));
 router.get('/consumption', basicAuthentication, asyncHandler(getYearConsumption));
 

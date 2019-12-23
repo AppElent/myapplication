@@ -1,5 +1,4 @@
 import admin, { db } from '../modules/Firebase';
-//import fetch from 'node-fetch';
 
 const checkAuthenticated = async (req, res, options = {}) => {
     //Checken of er een custom token is
@@ -11,7 +10,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
     if (!apimatch && options.token !== undefined) return { result: false, reason: 'No API token given' };
     if (apimatch && options.token) {
         const accessToken = apimatch[1];
-        console.log(accessToken, token, remoteIP, remoteIP.endsWith('192.168.178.1'));
+        console.log(accessToken, remoteIP, remoteIP.endsWith('192.168.178.1'));
         const localaddress = remoteIP.endsWith('192.168.178.1') ? true : false;
         if (localaddress === false) return { result: false, reason: 'No local address' };
         if (accessToken !== token) return { result: false, reason: 'Token doesnt match' };

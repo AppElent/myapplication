@@ -19,7 +19,7 @@ export default class Tado {
     };
 
     getData = async (site, start, end, period) => {
-        const response = await this.fetchSolarEdge(
+        const response = await this.fetchTado(
             this.host +
                 '/site/' +
                 site +
@@ -36,12 +36,12 @@ export default class Tado {
     };
 
     getSiteData = async () => {
-        const response = await this.fetchSolarEdge(this.host + '/sites/list?size=1&api_key=' + this.api_key);
+        const response = await this.fetchTado(this.host + '/sites/list?size=1&api_key=' + this.api_key);
         return response;
     };
 
     getEquipmentData = async site => {
-        const response = await this.fetchSolarEdge(
+        const response = await this.fetchTado(
             this.host + '/equipment/' + site + '/list?size=1&api_key=' + this.api_key,
         );
         return response;

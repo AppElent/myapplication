@@ -1,6 +1,8 @@
-const router = require('express').Router();
+import express from 'express';
+const router = express.Router();
 
-const fetch = require('node-fetch');
+import fetch from 'node-fetch';
+import moment from 'moment';
 
 const darksky_api_key = '09cbbe0257a566a4aa20e1c8e0be4757';
 const darksky_location = '52.21860580000001, 5.280716600000005';

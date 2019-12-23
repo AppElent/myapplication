@@ -43,13 +43,9 @@ export default class Oauth {
         if (this.options.default_scope) tokenConfig['scope'] = this.options.default_scope;
         console.log(tokenConfig);
         // Save the access token
-        try {
-            const result = await this.oauth.authorizationCode.getToken(tokenConfig);
-            const accessToken = this.oauth.accessToken.create(result);
-            return accessToken;
-        } catch (error) {
-            throw error;
-        }
+        const result = await this.oauth.authorizationCode.getToken(tokenConfig);
+        const accessToken = this.oauth.accessToken.create(result);
+        return accessToken;
     }
 
     async refresh(accessToken) {
@@ -63,13 +59,7 @@ export default class Oauth {
         // Check if the token is expired. If expired it is refreshed.
         if (accessTokenObject.expired()) {
             console.log('expired', accessTokenObject);
-            try {
-                accessTokenObject = await accessTokenObject.refresh();
-                //console.log('refreshed', accessTokenObject);
-                //await entry.update({access_token: accessTokenObject.token.access_token, refresh_token: accessTokenObject.token.refresh_token, expires_at: accessTokenObject.token.expires_at})
-            } catch (error) {
-                throw error;
-            }
+            accessTokenObject = await accessTokenObject.refresh();
         }
         return accessTokenObject;
     }

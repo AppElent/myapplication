@@ -3,7 +3,7 @@ const db = require('./models');
 import { basicAuthentication, adminAuthentication } from './middleware/authentication';
 
 import { get, find, list, create, update, destroy } from './modules/SequelizeREST';
-import Cache from './modules/Cache';
+import Cache from 'simple-cache-js';
 
 module.exports = async function(app) {
     //Load all controllers
@@ -19,7 +19,7 @@ module.exports = async function(app) {
     });
 
     //Custom routes
-    app.use('/api/custom', require('./controllers/custom.controller'));
+    app.use('/api/custom', controllers.custom);
     app.get('/api/test', basicAuthentication, (req, res) => {
         res.send({ result: true, asd: false });
     });
@@ -56,23 +56,47 @@ module.exports = async function(app) {
     app.put('/api/demo/:id', basicAuthentication, update(db.demo));
     app.delete('/api/demo/:id', basicAuthentication, destroy(db.demo));
 
+    /*
+    // List all files in a directory in Node.js recursively in a synchronous fashion
+    let startDir = path.join(__dirname, './controllers');
+    const walkSync = function(dir, filelist) {
+        const files = fs.readdirSync(dir);
+        filelist = filelist || [];
+        files.forEach(function(file) {
+            if (fs.statSync(dir + '/' + file).isDirectory()) {
+                filelist = walkSync(dir + '/' + file, filelist);
+            } else {
+                console.log('using ', dir, file, __dirname, dir.replace(startDir, ''));
+                console.log('using2', dir.replace(startDir, '') + '/' + file.replace('.controller.js', ''));
+                console.log('./controllers' + dir.replace(startDir, '') + '/' + file.replace('.js', ''));
+                app.use(
+                    dir.replace(startDir, '') + '/' + file.replace('.controller.js', ''),
+                    require('./controllers' + dir.replace(startDir, '') + '/' + file.replace('.js', '')),
+                );
+            }
+        });
+        return filelist;
+    };
+    console.log(walkSync(startDir));
+    */
+
     //OAuth routes
-    app.use('/api/oauth', require('./controllers/oauth.controller'));
+    app.use('/api/oauth', controllers.oauth);
 
     //Meterstanden bijwerken en Enelogic routes
-    app.use('/api/enelogic', require('./controllers/enelogic.controller'));
+    app.use('/api/enelogic', controllers.enelogic);
 
     //Bunq routes
-    app.use('/api/bunq', require('./controllers/bunq.controller'));
+    app.use('/api/bunq', controllers.bunq);
 
     //SolarEdge
-    app.use('/api/solaredge', require('./controllers/solaredge.controller'));
+    app.use('/api/solaredge', controllers.solaredge);
 
     //Tado
-    app.use('/api/tado', require('./controllers/tado.controller'));
+    //app.use('/api/tado', require('./controllers/tado.controller'));
 
     //DarkSky
-    app.use('/api/darksky', require('./controllers/darksky.controller'));
+    //app.use('/api/darksky', require('./controllers/darksky.controller'));
 
     //env=developer then make every model accessible
     if (process.env.NODE_ENV === 'development') {

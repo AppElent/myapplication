@@ -1,7 +1,6 @@
-import Cache from './Cache';
+import Cache from 'simple-cache-js';
 import BunqJSClient from '@bunq-community/bunq-js-client';
 import JSONFileStore from '@bunq-community/bunq-js-client/dist/Stores/JSONFileStore';
-import Encryption from './Encryption';
 const path = require('path');
 const _ = require('lodash');
 

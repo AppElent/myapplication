@@ -9,7 +9,7 @@ import OAuth from './app/modules/Oauth';
 import { bunq } from './app/modules/Bunq';
 
 //Load firebase
-import firebase, { db as firebaseDB } from './app/modules/Firebase';
+import { db as firebaseDB } from './app/modules/Firebase';
 
 /* Database configuratie */
 const db = require('./app/models');
@@ -20,7 +20,7 @@ db.sequelize.sync({ force: forceUpdate }).then(async () => {
     console.log('Drop and Resync with { force: ' + forceUpdate + ' }');
 
     //laden van de BUNQ clients
-    const bunqclients = (async () => {
+    (async () => {
         //alle clients laden
         const allclients = await db.bunq.findAll();
         if (allclients.length === 0) return;
@@ -43,7 +43,7 @@ db.sequelize.sync({ force: forceUpdate }).then(async () => {
         }
 
         //rest laden
-        const result = await Promise.all(
+        await Promise.all(
             allclients.map(async clientsetting => {
                 console.log('loading client ' + clientsetting.userId);
                 try {
@@ -104,8 +104,8 @@ app.use(function(req, res, next) {
     next();
 });
 app.get('/health-check', (req, res) => res.sendStatus(200)); //certificate route
-app.get('/api/testerror', (req, res) => {
-    const blabla = inci.fact;
+app.get('/api/testerror', () => {
+    inci.fact;
 });
 
 //Swagger documentation
@@ -121,7 +121,7 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
     // set locals, only providing error in development
     res.locals.message = err.message;
     res.locals.error = req.app.get('env') === 'development' ? err : {};

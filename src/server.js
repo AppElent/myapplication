@@ -57,8 +57,6 @@ if(settings === undefined) throw "You have to provide a config."
 
 const app = require('./app');
 const debug = require('debug')('backend:server');
-const http = require('http');
-const fs = require('fs');
 const https = require('https');
 
 /**
@@ -92,26 +90,6 @@ const server = https.createServer(options, app);
 server.listen(https_port);
 server.on('error', onError);
 server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-    const port = parseInt(val, 10);
-
-    if (isNaN(port)) {
-        // named pipe
-        return val;
-    }
-
-    if (port >= 0) {
-        // port number
-        return port;
-    }
-
-    return false;
-}
 
 /**
  * Event listener for HTTP server "error" event.
@@ -161,15 +139,3 @@ if (http_redirect) {
 }
 
 app.listen(http_port);
-
-/*
-// Redirect from http port to https
-if(settings.http_redirect){
-  http.createServer(function (req, res) {
-    res.writeHead(301, { "Location": "https://" + req.headers['host'] + req.url });
-    res.end();
-  }).listen(settings.http_port);
-}else{
-  app.listen(settings.http_port);
-}
-*/

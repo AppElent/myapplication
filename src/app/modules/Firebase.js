@@ -1,7 +1,5 @@
 import * as admin from 'firebase-admin';
 
-//var serviceAccount = require("../../../config/firebase/firebase.json");
-
 admin.initializeApp({
     credential: admin.credential.cert({
         projectId: 'administratie-app',
@@ -21,13 +19,16 @@ export class FirebaseClass {
     }
 
     async get(key) {
-        const data = db.doc(path).get();
-        console.log;
+        console.log(key);
     }
 
-    async set(key, data) {}
+    async set(key, data) {
+        console.log(key, data);
+    }
 
-    async remove(key) {}
+    async remove(key) {
+        console.log(key);
+    }
 }
 
 //auth.getUserByEmail('ericjansen@live.nl').then(user => {console.log(user.toJSON())})

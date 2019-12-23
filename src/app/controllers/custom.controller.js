@@ -1,4 +1,5 @@
-const router = require('express').Router();
+import express from 'express';
+const router = express.Router();
 import asyncHandler from 'express-async-handler';
 import { basicAuthentication } from '../middleware/authentication';
 

@@ -1,10 +1,11 @@
-const router = require('express').Router();
-import SolarEdge from 'node-solaredge';
+import express from 'express';
+const router = express.Router();
+import SolarEdge from 'solaredge';
 import asyncHandler from 'express-async-handler';
 
 import { basicAuthentication } from '../middleware/authentication';
 import cache from '../middleware/cacheMiddleware';
-import Cache from '../modules/Cache';
+import Cache from 'simple-cache-js';
 
 const solarEdgeCache = new Cache();
 

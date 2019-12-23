@@ -1,12 +1,14 @@
-const db = require('../models/index.js');
-const router = require('express').Router();
+import * as db from '../models/index.js';
+import express from 'express';
+const router = express.Router();
 import asyncHandler from 'express-async-handler';
-
-const bunqstate = 'skjdhfkasjhbvckahsdjfhagdbjfhgmnfadnfbsmdafbe';
+import Encryption from 'simple-encrypt-js';
 
 import { oauthproviders } from '../modules/application_cache';
 import { bunq } from '../modules/Bunq';
-import { encryption } from '../modules/Encryption';
+
+const encryption = new Encryption();
+
 import { basicAuthentication } from '../middleware/authentication';
 
 const saveBunqSettings = async (user, authorizationCode, encryptionKey, environment = 'PRODUCTION') => {
@@ -63,7 +65,7 @@ const doRequestSandboxMoney = async uid => {
             'You can only request money on a sandbox environment. Bunq environment is: ' + client.environment,
         );
     const accounts = await client.getAccounts();
-    const request1 = await client.createRequestInquiry(
+    await client.createRequestInquiry(
         { type: 'id', value: accounts[0].id },
         'Gimme money',
         { value: '500', currency: 'EUR' },
@@ -73,7 +75,7 @@ const doRequestSandboxMoney = async uid => {
             name: 'Sugar Daddy',
         },
     );
-    const request2 = await client.createRequestInquiry(
+    await client.createRequestInquiry(
         { type: 'id', value: accounts[0].id },
         'Gimme money',
         { value: '500', currency: 'EUR' },
@@ -83,7 +85,7 @@ const doRequestSandboxMoney = async uid => {
             name: 'Sugar Daddy',
         },
     );
-    const request3 = await client.createRequestInquiry(
+    await client.createRequestInquiry(
         { type: 'id', value: accounts[0].id },
         'Gimme money',
         { value: '500', currency: 'EUR' },
@@ -111,9 +113,9 @@ const createSandboxAPIKey = async (req, res) => {
     await client
         .getBunqJSClient()
         .api.monetaryAccountBank.put(client.getUser().id, accounts[0].id, { description: 'Algemeen' });
-    const account1 = await client.createAccount('Spaarrekening');
-    const account2 = await client.createAccount('Afschrijvingen');
-    const account3 = await client.createAccount('Vrije tijd');
+    await client.createAccount('Spaarrekening');
+    await client.createAccount('Afschrijvingen');
+    await client.createAccount('Vrije tijd');
     return res.send({ success: true, data: { users } });
 };
 

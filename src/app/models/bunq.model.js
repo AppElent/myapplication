@@ -1,4 +1,6 @@
-import { encryption } from '../modules/Encryption';
+//import { encryption } from '../modules/Encryption';
+import Encryption from 'simple-encrypt-js';
+const encryption = new Encryption();
 const key = process.env.SEQUELIZE_ENCRYPTION_KEY;
 
 module.exports = (sequelize, Sequelize) => {
@@ -14,21 +16,21 @@ module.exports = (sequelize, Sequelize) => {
                 set(val) {
                     //const encrypted = encryption.encryptString(val, key);
                     //this.setDataValue('access_token', encrypted.iv + '~' + encrypted.encryptedString);
-                    this.setDataValue('access_token', encryption.setStoredEncryptionValue(val, key));
+                    this.setDataValue('access_token', encryption.getEncryptionString(val, key));
                 },
                 get() {
                     //const val = this.getDataValue('access_token');
                     //return (val === undefined || val === null) ? null : encryption.decryptString(val.split('~')[1], key, val.split('~')[0])
-                    return encryption.getStoredEncryptionValue(this.getDataValue('access_token'), key);
+                    return encryption.getEncryptionValue(this.getDataValue('access_token'), key);
                 },
             },
             encryption_key: {
                 type: Sequelize.STRING(10000),
                 set(val) {
-                    this.setDataValue('encryption_key', encryption.setStoredEncryptionValue(val, key));
+                    this.setDataValue('encryption_key', encryption.getEncryptionString(val, key));
                 },
                 get() {
-                    return encryption.getStoredEncryptionValue(this.getDataValue('encryption_key'), key);
+                    return encryption.getEncryptionValue(this.getDataValue('encryption_key'), key);
                 },
             },
             environment: {

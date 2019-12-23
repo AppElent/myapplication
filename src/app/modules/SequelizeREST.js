@@ -1,6 +1,4 @@
-import fetch from 'node-fetch';
-import moment from 'moment';
-import Cache from './Cache';
+import Cache from 'simple-cache-js';
 const defaultCache = new Cache(60 * 60 * 1);
 
 const getOptions = options => {

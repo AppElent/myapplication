@@ -1,13 +1,12 @@
 import { oauthproviders } from '../modules/application_cache';
-import fetch from 'node-fetch';
-import moment from 'moment';
 import asyncHandler from 'express-async-handler';
 import { basicAuthentication } from '../middleware/authentication';
 import cache from '../middleware/cacheMiddleware';
-import Cache from '../modules/Cache';
+import Cache from 'simple-cache-js';
 const oauthCache = new Cache();
 
-const router = require('express').Router();
+import express from 'express';
+const router = express.Router();
 
 const formatUrl = (req, res) => {
     const oauthobject = oauthproviders[req.params.application];

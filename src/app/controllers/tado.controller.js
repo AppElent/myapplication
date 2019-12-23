@@ -1,6 +1,6 @@
-const router = require('express').Router();
+import express from 'express';
+const router = express.Router();
 
-const fetch = require('node-fetch');
 const fetching = require('../utils/fetching');
 
 const home = '113447';
