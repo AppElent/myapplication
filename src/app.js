@@ -107,6 +107,12 @@ app.get('/health-check', (req, res) => res.sendStatus(200)); //certificate route
 app.get('/api/testerror', (req, res) => {
     const blabla = inci.fact;
 });
+
+//Swagger documentation
+const swaggerUi = require('swagger-ui-express');
+const openApiDocumentation = require('./app/modules/swagger');
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocumentation));
+
 require('./app/routes.js')(app);
 
 // catch 404 and forward to error handler
