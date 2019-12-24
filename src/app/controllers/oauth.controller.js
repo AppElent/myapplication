@@ -1,7 +1,7 @@
 import { oauthproviders } from '../modules/application_cache';
 import asyncHandler from 'express-async-handler';
 import { basicAuthentication } from '../middleware/authentication';
-import cache from '../middleware/cacheMiddleware';
+import cacheMiddleware from 'express-caching-middleware';
 import Cache from 'simple-cache-js';
 const oauthCache = new Cache();
 
@@ -61,7 +61,7 @@ const refresh = async (req, res) => {
     }
 };
 
-router.get('/formatUrl/:application', basicAuthentication, cache(oauthCache), asyncHandler(formatUrl));
+router.get('/formatUrl/:application', basicAuthentication, cacheMiddleware(oauthCache), asyncHandler(formatUrl));
 router.post('/exchange/:application', basicAuthentication, asyncHandler(exchange));
 router.post('/refresh/:application', basicAuthentication, asyncHandler(refresh));
 

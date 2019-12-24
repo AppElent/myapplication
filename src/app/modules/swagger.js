@@ -6,9 +6,9 @@ module.exports = {
         description: 'User management API',
         termsOfService: 'http://api_url/terms/',
         contact: {
-            name: 'Wolox Team',
-            email: 'hello@wolox.co',
-            url: 'https://www.wolox.com.ar/',
+            name: 'App-Elent',
+            email: 'ericjansen@icloud.com',
+            url: 'https://administratie-app.herokuapp.com/',
         },
         license: {
             name: 'Apache 2.0',
@@ -17,15 +17,19 @@ module.exports = {
     },
     servers: [
         {
-            url: 'http://localhost:3000/',
+            url: 'http://localhost:3001/',
             description: 'Local server',
         },
         {
-            url: 'https://api_url_testing',
-            description: 'Testing server',
+            url: 'https://administratie-app-dev.herokuapp.com',
+            description: 'Development server',
         },
         {
-            url: 'https://api_url_production',
+            url: 'https://administratie-app-staging.herokuapp.com',
+            description: 'Staging server',
+        },
+        {
+            url: 'https://administratie-app.herokuapp.com',
             description: 'Production server',
         },
     ],
@@ -36,25 +40,25 @@ module.exports = {
     ],
     tags: [
         {
-            name: 'CRUD operations',
+            name: 'Bunq operations',
+        },
+        {
+            name: 'Event operations',
+        },
+        {
+            name: 'Meterstand operations',
+        },
+        {
+            name: 'User operations',
         },
     ],
     paths: {
         '/users': {
             get: {
-                tags: ['CRUD operations'],
+                tags: ['User operations'],
                 description: 'Get users',
                 operationId: 'getUsers',
                 parameters: [
-                    {
-                        name: 'x-company-id',
-                        in: 'header',
-                        schema: {
-                            $ref: '#/components/schemas/companyId',
-                        },
-                        required: true,
-                        description: 'Company id where the users work',
-                    },
                     {
                         name: 'page',
                         in: 'query',
@@ -103,9 +107,9 @@ module.exports = {
                 },
             },
             post: {
-                tags: ['CRUD operations'],
-                description: 'Create users',
-                operationId: 'createUsers',
+                tags: ['User operations'],
+                description: 'Create user',
+                operationId: 'createUser',
                 parameters: [],
                 requestBody: {
                     content: {

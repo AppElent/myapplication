@@ -1,8 +1,7 @@
-const path = require('path');
-const db = require('./models');
-import { basicAuthentication, adminAuthentication } from './middleware/authentication';
+import db from './models';
+import { basicAuthentication } from './middleware/authentication';
 
-import { get, find, list, create, update, destroy } from './modules/SequelizeREST';
+import { get, find, list, create, update, destroy } from 'express-sequelize-routes';
 import Cache from 'simple-cache-js';
 
 module.exports = async function(app) {

@@ -4,7 +4,7 @@ import SolarEdge from 'solaredge';
 import asyncHandler from 'express-async-handler';
 
 import { basicAuthentication } from '../middleware/authentication';
-import cache from '../middleware/cacheMiddleware';
+import cacheMiddleware from 'express-caching-middleware';
 import Cache from 'simple-cache-js';
 
 const solarEdgeCache = new Cache();
@@ -25,6 +25,7 @@ const getData = async (req, res) => {
 };
 
 const getSiteData = async (req, res) => {
+   console.log(123);
     if (req.query.access_token === undefined)
         return res.send({ success: false, message: 'No query param access_token present' });
     const solaredge = new SolarEdge(req.query.access_token);
@@ -41,8 +42,13 @@ const getEquipmentData = async (req, res) => {
 };
 
 //router.get('/sites/:period/:start/:end', basicAuthentication, cache(enelogicCache), getData);
-router.get('/sites', basicAuthentication, asyncHandler(getSiteData));
+router.get('/sites', basicAuthentication, cacheMiddleware(solarEdgeCache), asyncHandler(getSiteData));
 router.get('/:site/equipment', basicAuthentication, asyncHandler(getEquipmentData));
-router.get('/:site/data/:period/:start/:end', basicAuthentication, cache(solarEdgeCache), asyncHandler(getData));
+router.get(
+    '/:site/data/:period/:start/:end',
+    basicAuthentication,
+    cacheMiddleware(solarEdgeCache),
+    asyncHandler(getData),
+);
 
 module.exports = router;

@@ -13,7 +13,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
         console.log(accessToken, remoteIP, remoteIP.endsWith('192.168.178.1'));
         const localaddress = remoteIP.endsWith('192.168.178.1') ? true : false;
         if (localaddress === false) return { result: false, reason: 'No local address' };
-        if (accessToken !== token) return { result: false, reason: 'Token doesnt match' };
+        if (accessToken !== options.token) return { result: false, reason: 'Token doesnt match' };
         return { result: true, jwt: false };
         //return res.status(401).end();
     }
@@ -25,9 +25,6 @@ const checkAuthenticated = async (req, res, options = {}) => {
         try {
             const decodedToken = await admin.auth().verifyIdToken(firebase_token);
             console.log(decodedToken);
-            //if(decodedToken.uid === 'p1ezZHQBsyWQDYm9BrCm2wlpP1o1'){
-            //decodedToken.uid = "00uaz3xmdoobfWWnY356"
-            //}
             return { result: true, jwt: decodedToken };
         } catch (err) {
             return { result: false, reason: err };
@@ -55,47 +52,7 @@ const checkAuthenticated = async (req, res, options = {}) => {
     } else {
         return { result: false, message: 'No authentication' };
     }
-
-    /*
-	const bearermatch = authHeader.match(/Bearer (.+)/);
-	if (!bearermatch) return {result: false, reason: 'Bearer does not match'}
-	const accessToken = bearermatch[1];
-	try{
-		const jwt = await oktaJwtVerifier.verifyAccessToken(accessToken, 'api://default');
-		try{
-		    if(options.group !== undefined){
-			const groupMember = await isMemberOfGroup(req, options.group);
-			if(groupMember === false){
-			  return {result: false, reason: 'Not member of specified group (' + options.group + ')'}
-			}
-		    }
-		}catch(grouperror){
-		    console.log(grouperror);
-		    return {result: false, reason: 'Not member of specified group (' + options.group + ')'}
-		}
-		return {result: true, jwt: jwt}
-	}catch(error){
-		console.log(error);
-		return {result: false, reason: 'Accesstoken incorrect'}
-	}
-	*/
 };
-/*
-module.exports.epilogueAuthenticationRequired = async (req, res, context, options) => {
-    const authenticated = await checkAuthenticated(req, res, options);
-    console.log('Authentication result ' + authenticated.result);
-    if(authenticated.result === true){
-	    req.jwt = authenticated.jwt;
-	    if(authenticated.jwt !== false){
-	      req.uid = req.jwt.claims.uid;
-	    }
-	    
-	    return context.continue;
-    }
-    console.log("Error = " + authenticated.reason);
-    return context.stop;
-}
-* */
 
 const authenticationRequired = options => (req, res, next) => {
     checkAuthenticated(req, res, options).then(authenticated => {

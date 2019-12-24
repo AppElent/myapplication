@@ -3,7 +3,7 @@ const router = express.Router();
 import Enelogic from 'enelogic';
 
 import { basicAuthentication } from '../middleware/authentication';
-import cache from '../middleware/cacheMiddleware';
+import cacheMiddleware from 'express-caching-middleware';
 import Cache from 'simple-cache-js';
 
 import asyncHandler from 'express-async-handler';
@@ -45,7 +45,7 @@ const getYearConsumption = async (req, res) => {
     return res.send(data);
 };
 
-router.get('/data/:period/:start/:end', basicAuthentication, cache(enelogicCache), asyncHandler(getData));
+router.get('/data/:period/:start/:end', basicAuthentication, cacheMiddleware(enelogicCache), asyncHandler(getData));
 router.get('/measuringpoints', basicAuthentication, asyncHandler(getMeasuringPoints));
 router.get('/consumption', basicAuthentication, asyncHandler(getYearConsumption));
 
