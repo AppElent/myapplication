@@ -10,7 +10,7 @@
   "env": {
     "SEQUELIZE_ENCRYPTION_KEY": {
       "required": true,
-      "description": "Random encryption key. Please make your own!",
+      "description": "Random encryption key.",
       "generator": "secret"
     },
     "SETTING": {
@@ -27,6 +27,7 @@
     },
     "REACT_APP_FIRESTORE_ENVIRONMENT": {
       "required": true,
+      "description": "This var is used for distinguising different environments in the Firestore database.",
       "value": "production"
     }
     
