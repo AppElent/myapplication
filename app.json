@@ -8,18 +8,28 @@
     }
   ],
   "env": {
-    "APP_ROOT": {
-      "required": true
-    },
-    "OKTA_API_KEY": {
-      "required": true
-    },
     "SEQUELIZE_ENCRYPTION_KEY": {
-      "required": true
+      "required": true,
+      "description": "Random encryption key. Please make your own!",
+      "generator": "secret"
     },
     "SETTING": {
-      "required": true
+      "required": true,
+      "value": "HEROKU"
+    },
+    "FIREBASE_CLIENT_EMAIL": {
+      "required": true,
+      "description": "Firebase client e-mail"
+    },
+    "FIREBASE_PRIVATE_KEY": {
+      "required": true,
+      "description": "Firebase Private key (please make sure to include the ---BEGIN PRIVATE KEY--- and --- END PRIVATE KEY---)"
+    },
+    "REACT_APP_FIRESTORE_ENVIRONMENT": {
+      "required": true,
+      "value": "production"
     }
+    
   },
   "formation": {
     "web": {
