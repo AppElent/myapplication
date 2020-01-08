@@ -26,7 +26,9 @@
       "quantity": 1
     }
   },
-  "name": "myapplication", 
+  "name": "administratie-app", 
+  "description": "Administratie App",
+  "repositiry": "https://github.com/ericjansen1988/myapplication",
   "scripts": {
   },
   "stack": "heroku-18"
