@@ -33,7 +33,7 @@
     "@material-ui/pickers": "^3.2.8",
     "@material-ui/styles": "^4.6.0",
     "ansi-styles": "^3.2.1",
-    "chart.js": "^2.9.3",
+    "chart.js": "^2.9.4",
     "clsx": "^1.0.4",
     "firebase": "^6.6.2",
     "history": "^4.10.1",
